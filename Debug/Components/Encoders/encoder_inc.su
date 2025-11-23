@@ -1,0 +1,6 @@
+../Components/Encoders/encoder_inc.c:22:6:DriveEnc_InitAll	16	static
+../Components/Encoders/encoder_inc.c:38:6:DriveEnc_UpdateAll	24	static
+../Components/Encoders/encoder_inc.c:54:9:DriveEnc_GetTicks	16	static
+../Components/Encoders/encoder_inc.c:60:7:DriveEnc_GetRevs	16	static
+../Components/Encoders/encoder_inc.c:68:6:DriveEnc_Debug_Print_One	48	static
+../Components/Encoders/encoder_inc.c:84:6:DriveEnc_Debug_Print_All	16	static

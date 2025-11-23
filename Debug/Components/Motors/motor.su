@@ -1,0 +1,6 @@
+../Components/Motors/motor.c:21:6:Motor_PWM_StartALL	8	static
+../Components/Motors/motor.c:34:6:Motor_set	32	static
+../Components/Motors/motor.c:65:6:Motors_Drive_All	24	static
+../Components/Motors/motor.c:73:6:Motors_Steer_All	24	static
+../Components/Motors/motor.c:81:6:Robot_Move	16	static
+../Components/Motors/motor.c:86:6:Robot_Steer	16	static

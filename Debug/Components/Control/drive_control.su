@@ -1,0 +1,5 @@
+../Components/Control/drive_control.c:55:6:Drive_InitAll	16	static
+../Components/Control/drive_control.c:67:6:Drive_StopAll	16	static
+../Components/Control/drive_control.c:79:6:Drive_UpdateTargetsWithRamp	48	static
+../Components/Control/drive_control.c:125:6:Drive_UpdateAll	56	static
+../Components/Control/drive_control.c:198:6:Process_UART_TestDrive	16	static

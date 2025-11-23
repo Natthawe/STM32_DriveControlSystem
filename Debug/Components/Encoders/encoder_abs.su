@@ -1,0 +1,7 @@
+../Components/Encoders/encoder_abs.c:36:6:ENC_StartALL	8	static
+../Components/Encoders/encoder_abs.c:45:10:ENC_ReadRaw_ByIndex	32	static,ignoring_inline_asm
+../Components/Encoders/encoder_abs.c:80:7:ENC_TicksToDeg	16	static
+../Components/Encoders/encoder_abs.c:87:9:ENC10_Diff	24	static
+../Components/Encoders/encoder_abs.c:100:6:Read_ENC_INDEX	136	static
+../Components/Encoders/encoder_abs.c:116:7:ENC_ReadDeg_ByIndex	24	static
+../Components/Encoders/encoder_abs.c:123:6:ENC_Debug_Print_One	40	static
