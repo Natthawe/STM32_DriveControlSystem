@@ -1,5 +1,5 @@
 Components/Control/steer_control.o: ../Components/Control/steer_control.c \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_abs.h \
+ /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/steer_control.h \
  ../Core/Inc/main.h ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h \
  ../Core/Inc/stm32f7xx_hal_conf.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_rcc.h \
@@ -35,8 +35,11 @@ Components/Control/steer_control.o: ../Components/Control/steer_control.c \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart_ex.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_ll_usb.h \
- ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd_ex.h
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_abs.h:
+ ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd_ex.h \
+ /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/pid_ctrl.h \
+ /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Motors/motor.h \
+ /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_abs.h
+/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/steer_control.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h:
 ../Core/Inc/stm32f7xx_hal_conf.h:
@@ -74,3 +77,6 @@ Components/Control/steer_control.o: ../Components/Control/steer_control.c \
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_ll_usb.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd_ex.h:
+/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/pid_ctrl.h:
+/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Motors/motor.h:
+/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_abs.h:

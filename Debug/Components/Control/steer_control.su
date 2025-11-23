@@ -1,0 +1,10 @@
+../Components/Control/steer_control.c:65:10:wrap_ticks	16	static
+../Components/Control/steer_control.c:73:6:Steer_SetTargetAngleDeg	32	static
+../Components/Control/steer_control.c:88:6:SteerMotor_Jog	24	static
+../Components/Control/steer_control.c:96:6:Steer_PrintCurrentZeroConfig	192	static
+../Components/Control/steer_control.c:144:6:Steer_SetCmdTargetDeg	16	static
+../Components/Control/steer_control.c:153:6:Steer_InitTargetsToZero	8	static
+../Components/Control/steer_control.c:161:6:Steer_UpdateTargetWithRamp	24	static
+../Components/Control/steer_control.c:186:6:Steer_UpdateAll	56	static
+../Components/Control/steer_control.c:267:6:Steer_PrintModeHelp	16	static
+../Components/Control/steer_control.c:288:6:Steer_JogCalib_HandleUart	56	static
