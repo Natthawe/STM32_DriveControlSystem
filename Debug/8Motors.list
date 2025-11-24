@@ -31,25 +31,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  13 .ARM.attributes 00000030  00000000  00000000  0001d620  2**0
                   CONTENTS, READONLY
- 14 .debug_info   0002fca0  00000000  00000000  0001d650  2**0
+ 14 .debug_info   0002fdbc  00000000  00000000  0001d650  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_abbrev 000073f8  00000000  00000000  0004d2f0  2**0
+ 15 .debug_abbrev 00007515  00000000  00000000  0004d40c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_aranges 000024a8  00000000  00000000  000546e8  2**3
+ 16 .debug_aranges 000024c0  00000000  00000000  00054928  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_rnglists 00001d31  00000000  00000000  00056b90  2**0
+ 17 .debug_rnglists 00001d3e  00000000  00000000  00056de8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_macro  000367be  00000000  00000000  000588c1  2**0
+ 18 .debug_macro  00036b0d  00000000  00000000  00058b26  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_line   00038213  00000000  00000000  0008f07f  2**0
+ 19 .debug_line   00038baf  00000000  00000000  0008f633  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .debug_str    00111222  00000000  00000000  000c7292  2**0
+ 20 .debug_str    0011124e  00000000  00000000  000c81e2  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .comment      00000043  00000000  00000000  001d84b4  2**0
+ 21 .comment      00000043  00000000  00000000  001d9430  2**0
                   CONTENTS, READONLY
- 22 .debug_frame  0000a940  00000000  00000000  001d84f8  2**2
+ 22 .debug_frame  0000a950  00000000  00000000  001d9474  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 23 .debug_line_str 00000052  00000000  00000000  001e2e38  2**0
+ 23 .debug_line_str 00000052  00000000  00000000  001e3dc4  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1325,7 +1325,6 @@ int UDP_Ctrl_Init(uint16_t port, UdpTwistHandler_t handler)
  8000f94:	88fb      	ldrh	r3, [r7, #6]
  8000f96:	8013      	strh	r3, [r2, #0]
 
-    // ถ้ามี pcb เดิมอยู่แล้ว ให้ลบทิ้งก่อน
     if (g_udp_ctrl_pcb != NULL) {
  8000f98:	4b27      	ldr	r3, [pc, #156]	@ (8001038 <UDP_Ctrl_Init+0xb8>)
  8000f9a:	681b      	ldr	r3, [r3, #0]
@@ -3978,214 +3977,220 @@ void Motor_set(uint8_t idx, MotorDir_t dir, float duty)
  800240e:	bf00      	nop
  8002410:	2000022c 	.word	0x2000022c
 
-08002414 <_write>:
+08002414 <Robot_ApplyTwist>:
+    }
+}
+
+// /cmd_vel -> linear_x [m/s], angular_z [rad/s] -> g_cmd_target_tps + Steer_SetCmdTargetDeg()
+void Robot_ApplyTwist(float linear_x, float angular_z)
+{
+ 8002414:	b580      	push	{r7, lr}
+ 8002416:	b088      	sub	sp, #32
+ 8002418:	af00      	add	r7, sp, #0
+ 800241a:	ed87 0a01 	vstr	s0, [r7, #4]
+ 800241e:	edc7 0a00 	vstr	s1, [r7]
+    // จำเวลาคำสั่งล่าสุด
+    g_last_cmd_ms = HAL_GetTick();
+ 8002422:	f002 f8a7 	bl	8004574 <HAL_GetTick>
+ 8002426:	4603      	mov	r3, r0
+ 8002428:	4a55      	ldr	r2, [pc, #340]	@ (8002580 <Robot_ApplyTwist+0x16c>)
+ 800242a:	6013      	str	r3, [r2, #0]
+
+    // --- จำกัด linear_x ไม่ให้เกิน MAX_CMD_LINEAR ---
+    if (linear_x >  MAX_CMD_LINEAR) linear_x =  MAX_CMD_LINEAR;
+ 800242c:	edd7 7a01 	vldr	s15, [r7, #4]
+ 8002430:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
+ 8002434:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8002438:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800243c:	dd02      	ble.n	8002444 <Robot_ApplyTwist+0x30>
+ 800243e:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
+ 8002442:	607b      	str	r3, [r7, #4]
+    if (linear_x < -MAX_CMD_LINEAR) linear_x = -MAX_CMD_LINEAR;
+ 8002444:	edd7 7a01 	vldr	s15, [r7, #4]
+ 8002448:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
+ 800244c:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8002450:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8002454:	d501      	bpl.n	800245a <Robot_ApplyTwist+0x46>
+ 8002456:	4b4b      	ldr	r3, [pc, #300]	@ (8002584 <Robot_ApplyTwist+0x170>)
+ 8002458:	607b      	str	r3, [r7, #4]
+
+    // ใช้ lin_norm เพื่อ deadzone
+    float lin_norm = linear_x / MAX_CMD_LINEAR;   // -1..+1
+ 800245a:	687b      	ldr	r3, [r7, #4]
+ 800245c:	61fb      	str	r3, [r7, #28]
+    if (lin_norm >  1.0f) lin_norm =  1.0f;
+ 800245e:	edd7 7a07 	vldr	s15, [r7, #28]
+ 8002462:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
+ 8002466:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 800246a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800246e:	dd02      	ble.n	8002476 <Robot_ApplyTwist+0x62>
+ 8002470:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
+ 8002474:	61fb      	str	r3, [r7, #28]
+    if (lin_norm < -1.0f) lin_norm = -1.0f;
+ 8002476:	edd7 7a07 	vldr	s15, [r7, #28]
+ 800247a:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
+ 800247e:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8002482:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8002486:	d501      	bpl.n	800248c <Robot_ApplyTwist+0x78>
+ 8002488:	4b3e      	ldr	r3, [pc, #248]	@ (8002584 <Robot_ApplyTwist+0x170>)
+ 800248a:	61fb      	str	r3, [r7, #28]
+
+    if (fabsf(lin_norm) < LIN_DEADZONE) {
+ 800248c:	edd7 7a07 	vldr	s15, [r7, #28]
+ 8002490:	eef0 7ae7 	vabs.f32	s15, s15
+ 8002494:	ed9f 7a3c 	vldr	s14, [pc, #240]	@ 8002588 <Robot_ApplyTwist+0x174>
+ 8002498:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 800249c:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80024a0:	d502      	bpl.n	80024a8 <Robot_ApplyTwist+0x94>
+        lin_norm = 0.0f;
+ 80024a2:	f04f 0300 	mov.w	r3, #0
+ 80024a6:	61fb      	str	r3, [r7, #28]
+    }
+
+    // linear_x_cmd หลัง deadzone แล้ว (m/s)
+    float linear_x_cmd = lin_norm * MAX_CMD_LINEAR;
+ 80024a8:	69fb      	ldr	r3, [r7, #28]
+ 80024aa:	617b      	str	r3, [r7, #20]
+
+    // --- map เป็น target_tps_common ด้วย geometry ---
+    float target_tps_cmd = linear_x_cmd * TICKS_PER_METER;
+ 80024ac:	edd7 7a05 	vldr	s15, [r7, #20]
+ 80024b0:	ed9f 7a36 	vldr	s14, [pc, #216]	@ 800258c <Robot_ApplyTwist+0x178>
+ 80024b4:	ee67 7a87 	vmul.f32	s15, s15, s14
+ 80024b8:	edc7 7a04 	vstr	s15, [r7, #16]
+
+    // เก็บเป็นคำสั่งหลักในหน่วย tps
+    g_cmd_target_tps = target_tps_cmd;
+ 80024bc:	4a34      	ldr	r2, [pc, #208]	@ (8002590 <Robot_ApplyTwist+0x17c>)
+ 80024be:	693b      	ldr	r3, [r7, #16]
+ 80024c0:	6013      	str	r3, [r2, #0]
+
+    // เก็บ dir + speed_norm ไว้ debug
+    if (lin_norm > 0.0f)      g_cmd_dir_sign = +1.0f;
+ 80024c2:	edd7 7a07 	vldr	s15, [r7, #28]
+ 80024c6:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 80024ca:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80024ce:	dd04      	ble.n	80024da <Robot_ApplyTwist+0xc6>
+ 80024d0:	4b30      	ldr	r3, [pc, #192]	@ (8002594 <Robot_ApplyTwist+0x180>)
+ 80024d2:	f04f 527e 	mov.w	r2, #1065353216	@ 0x3f800000
+ 80024d6:	601a      	str	r2, [r3, #0]
+ 80024d8:	e00e      	b.n	80024f8 <Robot_ApplyTwist+0xe4>
+    else if (lin_norm < 0.0f) g_cmd_dir_sign = -1.0f;
+ 80024da:	edd7 7a07 	vldr	s15, [r7, #28]
+ 80024de:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 80024e2:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80024e6:	d503      	bpl.n	80024f0 <Robot_ApplyTwist+0xdc>
+ 80024e8:	4b2a      	ldr	r3, [pc, #168]	@ (8002594 <Robot_ApplyTwist+0x180>)
+ 80024ea:	4a26      	ldr	r2, [pc, #152]	@ (8002584 <Robot_ApplyTwist+0x170>)
+ 80024ec:	601a      	str	r2, [r3, #0]
+ 80024ee:	e003      	b.n	80024f8 <Robot_ApplyTwist+0xe4>
+    else                      g_cmd_dir_sign = 0.0f;
+ 80024f0:	4b28      	ldr	r3, [pc, #160]	@ (8002594 <Robot_ApplyTwist+0x180>)
+ 80024f2:	f04f 0200 	mov.w	r2, #0
+ 80024f6:	601a      	str	r2, [r3, #0]
+
+    g_cmd_speed_norm = fabsf(lin_norm);   // 0..1
+ 80024f8:	edd7 7a07 	vldr	s15, [r7, #28]
+ 80024fc:	eef0 7ae7 	vabs.f32	s15, s15
+ 8002500:	4b25      	ldr	r3, [pc, #148]	@ (8002598 <Robot_ApplyTwist+0x184>)
+ 8002502:	edc3 7a00 	vstr	s15, [r3]
+
+    // --- มุมเลี้ยวจาก angular_z ---
+    float ang_norm = angular_z / MAX_CMD_ANGULAR;  // -1..+1
+ 8002506:	ed97 7a00 	vldr	s14, [r7]
+ 800250a:	eddf 6a24 	vldr	s13, [pc, #144]	@ 800259c <Robot_ApplyTwist+0x188>
+ 800250e:	eec7 7a26 	vdiv.f32	s15, s14, s13
+ 8002512:	edc7 7a06 	vstr	s15, [r7, #24]
+    if (ang_norm >  1.0f) ang_norm =  1.0f;
+ 8002516:	edd7 7a06 	vldr	s15, [r7, #24]
+ 800251a:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
+ 800251e:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8002522:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8002526:	dd02      	ble.n	800252e <Robot_ApplyTwist+0x11a>
+ 8002528:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
+ 800252c:	61bb      	str	r3, [r7, #24]
+    if (ang_norm < -1.0f) ang_norm = -1.0f;
+ 800252e:	edd7 7a06 	vldr	s15, [r7, #24]
+ 8002532:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
+ 8002536:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 800253a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800253e:	d501      	bpl.n	8002544 <Robot_ApplyTwist+0x130>
+ 8002540:	4b10      	ldr	r3, [pc, #64]	@ (8002584 <Robot_ApplyTwist+0x170>)
+ 8002542:	61bb      	str	r3, [r7, #24]
+    if (fabsf(ang_norm) < ANG_DEADZONE) ang_norm = 0.0f;
+ 8002544:	edd7 7a06 	vldr	s15, [r7, #24]
+ 8002548:	eef0 7ae7 	vabs.f32	s15, s15
+ 800254c:	ed9f 7a0e 	vldr	s14, [pc, #56]	@ 8002588 <Robot_ApplyTwist+0x174>
+ 8002550:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8002554:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8002558:	d502      	bpl.n	8002560 <Robot_ApplyTwist+0x14c>
+ 800255a:	f04f 0300 	mov.w	r3, #0
+ 800255e:	61bb      	str	r3, [r7, #24]
+
+    // map -> มุมเลี้ยว +-STEER_MAX_DEG
+    float target_deg = ang_norm * STEER_MAX_DEG;
+ 8002560:	edd7 7a06 	vldr	s15, [r7, #24]
+ 8002564:	ed9f 7a0e 	vldr	s14, [pc, #56]	@ 80025a0 <Robot_ApplyTwist+0x18c>
+ 8002568:	ee67 7a87 	vmul.f32	s15, s15, s14
+ 800256c:	edc7 7a03 	vstr	s15, [r7, #12]
+
+    // ส่งเป้ามุมไปให้ steer module จัดการ ramp เอง
+    Steer_SetCmdTargetDeg(target_deg);
+ 8002570:	ed97 0a03 	vldr	s0, [r7, #12]
+ 8002574:	f7ff f97e 	bl	8001874 <Steer_SetCmdTargetDeg>
+
+//    printf("Twist: lin=%.2f m/s (tgt=%.0f tps), ang=%.2f rad/s -> dir=%.0f, speed_norm=%.2f, deg=%.1f\r\n",
+//           linear_x_cmd, target_tps_cmd, angular_z,
+//           g_cmd_dir_sign, g_cmd_speed_norm, target_deg);
+}
+ 8002578:	bf00      	nop
+ 800257a:	3720      	adds	r7, #32
+ 800257c:	46bd      	mov	sp, r7
+ 800257e:	bd80      	pop	{r7, pc}
+ 8002580:	2000101c 	.word	0x2000101c
+ 8002584:	bf800000 	.word	0xbf800000
+ 8002588:	3ca3d70a 	.word	0x3ca3d70a
+ 800258c:	449ada7c 	.word	0x449ada7c
+ 8002590:	20001014 	.word	0x20001014
+ 8002594:	20001008 	.word	0x20001008
+ 8002598:	2000100c 	.word	0x2000100c
+ 800259c:	3f333333 	.word	0x3f333333
+ 80025a0:	42200000 	.word	0x42200000
+
+080025a4 <_write>:
 
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
 int _write(int file, char *ptr, int len)
 {
- 8002414:	b580      	push	{r7, lr}
- 8002416:	b084      	sub	sp, #16
- 8002418:	af00      	add	r7, sp, #0
- 800241a:	60f8      	str	r0, [r7, #12]
- 800241c:	60b9      	str	r1, [r7, #8]
- 800241e:	607a      	str	r2, [r7, #4]
+ 80025a4:	b580      	push	{r7, lr}
+ 80025a6:	b084      	sub	sp, #16
+ 80025a8:	af00      	add	r7, sp, #0
+ 80025aa:	60f8      	str	r0, [r7, #12]
+ 80025ac:	60b9      	str	r1, [r7, #8]
+ 80025ae:	607a      	str	r2, [r7, #4]
   HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, HAL_MAX_DELAY);
- 8002420:	687b      	ldr	r3, [r7, #4]
- 8002422:	b29a      	uxth	r2, r3
- 8002424:	f04f 33ff 	mov.w	r3, #4294967295	@ 0xffffffff
- 8002428:	68b9      	ldr	r1, [r7, #8]
- 800242a:	4804      	ldr	r0, [pc, #16]	@ (800243c <_write+0x28>)
- 800242c:	f007 f988 	bl	8009740 <HAL_UART_Transmit>
+ 80025b0:	687b      	ldr	r3, [r7, #4]
+ 80025b2:	b29a      	uxth	r2, r3
+ 80025b4:	f04f 33ff 	mov.w	r3, #4294967295	@ 0xffffffff
+ 80025b8:	68b9      	ldr	r1, [r7, #8]
+ 80025ba:	4804      	ldr	r0, [pc, #16]	@ (80025cc <_write+0x28>)
+ 80025bc:	f007 f8c0 	bl	8009740 <HAL_UART_Transmit>
   return len;
- 8002430:	687b      	ldr	r3, [r7, #4]
+ 80025c0:	687b      	ldr	r3, [r7, #4]
 }
- 8002432:	4618      	mov	r0, r3
- 8002434:	3710      	adds	r7, #16
- 8002436:	46bd      	mov	sp, r7
- 8002438:	bd80      	pop	{r7, pc}
- 800243a:	bf00      	nop
- 800243c:	20000aa0 	.word	0x20000aa0
-
-08002440 <Robot_ApplyTwist>:
-
-static uint32_t g_last_cmd_ms = 0;
-#define CMD_TIMEOUT_MS   500U   // ms
-
-static void Robot_ApplyTwist(float linear_x, float angular_z)
-{
- 8002440:	b580      	push	{r7, lr}
- 8002442:	b088      	sub	sp, #32
- 8002444:	af00      	add	r7, sp, #0
- 8002446:	ed87 0a01 	vstr	s0, [r7, #4]
- 800244a:	edc7 0a00 	vstr	s1, [r7]
-    g_last_cmd_ms = HAL_GetTick();
- 800244e:	f002 f891 	bl	8004574 <HAL_GetTick>
- 8002452:	4603      	mov	r3, r0
- 8002454:	4a55      	ldr	r2, [pc, #340]	@ (80025ac <Robot_ApplyTwist+0x16c>)
- 8002456:	6013      	str	r3, [r2, #0]
-
-    // --- 1) จำกัด linear_x ไม่ให้เกิน MAX_CMD_LINEAR ---
-    if (linear_x >  MAX_CMD_LINEAR) linear_x =  MAX_CMD_LINEAR;
- 8002458:	edd7 7a01 	vldr	s15, [r7, #4]
- 800245c:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
- 8002460:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8002464:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002468:	dd02      	ble.n	8002470 <Robot_ApplyTwist+0x30>
- 800246a:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
- 800246e:	607b      	str	r3, [r7, #4]
-    if (linear_x < -MAX_CMD_LINEAR) linear_x = -MAX_CMD_LINEAR;
- 8002470:	edd7 7a01 	vldr	s15, [r7, #4]
- 8002474:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
- 8002478:	eef4 7ac7 	vcmpe.f32	s15, s14
- 800247c:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002480:	d501      	bpl.n	8002486 <Robot_ApplyTwist+0x46>
- 8002482:	4b4b      	ldr	r3, [pc, #300]	@ (80025b0 <Robot_ApplyTwist+0x170>)
- 8002484:	607b      	str	r3, [r7, #4]
-
-    // ใช้ lin_norm เพื่อ deadzone
-    float lin_norm = linear_x / MAX_CMD_LINEAR;   // -1..+1
- 8002486:	687b      	ldr	r3, [r7, #4]
- 8002488:	61fb      	str	r3, [r7, #28]
-    if (lin_norm >  1.0f) lin_norm =  1.0f;
- 800248a:	edd7 7a07 	vldr	s15, [r7, #28]
- 800248e:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
- 8002492:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8002496:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 800249a:	dd02      	ble.n	80024a2 <Robot_ApplyTwist+0x62>
- 800249c:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
- 80024a0:	61fb      	str	r3, [r7, #28]
-    if (lin_norm < -1.0f) lin_norm = -1.0f;
- 80024a2:	edd7 7a07 	vldr	s15, [r7, #28]
- 80024a6:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
- 80024aa:	eef4 7ac7 	vcmpe.f32	s15, s14
- 80024ae:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80024b2:	d501      	bpl.n	80024b8 <Robot_ApplyTwist+0x78>
- 80024b4:	4b3e      	ldr	r3, [pc, #248]	@ (80025b0 <Robot_ApplyTwist+0x170>)
- 80024b6:	61fb      	str	r3, [r7, #28]
-
-    if (fabsf(lin_norm) < LIN_DEADZONE) {
- 80024b8:	edd7 7a07 	vldr	s15, [r7, #28]
- 80024bc:	eef0 7ae7 	vabs.f32	s15, s15
- 80024c0:	ed9f 7a3c 	vldr	s14, [pc, #240]	@ 80025b4 <Robot_ApplyTwist+0x174>
- 80024c4:	eef4 7ac7 	vcmpe.f32	s15, s14
- 80024c8:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80024cc:	d502      	bpl.n	80024d4 <Robot_ApplyTwist+0x94>
-        lin_norm = 0.0f;
- 80024ce:	f04f 0300 	mov.w	r3, #0
- 80024d2:	61fb      	str	r3, [r7, #28]
-    }
-
-    // linear_x_cmd หลัง deadzone แล้ว (m/s)
-    float linear_x_cmd = lin_norm * MAX_CMD_LINEAR;
- 80024d4:	69fb      	ldr	r3, [r7, #28]
- 80024d6:	617b      	str	r3, [r7, #20]
-
-    // --- 2) map เป็น target_tps_common ด้วย geometry ---
-    // TICKS_PER_METER ~ 1239 ticks/m
-    float target_tps_cmd = linear_x_cmd * TICKS_PER_METER;
- 80024d8:	edd7 7a05 	vldr	s15, [r7, #20]
- 80024dc:	ed9f 7a36 	vldr	s14, [pc, #216]	@ 80025b8 <Robot_ApplyTwist+0x178>
- 80024e0:	ee67 7a87 	vmul.f32	s15, s15, s14
- 80024e4:	edc7 7a04 	vstr	s15, [r7, #16]
-
-    // เก็บเป็นคำสั่งหลักในหน่วย tps
-    g_cmd_target_tps = target_tps_cmd;
- 80024e8:	4a34      	ldr	r2, [pc, #208]	@ (80025bc <Robot_ApplyTwist+0x17c>)
- 80024ea:	693b      	ldr	r3, [r7, #16]
- 80024ec:	6013      	str	r3, [r2, #0]
-
-    // เก็บ dir + speed_norm ไว้ debug ถ้าอยากใช้
-    if (lin_norm > 0.0f)      g_cmd_dir_sign = +1.0f;
- 80024ee:	edd7 7a07 	vldr	s15, [r7, #28]
- 80024f2:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 80024f6:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80024fa:	dd04      	ble.n	8002506 <Robot_ApplyTwist+0xc6>
- 80024fc:	4b30      	ldr	r3, [pc, #192]	@ (80025c0 <Robot_ApplyTwist+0x180>)
- 80024fe:	f04f 527e 	mov.w	r2, #1065353216	@ 0x3f800000
- 8002502:	601a      	str	r2, [r3, #0]
- 8002504:	e00e      	b.n	8002524 <Robot_ApplyTwist+0xe4>
-    else if (lin_norm < 0.0f) g_cmd_dir_sign = -1.0f;
- 8002506:	edd7 7a07 	vldr	s15, [r7, #28]
- 800250a:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 800250e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002512:	d503      	bpl.n	800251c <Robot_ApplyTwist+0xdc>
- 8002514:	4b2a      	ldr	r3, [pc, #168]	@ (80025c0 <Robot_ApplyTwist+0x180>)
- 8002516:	4a26      	ldr	r2, [pc, #152]	@ (80025b0 <Robot_ApplyTwist+0x170>)
- 8002518:	601a      	str	r2, [r3, #0]
- 800251a:	e003      	b.n	8002524 <Robot_ApplyTwist+0xe4>
-    else                      g_cmd_dir_sign = 0.0f;
- 800251c:	4b28      	ldr	r3, [pc, #160]	@ (80025c0 <Robot_ApplyTwist+0x180>)
- 800251e:	f04f 0200 	mov.w	r2, #0
- 8002522:	601a      	str	r2, [r3, #0]
-    g_cmd_speed_norm = fabsf(lin_norm);   // 0..1
- 8002524:	edd7 7a07 	vldr	s15, [r7, #28]
- 8002528:	eef0 7ae7 	vabs.f32	s15, s15
- 800252c:	4b25      	ldr	r3, [pc, #148]	@ (80025c4 <Robot_ApplyTwist+0x184>)
- 800252e:	edc3 7a00 	vstr	s15, [r3]
-
-    // --- 3) มุมเลี้ยวจาก angular_z ---
-    float ang_norm = angular_z / MAX_CMD_ANGULAR;  // -1..+1
- 8002532:	ed97 7a00 	vldr	s14, [r7]
- 8002536:	eddf 6a24 	vldr	s13, [pc, #144]	@ 80025c8 <Robot_ApplyTwist+0x188>
- 800253a:	eec7 7a26 	vdiv.f32	s15, s14, s13
- 800253e:	edc7 7a06 	vstr	s15, [r7, #24]
-    if (ang_norm >  1.0f) ang_norm =  1.0f;
- 8002542:	edd7 7a06 	vldr	s15, [r7, #24]
- 8002546:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
- 800254a:	eef4 7ac7 	vcmpe.f32	s15, s14
- 800254e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002552:	dd02      	ble.n	800255a <Robot_ApplyTwist+0x11a>
- 8002554:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
- 8002558:	61bb      	str	r3, [r7, #24]
-    if (ang_norm < -1.0f) ang_norm = -1.0f;
- 800255a:	edd7 7a06 	vldr	s15, [r7, #24]
- 800255e:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
- 8002562:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8002566:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 800256a:	d501      	bpl.n	8002570 <Robot_ApplyTwist+0x130>
- 800256c:	4b10      	ldr	r3, [pc, #64]	@ (80025b0 <Robot_ApplyTwist+0x170>)
- 800256e:	61bb      	str	r3, [r7, #24]
-    if (fabsf(ang_norm) < ANG_DEADZONE) ang_norm = 0.0f;
- 8002570:	edd7 7a06 	vldr	s15, [r7, #24]
- 8002574:	eef0 7ae7 	vabs.f32	s15, s15
- 8002578:	ed9f 7a0e 	vldr	s14, [pc, #56]	@ 80025b4 <Robot_ApplyTwist+0x174>
- 800257c:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8002580:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002584:	d502      	bpl.n	800258c <Robot_ApplyTwist+0x14c>
- 8002586:	f04f 0300 	mov.w	r3, #0
- 800258a:	61bb      	str	r3, [r7, #24]
-
-    // map -> มุมเลี้ยว +-STEER_MAX_DEG
-    float target_deg = ang_norm * STEER_MAX_DEG;
- 800258c:	edd7 7a06 	vldr	s15, [r7, #24]
- 8002590:	ed9f 7a0e 	vldr	s14, [pc, #56]	@ 80025cc <Robot_ApplyTwist+0x18c>
- 8002594:	ee67 7a87 	vmul.f32	s15, s15, s14
- 8002598:	edc7 7a03 	vstr	s15, [r7, #12]
-    Steer_SetCmdTargetDeg(target_deg);
- 800259c:	ed97 0a03 	vldr	s0, [r7, #12]
- 80025a0:	f7ff f968 	bl	8001874 <Steer_SetCmdTargetDeg>
-
-//    printf("Twist: lin=%.2f m/s (tgt=%.0f tps), ang=%.2f rad/s -> dir=%.0f, speed_norm=%.2f, deg=%.1f\r\n",
-//           linear_x_cmd, target_tps_cmd, angular_z,
-//           g_cmd_dir_sign, g_cmd_speed_norm, target_deg);
-}
- 80025a4:	bf00      	nop
- 80025a6:	3720      	adds	r7, #32
- 80025a8:	46bd      	mov	sp, r7
- 80025aa:	bd80      	pop	{r7, pc}
- 80025ac:	2000101c 	.word	0x2000101c
- 80025b0:	bf800000 	.word	0xbf800000
- 80025b4:	3ca3d70a 	.word	0x3ca3d70a
- 80025b8:	449ada7c 	.word	0x449ada7c
- 80025bc:	20001014 	.word	0x20001014
- 80025c0:	20001008 	.word	0x20001008
- 80025c4:	2000100c 	.word	0x2000100c
- 80025c8:	3f333333 	.word	0x3f333333
- 80025cc:	42200000 	.word	0x42200000
+ 80025c2:	4618      	mov	r0, r3
+ 80025c4:	3710      	adds	r7, #16
+ 80025c6:	46bd      	mov	sp, r7
+ 80025c8:	bd80      	pop	{r7, pc}
+ 80025ca:	bf00      	nop
+ 80025cc:	20000aa0 	.word	0x20000aa0
 
 080025d0 <Udp_TwistHandler>:
+#define SPEED_RAMP_UP_NORM_PER_SEC    1.0f  // เร่งขึ้น ค่าน้อยออกตัวนุ่ม
+#define SPEED_RAMP_DOWN_NORM_PER_SEC  1.0f  // เบรค ค่าน้อยเบรคช้า
+#define CMD_TIMEOUT_MS                500U  // ms
 
 static void Udp_TwistHandler(float linear_x, float angular_z)
 {
@@ -4197,7 +4202,7 @@ static void Udp_TwistHandler(float linear_x, float angular_z)
     Robot_ApplyTwist(linear_x, angular_z);
  80025de:	edd7 0a00 	vldr	s1, [r7]
  80025e2:	ed97 0a01 	vldr	s0, [r7, #4]
- 80025e6:	f7ff ff2b 	bl	8002440 <Robot_ApplyTwist>
+ 80025e6:	f7ff ff15 	bl	8002414 <Robot_ApplyTwist>
 }
  80025ea:	bf00      	nop
  80025ec:	3708      	adds	r7, #8
@@ -4229,7 +4234,7 @@ void Drive_Control_And_Test(uint32_t now_ms)
  8002608:	6bfb      	ldr	r3, [r7, #60]	@ 0x3c
  800260a:	2b09      	cmp	r3, #9
  800260c:	f240 81a4 	bls.w	8002958 <Drive_Control_And_Test+0x364>
-        return;   // ยังไม่ถึงเวลา control รอบใหม่
+        return;
     }
     last_ctrl_ms = now_ms;
  8002610:	4a9f      	ldr	r2, [pc, #636]	@ (8002890 <Drive_Control_And_Test+0x29c>)
@@ -4269,13 +4274,12 @@ void Drive_Control_And_Test(uint32_t now_ms)
  800265c:	2b01      	cmp	r3, #1
  800265e:	d13e      	bne.n	80026de <Drive_Control_And_Test+0xea>
         // ===== โหมดปกติ: ใช้ PID ตาม target_tps (common) =====
-//        Drive_UpdateTargetsWithRamp(dt_s);  	// ramp g_current_target_tps -> g_cmd_target_tps
     	Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
  8002660:	4991      	ldr	r1, [pc, #580]	@ (80028a8 <Drive_Control_And_Test+0x2b4>)
  8002662:	4892      	ldr	r0, [pc, #584]	@ (80028ac <Drive_Control_And_Test+0x2b8>)
  8002664:	ed97 0a13 	vldr	s0, [r7, #76]	@ 0x4c
  8002668:	f7fe fd4c 	bl	8001104 <Drive_UpdateTargetsWithRamp>
-        Drive_UpdateAll(dt_s);              	// ใช้ target_tps ต่อ-ล้อ + duty_base + PID
+        Drive_UpdateAll(dt_s);              	  // ใช้ target_tps ต่อล้อ + duty_base + PID
  800266c:	ed97 0a13 	vldr	s0, [r7, #76]	@ 0x4c
  8002670:	f7fe fe1c 	bl	80012ac <Drive_UpdateAll>
 
@@ -4319,7 +4323,7 @@ void Drive_Control_And_Test(uint32_t now_ms)
  80026b0:	f04f 0200 	mov.w	r2, #0
  80026b4:	601a      	str	r2, [r3, #0]
 
-                // reset ตัวแปรแบบเดิม (เผื่อใช้ที่อื่น)
+                // reset ตัวแปร
                 g_cmd_dir_sign       = 0.0f;
  80026b6:	4b80      	ldr	r3, [pc, #512]	@ (80028b8 <Drive_Control_And_Test+0x2c4>)
  80026b8:	f04f 0200 	mov.w	r2, #0
@@ -4335,9 +4339,6 @@ void Drive_Control_And_Test(uint32_t now_ms)
 
                 Drive_StopAll();
  80026ce:	f7fe fceb 	bl	80010a8 <Drive_StopAll>
-                // g_cmd_target_deg     = 0.0f;
-                // g_current_target_deg = 0.0f;
-                // Steer_SetTargetAngleDeg(0.0f);
                 Steer_InitTargetsToZero();
  80026d2:	f7ff f8fd 	bl	80018d0 <Steer_InitTargetsToZero>
                 g_last_cmd_ms = 0U;
@@ -4648,11 +4649,10 @@ void Drive_Control_And_Test(uint32_t now_ms)
  8002950:	4807      	ldr	r0, [pc, #28]	@ (8002970 <Drive_Control_And_Test+0x37c>)
  8002952:	f013 f839 	bl	80159c8 <iprintf>
  8002956:	e000      	b.n	800295a <Drive_Control_And_Test+0x366>
-        return;   // ยังไม่ถึงเวลา control รอบใหม่
+        return;
  8002958:	bf00      	nop
             }
         }
-        // ใน NORMAL mode ตอนนี้เรามี debug จาก Drive_UpdateAll() อยู่แล้ว
     }
 }
  800295a:	3754      	adds	r7, #84	@ 0x54
@@ -55950,7 +55950,7 @@ pbuf_header_failed:
  8015d02:	2200      	movs	r2, #0
  8015d04:	602a      	str	r2, [r5, #0]
  8015d06:	461a      	mov	r2, r3
- 8015d08:	f7ec fb84 	bl	8002414 <_write>
+ 8015d08:	f7ec fc4c 	bl	80025a4 <_write>
  8015d0c:	1c43      	adds	r3, r0, #1
  8015d0e:	d102      	bne.n	8015d16 <_write_r+0x1e>
  8015d10:	682b      	ldr	r3, [r5, #0]

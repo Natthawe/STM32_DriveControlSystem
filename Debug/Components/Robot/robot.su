@@ -1,0 +1,3 @@
+../Components/Robot/robot.c:37:6:Robot_ApplyCommand_WithDuty	24	static
+../Components/Robot/robot.c:97:12:Robot_CmdFromChar	16	static
+../Components/Robot/robot.c:125:6:Robot_ApplyTwist	40	static

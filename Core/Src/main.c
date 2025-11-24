@@ -37,7 +37,7 @@
 #include "Control/drive_control.h"
 #include "Control/steer_control.h"
 #include "Comm/udp_ctrl.h"
-
+#include "Robot/robot.h"
 
 
 /* USER CODE END Includes */
@@ -111,198 +111,29 @@ static void MX_TIM10_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#define DRIVE_DUTY  		0.7f
-#define STEER_DUTY  		0.6f
-
-#define WHEEL_COUNTS_PER_REV   1440U
-
-// ==== Geometry ล้อ ====
-#define WHEEL_DIAMETER_M       0.37f
-#define WHEEL_COUNTS_PER_REV_F 1440.0f
-#define WHEEL_CIRCUM_M         (3.1415926f * WHEEL_DIAMETER_M)
-#define TICKS_PER_METER        (WHEEL_COUNTS_PER_REV_F / WHEEL_CIRCUM_M)
-// ~ 1440 / (π*0.37) ≈ 1239 ticks/m
-
+#define DRIVE_DUTY  		      0.7f
+#define STEER_DUTY  		      0.6f
+#define WHEEL_COUNTS_PER_REV      1440U
 
 // ====== Drive PID (MOTOR 1,3,5,7) ======
 #define DRIVE_MAX_TICKS_PER_SEC   1000.0f   // ปรับตามความเร็วจริงของล้อ
 #define DRIVE_MIN_DUTY            0.4f      // duty ต่ำสุดกันไม่หมุน
 
 // ---- สำหรับ ramp ความเร็ว drive ----
-float g_cmd_dir_sign        = 0.0f;  // -1,0,+1 จากคำสั่งล่าสุด
-float g_cmd_speed_norm      = 0.0f;  // 0..1 จาก drive_pct
-float g_current_speed_norm  = 0.0f;  // 0..1 ที่ถูก ramp แล้ว
+float g_cmd_dir_sign            = 0.0f;     // -1,0,+1 จากคำสั่งล่าสุด
+float g_cmd_speed_norm          = 0.0f;     // 0..1 จาก drive_pct
+float g_current_speed_norm      = 0.0f;     // 0..1 ที่ถูก ramp แล้ว
 
 // เป้า "ความเร็วล้อ" รวมทุกล้อ (ticks/sec) จากคำสั่ง (ROS/serial)
-float g_cmd_target_tps     = 0.0f;  // target_tps_common จากคำสั่ง
-float g_current_target_tps = 0.0f;  // ที่ ramp แล้ว ใช้จริงใน PID
+float g_cmd_target_tps     = 0.0f;          // target_tps_common จากคำสั่ง
+float g_current_target_tps = 0.0f;          // ค่าที่ ramp แล้ว ใช้จริงใน PID
+uint32_t g_last_cmd_ms = 0;                 // timestamp คำสั่งล่าสุด (ms)
 
 // กำหนดอัตราเร่ง/อัตราหน่วง (หน่วย: สัดส่วนต่อวินาที)
 // เช่น จาก 0 -> 100% ใช้เวลาประมาณ 1 วินาที
-#define SPEED_RAMP_UP_NORM_PER_SEC    1.0f   // เร่งขึ้น ค่าน้อยออกตัวนุ่ม
-#define SPEED_RAMP_DOWN_NORM_PER_SEC  1.0f   // เบรค ค่าน้อยเบรคช้า
-
-// ====== การ map จาก linear.x / angular.z ======
-#define MAX_CMD_LINEAR   1.0f   // [m/s] linear.x สูงสุดที่คาดว่าจะส่งมา
-#define MAX_CMD_ANGULAR  0.7f   // [rad/s] angular.z สูงสุดที่คาดว่าจะส่งมา
-#define LIN_DEADZONE     0.02f  // deadzone สำหรับ linear (normalized)
-#define ANG_DEADZONE     0.02f  // deadzone สำหรับ angular (normalized)
-
-// ====== UDP control ======
-// static struct udp_pcb *g_udp_ctrl_pcb = NULL;
-
-typedef enum {
-    ROBOT_CMD_NONE = 0,
-    ROBOT_CMD_FORWARD,        // เดินหน้า
-    ROBOT_CMD_BACKWARD,       // ถอยหลัง
-    ROBOT_CMD_TURN_LEFT,      // หมุนเลี้ยวซ้ายอยู่กับที่
-    ROBOT_CMD_TURN_RIGHT,     // หมุนเลี้ยวขวาอยู่กับที่
-    ROBOT_CMD_STOP,           // หยุด
-
-    ROBOT_CMD_FWD_LEFT,       // เดินหน้า + เลี้ยวซ้าย
-    ROBOT_CMD_FWD_RIGHT,      // เดินหน้า + เลี้ยวขวา
-    ROBOT_CMD_BACK_LEFT,      // ถอยหลัง + เลี้ยวซ้าย
-    ROBOT_CMD_BACK_RIGHT      // ถอยหลัง + เลี้ยวขวา
-} RobotCmd_t;
-
-
-RobotCmd_t g_robot_cmd = ROBOT_CMD_STOP;
-
-void Robot_ApplyCommand_WithDuty(RobotCmd_t cmd, float drive_duty, float steer_duty)
-{
-    // clamp duty
-    if (drive_duty < 0.0f) drive_duty = 0.0f;
-    if (drive_duty > 1.0f) drive_duty = 1.0f;
-    if (steer_duty < 0.0f) steer_duty = 0.0f;
-    if (steer_duty > 1.0f) steer_duty = 1.0f;
-
-    switch (cmd) {
-
-    case ROBOT_CMD_FORWARD:
-        Motors_Drive_All(MOTOR_DIR_FWD, drive_duty);
-        Motors_Steer_All(MOTOR_DIR_BRAKE, 0.0f);
-        break;
-
-    case ROBOT_CMD_BACKWARD:
-        Motors_Drive_All(MOTOR_DIR_REV, drive_duty);
-        Motors_Steer_All(MOTOR_DIR_BRAKE, 0.0f);
-        break;
-
-    case ROBOT_CMD_TURN_LEFT:
-        Motors_Drive_All(MOTOR_DIR_BRAKE, 0.0f);
-        Motors_Steer_All(MOTOR_DIR_REV, steer_duty);
-        break;
-
-    case ROBOT_CMD_TURN_RIGHT:
-        Motors_Drive_All(MOTOR_DIR_BRAKE, 0.0f);
-        Motors_Steer_All(MOTOR_DIR_FWD, steer_duty);
-        break;
-
-    case ROBOT_CMD_FWD_LEFT:
-        Motors_Drive_All(MOTOR_DIR_FWD, drive_duty);
-        Motors_Steer_All(MOTOR_DIR_REV, steer_duty);
-        break;
-
-    case ROBOT_CMD_FWD_RIGHT:
-        Motors_Drive_All(MOTOR_DIR_FWD, drive_duty);
-        Motors_Steer_All(MOTOR_DIR_FWD, steer_duty);
-        break;
-
-    case ROBOT_CMD_BACK_LEFT:
-        Motors_Drive_All(MOTOR_DIR_REV, drive_duty);
-        Motors_Steer_All(MOTOR_DIR_REV, steer_duty);
-        break;
-
-    case ROBOT_CMD_BACK_RIGHT:
-        Motors_Drive_All(MOTOR_DIR_REV, drive_duty);
-        Motors_Steer_All(MOTOR_DIR_FWD, steer_duty);
-        break;
-
-    case ROBOT_CMD_STOP:
-    default:
-        Motors_Drive_All(MOTOR_DIR_BRAKE, 0.0f);
-        Motors_Steer_All(MOTOR_DIR_BRAKE, 0.0f);
-        break;
-    }
-}
-
-RobotCmd_t Robot_CmdFromChar(uint8_t c)
-{
-    switch (c) {
-    case 'i': case 'I': return ROBOT_CMD_FORWARD;
-    case ',':           return ROBOT_CMD_BACKWARD;
-
-    case 'j': case 'J': return ROBOT_CMD_TURN_LEFT;
-    case 'l': case 'L': return ROBOT_CMD_TURN_RIGHT;
-    case 'k': case 'K': return ROBOT_CMD_STOP;
-
-    case 'u': case 'U': return ROBOT_CMD_FWD_LEFT;
-    case 'o': case 'O': return ROBOT_CMD_FWD_RIGHT;
-
-    case 'm': case 'M': return ROBOT_CMD_BACK_LEFT;
-    case '.':           return ROBOT_CMD_BACK_RIGHT;
-
-    case 'w': case 'W': return ROBOT_CMD_FORWARD;
-    case 's': case 'S': return ROBOT_CMD_BACKWARD;
-    case 'a': case 'A': return ROBOT_CMD_TURN_LEFT;
-    case 'd': case 'D': return ROBOT_CMD_TURN_RIGHT;
-    case 'x': case 'X': return ROBOT_CMD_STOP;
-
-    default:
-        return ROBOT_CMD_NONE;
-    }
-}
-
-static uint32_t g_last_cmd_ms = 0;
-#define CMD_TIMEOUT_MS   500U   // ms
-
-static void Robot_ApplyTwist(float linear_x, float angular_z)
-{
-    g_last_cmd_ms = HAL_GetTick();
-
-    // --- 1) จำกัด linear_x ไม่ให้เกิน MAX_CMD_LINEAR ---
-    if (linear_x >  MAX_CMD_LINEAR) linear_x =  MAX_CMD_LINEAR;
-    if (linear_x < -MAX_CMD_LINEAR) linear_x = -MAX_CMD_LINEAR;
-
-    // ใช้ lin_norm เพื่อ deadzone
-    float lin_norm = linear_x / MAX_CMD_LINEAR;   // -1..+1
-    if (lin_norm >  1.0f) lin_norm =  1.0f;
-    if (lin_norm < -1.0f) lin_norm = -1.0f;
-
-    if (fabsf(lin_norm) < LIN_DEADZONE) {
-        lin_norm = 0.0f;
-    }
-
-    // linear_x_cmd หลัง deadzone แล้ว (m/s)
-    float linear_x_cmd = lin_norm * MAX_CMD_LINEAR;
-
-    // --- 2) map เป็น target_tps_common ด้วย geometry ---
-    // TICKS_PER_METER ~ 1239 ticks/m
-    float target_tps_cmd = linear_x_cmd * TICKS_PER_METER;
-
-    // เก็บเป็นคำสั่งหลักในหน่วย tps
-    g_cmd_target_tps = target_tps_cmd;
-
-    // เก็บ dir + speed_norm ไว้ debug ถ้าอยากใช้
-    if (lin_norm > 0.0f)      g_cmd_dir_sign = +1.0f;
-    else if (lin_norm < 0.0f) g_cmd_dir_sign = -1.0f;
-    else                      g_cmd_dir_sign = 0.0f;
-    g_cmd_speed_norm = fabsf(lin_norm);   // 0..1
-
-    // --- 3) มุมเลี้ยวจาก angular_z ---
-    float ang_norm = angular_z / MAX_CMD_ANGULAR;  // -1..+1
-    if (ang_norm >  1.0f) ang_norm =  1.0f;
-    if (ang_norm < -1.0f) ang_norm = -1.0f;
-    if (fabsf(ang_norm) < ANG_DEADZONE) ang_norm = 0.0f;
-
-    // map -> มุมเลี้ยว +-STEER_MAX_DEG
-    float target_deg = ang_norm * STEER_MAX_DEG;
-    Steer_SetCmdTargetDeg(target_deg);
-
-//    printf("Twist: lin=%.2f m/s (tgt=%.0f tps), ang=%.2f rad/s -> dir=%.0f, speed_norm=%.2f, deg=%.1f\r\n",
-//           linear_x_cmd, target_tps_cmd, angular_z,
-//           g_cmd_dir_sign, g_cmd_speed_norm, target_deg);
-}
+#define SPEED_RAMP_UP_NORM_PER_SEC    1.0f  // เร่งขึ้น ค่าน้อยออกตัวนุ่ม
+#define SPEED_RAMP_DOWN_NORM_PER_SEC  1.0f  // เบรค ค่าน้อยเบรคช้า
+#define CMD_TIMEOUT_MS                500U  // ms
 
 static void Udp_TwistHandler(float linear_x, float angular_z)
 {
@@ -319,7 +150,7 @@ void Drive_Control_And_Test(uint32_t now_ms)
 
     uint32_t diff_ms = now_ms - last_ctrl_ms;
     if (diff_ms < CTRL_PERIOD_MS) {
-        return;   // ยังไม่ถึงเวลา control รอบใหม่
+        return;
     }
     last_ctrl_ms = now_ms;
 
@@ -332,9 +163,8 @@ void Drive_Control_And_Test(uint32_t now_ms)
 
     if (g_drive_mode == RUN_MODE_DRIVE_PID) {
         // ===== โหมดปกติ: ใช้ PID ตาม target_tps (common) =====
-//        Drive_UpdateTargetsWithRamp(dt_s);  	// ramp g_current_target_tps -> g_cmd_target_tps
     	Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
-        Drive_UpdateAll(dt_s);              	// ใช้ target_tps ต่อ-ล้อ + duty_base + PID
+        Drive_UpdateAll(dt_s);              	  // ใช้ target_tps ต่อล้อ + duty_base + PID
 
         // เฉพาะตอน RUN_MODE_STEER_PID เท่านั้นที่ให้ PID ทำงาน เผื่อใช้โหมด CALIB
         if (g_steer_mode == RUN_MODE_STEER_PID) {
@@ -350,15 +180,12 @@ void Drive_Control_And_Test(uint32_t now_ms)
                 g_cmd_target_tps     = 0.0f;
                 g_current_target_tps = 0.0f;
 
-                // reset ตัวแปรแบบเดิม (เผื่อใช้ที่อื่น)
+                // reset ตัวแปร
                 g_cmd_dir_sign       = 0.0f;
                 g_cmd_speed_norm     = 0.0f;
                 g_current_speed_norm = 0.0f;
 
                 Drive_StopAll();
-                // g_cmd_target_deg     = 0.0f;
-                // g_current_target_deg = 0.0f;
-                // Steer_SetTargetAngleDeg(0.0f);
                 Steer_InitTargetsToZero();
                 g_last_cmd_ms = 0U;
                 // printf("[TIMEOUT] stop & steer zero\n");
@@ -415,7 +242,6 @@ void Drive_Control_And_Test(uint32_t now_ms)
                        tps[0], tps[1], tps[2], tps[3]);
             }
         }
-        // ใน NORMAL mode ตอนนี้เรามี debug จาก Drive_UpdateAll() อยู่แล้ว
     }
 }
 

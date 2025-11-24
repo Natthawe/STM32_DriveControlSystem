@@ -49,7 +49,6 @@ int UDP_Ctrl_Init(uint16_t port, UdpTwistHandler_t handler)
     g_twist_handler = handler;
     g_udp_ctrl_port = port;
 
-    // ถ้ามี pcb เดิมอยู่แล้ว ให้ลบทิ้งก่อน
     if (g_udp_ctrl_pcb != NULL) {
         udp_remove(g_udp_ctrl_pcb);
         g_udp_ctrl_pcb = NULL;

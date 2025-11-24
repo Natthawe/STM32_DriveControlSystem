@@ -37,9 +37,9 @@ const uint8_t steer_motor_ids[STEER_NUM] = { 2, 4, 6, 8 };
 
 SteerAxis_t steer_axes[] = {
 	//  name, enc_idx, zero,  motor, enc_dir target, duty_base, PID
-	{ "STEER_FR", 0, 489, 2, -1, 489, 0.7f,
-//	  { .kp=0.01f, .ki=0.03f, .kd=0.0f,
-	  { .kp=0.007f, .ki=0.0f, .kd=0.0f,
+	{ "STEER_FR", 0, 489, 2, -1, 489, 0.67f,
+//	  { .kp=0.01f, .ki=0.02f, .kd=0.0f,
+	  { .kp=0.007f, .ki=0.001f, .kd=0.0f,
 		.integrator=0, .prev_error=0,
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC2 -> Motor2 (front-right steer)
 
