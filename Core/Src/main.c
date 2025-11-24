@@ -26,8 +26,8 @@
 #include <sys/unistd.h>
 #include <stdint.h>
 #include <math.h>
-#include "lwip/udp.h"
-#include "lwip/ip_addr.h"
+// #include "lwip/udp.h"
+// #include "lwip/ip_addr.h"
 #include <string.h>
 #include <stdbool.h>
 #include "Motors/motor.h"
@@ -36,6 +36,8 @@
 #include "Control/pid_ctrl.h"
 #include "Control/drive_control.h"
 #include "Control/steer_control.h"
+#include "Comm/udp_ctrl.h"
+
 
 
 /* USER CODE END Includes */
@@ -147,7 +149,7 @@ float g_current_target_tps = 0.0f;  // ที่ ramp แล้ว ใช้จ�
 #define ANG_DEADZONE     0.02f  // deadzone สำหรับ angular (normalized)
 
 // ====== UDP control ======
-static struct udp_pcb *g_udp_ctrl_pcb = NULL;
+// static struct udp_pcb *g_udp_ctrl_pcb = NULL;
 
 typedef enum {
     ROBOT_CMD_NONE = 0,
@@ -302,50 +304,10 @@ static void Robot_ApplyTwist(float linear_x, float angular_z)
 //           g_cmd_dir_sign, g_cmd_speed_norm, target_deg);
 }
 
-// callback ตอนมี UDP packet เข้ามาที่ port control
-static void udp_ctrl_recv(void *arg, struct udp_pcb *upcb,
-                          struct pbuf *p, const ip_addr_t *addr, u16_t port)
+static void Udp_TwistHandler(float linear_x, float angular_z)
 {
-    if (p == NULL) {
-        return;
-    }
-
-    if (p->len >= 8) {
-        float linear_x  = 0.0f;
-        float angular_z = 0.0f;
-
-        // payload: 0..3 = linear_x (float32), 4..7 = angular_z (float32)
-        memcpy(&linear_x,  p->payload,           4);
-        memcpy(&angular_z, (uint8_t*)p->payload + 4, 4);
-
-        Robot_ApplyTwist(linear_x, angular_z);
-    }
-
-    pbuf_free(p);
+    Robot_ApplyTwist(linear_x, angular_z);
 }
-
-// สร้าง UDP listener
-static void UDP_Ctrl_Init(void)
-{
-    g_udp_ctrl_pcb = udp_new();
-    if (g_udp_ctrl_pcb == NULL) {
-        printf("udp_new() failed\r\n");
-        return;
-    }
-
-    // ใช้ port 6000 (ปรับได้ตามใจ แต่ฝั่ง ROS ต้องส่งมาที่ port เดียวกัน)
-    err_t err = udp_bind(g_udp_ctrl_pcb, IP_ADDR_ANY, 6000);
-    if (err != ERR_OK) {
-        printf("udp_bind() failed: %d\r\n", err);
-        udp_remove(g_udp_ctrl_pcb);
-        g_udp_ctrl_pcb = NULL;
-        return;
-    }
-
-    udp_recv(g_udp_ctrl_pcb, udp_ctrl_recv, NULL);
-    printf("UDP control listening on port 6000\r\n");
-}
-
 
 #define CTRL_PERIOD_MS   10U   // control loop ทุก 10 ms (100 Hz)
 
@@ -511,7 +473,10 @@ int main(void)
   DriveEnc_InitAll();
   Drive_InitAll();
   Steer_InitTargetsToZero();
-  UDP_Ctrl_Init();
+
+  if (UDP_Ctrl_Init(6000, Udp_TwistHandler) != 0) {
+      printf("UDP_Ctrl_Init failed\r\n");
+  }
 
   printf("\r\n=== Boot OK ===\r\n");
 
@@ -519,55 +484,23 @@ int main(void)
   g_steer_mode   = RUN_MODE_STEER_PID;
   Steer_PrintModeHelp(g_steer_mode);
 
-//  uint32_t last_tick = HAL_GetTick();
-
-//  Motor_set(1, MOTOR_DIR_FWD, 0.7f);
-//  HAL_Delay(3000);
-//  Motor_set(1, MOTOR_DIR_BRAKE, 0.0f);
-//  HAL_Delay(1000);
-
-  //	-------- check ticks --------
-//  // ตั้งให้ล้อ 1,3,5,7 วิ่งไปข้างหน้าด้วย duty 0.5
-//  Motor_set(1, MOTOR_DIR_FWD, 0.5f);
-//  Motor_set(3, MOTOR_DIR_FWD, 0.5f);
-//  Motor_set(5, MOTOR_DIR_FWD, 0.5f);
-//  Motor_set(7, MOTOR_DIR_FWD, 0.5f);
-
-//  printf("DRV_FR ticks = %ld\r\n", drive_enc[0].multi_ticks);
-//  uint32_t last_ms = HAL_GetTick();
-//  int32_t prev_ticks[4] = {
-//      drive_enc[0].multi_ticks,
-//      drive_enc[1].multi_ticks,
-//      drive_enc[2].multi_ticks,
-//      drive_enc[3].multi_ticks
-//  };
-
-//  uint8_t buf[3];
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	    // รับ UDP จาก ROS
-
 	  MX_LWIP_Process();
 
 	  uint32_t now_ms = HAL_GetTick();
 
-	    // ควบคุมล้อทั้งหมด (PID / CALIB ขึ้นกับ g_drive_mode และ g_steer_mode)
+	  // ควบคุมล้อทั้งหมด (PID / CALIB ขึ้นกับ g_drive_mode และ g_steer_mode)
 	  Drive_Control_And_Test(now_ms);
 
 	  if (g_steer_mode == RUN_MODE_STEER_CALIB)
 	  {
 	      Steer_JogCalib_HandleUart();
 	  }
-//	  --------- TEST ---------
-//	  uint32_t now_ms = HAL_GetTick();
-
-//	  Drive_Control_And_Test(now_ms);	// คุมล้อ + โหมด CALIB/PID
-
-//	  Process_UART_TestDrive();	// เปลี่ยนโหมด NORMAL/TEST + เลือกล้อ + duty
 
 //	  --------- Jog ---------
 //	  Steer_JogCalib_HandleUart();
