@@ -41,15 +41,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  18 .debug_macro  00036b0d  00000000  00000000  00058be5  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_line   00038c15  00000000  00000000  0008f6f2  2**0
+ 19 .debug_line   00038c13  00000000  00000000  0008f6f2  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .debug_str    00111277  00000000  00000000  000c8307  2**0
+ 20 .debug_str    00111277  00000000  00000000  000c8305  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .comment      00000043  00000000  00000000  001d957e  2**0
+ 21 .comment      00000043  00000000  00000000  001d957c  2**0
                   CONTENTS, READONLY
- 22 .debug_frame  0000a974  00000000  00000000  001d95c4  2**2
+ 22 .debug_frame  0000a974  00000000  00000000  001d95c0  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 23 .debug_line_str 00000052  00000000  00000000  001e3f38  2**0
+ 23 .debug_line_str 00000052  00000000  00000000  001e3f34  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1497,12 +1497,12 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
  80010ba:	eef5 7ac0 	vcmpe.f32	s15, #0.0
  80010be:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
  80010c2:	d801      	bhi.n	80010c8 <Drive_UpdateTargetsWithRamp+0x20>
- 80010c4:	4b5b      	ldr	r3, [pc, #364]	@ (8001234 <Drive_UpdateTargetsWithRamp+0x18c>)
+ 80010c4:	4b53      	ldr	r3, [pc, #332]	@ (8001214 <Drive_UpdateTargetsWithRamp+0x16c>)
  80010c6:	60fb      	str	r3, [r7, #12]
 
     // ถ้าเป้าและค่าปัจจุบัน “ใกล้ 0” มาก ๆ → หยุด แล้ว reset PID + เบรค
     if (fabsf(g_cmd_target_tps)     < DRIVE_DEADBAND_TPS &&
- 80010c8:	4b5b      	ldr	r3, [pc, #364]	@ (8001238 <Drive_UpdateTargetsWithRamp+0x190>)
+ 80010c8:	4b53      	ldr	r3, [pc, #332]	@ (8001218 <Drive_UpdateTargetsWithRamp+0x170>)
  80010ca:	edd3 7a00 	vldr	s15, [r3]
  80010ce:	eef0 7ae7 	vabs.f32	s15, s15
  80010d2:	eeb3 7a04 	vmov.f32	s14, #52	@ 0x41a00000  20.0
@@ -1510,7 +1510,7 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
  80010da:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
  80010de:	d536      	bpl.n	800114e <Drive_UpdateTargetsWithRamp+0xa6>
         fabsf(g_current_target_tps) < DRIVE_DEADBAND_TPS)
- 80010e0:	4b56      	ldr	r3, [pc, #344]	@ (800123c <Drive_UpdateTargetsWithRamp+0x194>)
+ 80010e0:	4b4e      	ldr	r3, [pc, #312]	@ (800121c <Drive_UpdateTargetsWithRamp+0x174>)
  80010e2:	edd3 7a00 	vldr	s15, [r3]
  80010e6:	eef0 7ae7 	vabs.f32	s15, s15
     if (fabsf(g_cmd_target_tps)     < DRIVE_DEADBAND_TPS &&
@@ -1520,11 +1520,11 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
  80010f6:	d52a      	bpl.n	800114e <Drive_UpdateTargetsWithRamp+0xa6>
     {
         g_cmd_target_tps     = 0.0f;
- 80010f8:	4b4f      	ldr	r3, [pc, #316]	@ (8001238 <Drive_UpdateTargetsWithRamp+0x190>)
+ 80010f8:	4b47      	ldr	r3, [pc, #284]	@ (8001218 <Drive_UpdateTargetsWithRamp+0x170>)
  80010fa:	f04f 0200 	mov.w	r2, #0
  80010fe:	601a      	str	r2, [r3, #0]
         g_current_target_tps = 0.0f;
- 8001100:	4b4e      	ldr	r3, [pc, #312]	@ (800123c <Drive_UpdateTargetsWithRamp+0x194>)
+ 8001100:	4b46      	ldr	r3, [pc, #280]	@ (800121c <Drive_UpdateTargetsWithRamp+0x174>)
  8001102:	f04f 0200 	mov.w	r2, #0
  8001106:	601a      	str	r2, [r3, #0]
 
@@ -1535,7 +1535,7 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
             DriveAxis_t *d = &drive_axes[i];
  800110e:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
  8001110:	019b      	lsls	r3, r3, #6
- 8001112:	4a4b      	ldr	r2, [pc, #300]	@ (8001240 <Drive_UpdateTargetsWithRamp+0x198>)
+ 8001112:	4a43      	ldr	r2, [pc, #268]	@ (8001220 <Drive_UpdateTargetsWithRamp+0x178>)
  8001114:	4413      	add	r3, r2
  8001116:	61bb      	str	r3, [r7, #24]
             d->target_tps      = 0.0f;
@@ -1553,10 +1553,10 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
             Motor_set(d->motor_idx, MOTOR_DIR_BRAKE, 0.0f);
  8001130:	69bb      	ldr	r3, [r7, #24]
  8001132:	791b      	ldrb	r3, [r3, #4]
- 8001134:	ed9f 0a43 	vldr	s0, [pc, #268]	@ 8001244 <Drive_UpdateTargetsWithRamp+0x19c>
+ 8001134:	ed9f 0a3b 	vldr	s0, [pc, #236]	@ 8001224 <Drive_UpdateTargetsWithRamp+0x17c>
  8001138:	2100      	movs	r1, #0
  800113a:	4618      	mov	r0, r3
- 800113c:	f001 f878 	bl	8002230 <Motor_set>
+ 800113c:	f001 f866 	bl	800220c <Motor_set>
         for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
  8001140:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
  8001142:	3301      	adds	r3, #1
@@ -1566,14 +1566,14 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
  800114a:	d9e0      	bls.n	800110e <Drive_UpdateTargetsWithRamp+0x66>
         }
         return;
- 800114c:	e06f      	b.n	800122e <Drive_UpdateTargetsWithRamp+0x186>
+ 800114c:	e05f      	b.n	800120e <Drive_UpdateTargetsWithRamp+0x166>
     }
 
     // ---- ramp g_current_target_tps เข้าเป้า g_cmd_target_tps ----
     float delta = g_cmd_target_tps - g_current_target_tps;
- 800114e:	4b3a      	ldr	r3, [pc, #232]	@ (8001238 <Drive_UpdateTargetsWithRamp+0x190>)
+ 800114e:	4b32      	ldr	r3, [pc, #200]	@ (8001218 <Drive_UpdateTargetsWithRamp+0x170>)
  8001150:	ed93 7a00 	vldr	s14, [r3]
- 8001154:	4b39      	ldr	r3, [pc, #228]	@ (800123c <Drive_UpdateTargetsWithRamp+0x194>)
+ 8001154:	4b31      	ldr	r3, [pc, #196]	@ (800121c <Drive_UpdateTargetsWithRamp+0x174>)
  8001156:	edd3 7a00 	vldr	s15, [r3]
  800115a:	ee77 7a67 	vsub.f32	s15, s14, s15
  800115e:	edc7 7a08 	vstr	s15, [r7, #32]
@@ -1585,7 +1585,7 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
  800116e:	dd13      	ble.n	8001198 <Drive_UpdateTargetsWithRamp+0xf0>
         float step = DRIVE_TPS_RAMP_UP_PER_SEC * dt_s;
  8001170:	edd7 7a03 	vldr	s15, [r7, #12]
- 8001174:	ed9f 7a34 	vldr	s14, [pc, #208]	@ 8001248 <Drive_UpdateTargetsWithRamp+0x1a0>
+ 8001174:	ed9f 7a2c 	vldr	s14, [pc, #176]	@ 8001228 <Drive_UpdateTargetsWithRamp+0x180>
  8001178:	ee67 7a87 	vmul.f32	s15, s15, s14
  800117c:	edc7 7a04 	vstr	s15, [r7, #16]
         if (delta > step) delta = step;
@@ -1604,7 +1604,7 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
  80011a4:	d518      	bpl.n	80011d8 <Drive_UpdateTargetsWithRamp+0x130>
         float step = DRIVE_TPS_RAMP_DOWN_PER_SEC * dt_s;
  80011a6:	edd7 7a03 	vldr	s15, [r7, #12]
- 80011aa:	ed9f 7a28 	vldr	s14, [pc, #160]	@ 800124c <Drive_UpdateTargetsWithRamp+0x1a4>
+ 80011aa:	ed9f 7a1f 	vldr	s14, [pc, #124]	@ 8001228 <Drive_UpdateTargetsWithRamp+0x180>
  80011ae:	ee67 7a87 	vmul.f32	s15, s15, s14
  80011b2:	edc7 7a05 	vstr	s15, [r7, #20]
         if (-delta > step) delta = -step;
@@ -1620,2503 +1620,2505 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
     }
 
     g_current_target_tps += delta;
- 80011d8:	4b18      	ldr	r3, [pc, #96]	@ (800123c <Drive_UpdateTargetsWithRamp+0x194>)
+ 80011d8:	4b10      	ldr	r3, [pc, #64]	@ (800121c <Drive_UpdateTargetsWithRamp+0x174>)
  80011da:	ed93 7a00 	vldr	s14, [r3]
  80011de:	edd7 7a08 	vldr	s15, [r7, #32]
  80011e2:	ee77 7a27 	vadd.f32	s15, s14, s15
- 80011e6:	4b15      	ldr	r3, [pc, #84]	@ (800123c <Drive_UpdateTargetsWithRamp+0x194>)
+ 80011e6:	4b0d      	ldr	r3, [pc, #52]	@ (800121c <Drive_UpdateTargetsWithRamp+0x174>)
  80011e8:	edc3 7a00 	vstr	s15, [r3]
-
-    // deadzone รอบ ๆ 0 กันแกว่ง
-    if (fabsf(g_current_target_tps) < DRIVE_DEADBAND_TPS) {
- 80011ec:	4b13      	ldr	r3, [pc, #76]	@ (800123c <Drive_UpdateTargetsWithRamp+0x194>)
- 80011ee:	edd3 7a00 	vldr	s15, [r3]
- 80011f2:	eef0 7ae7 	vabs.f32	s15, s15
- 80011f6:	eeb3 7a04 	vmov.f32	s14, #52	@ 0x41a00000  20.0
- 80011fa:	eef4 7ac7 	vcmpe.f32	s15, s14
- 80011fe:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001202:	d503      	bpl.n	800120c <Drive_UpdateTargetsWithRamp+0x164>
-        g_current_target_tps = 0.0f;
- 8001204:	4b0d      	ldr	r3, [pc, #52]	@ (800123c <Drive_UpdateTargetsWithRamp+0x194>)
- 8001206:	f04f 0200 	mov.w	r2, #0
- 800120a:	601a      	str	r2, [r3, #0]
-    }
+//    if (fabsf(g_current_target_tps) < DRIVE_DEADBAND_TPS) {
+//        g_current_target_tps = 0.0f;
+//    }
 
     // ---- set target_tps ให้ทุกล้อ = ค่าเดียวกัน (target_tps_common) ----
     for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
- 800120c:	2300      	movs	r3, #0
- 800120e:	61fb      	str	r3, [r7, #28]
- 8001210:	e00a      	b.n	8001228 <Drive_UpdateTargetsWithRamp+0x180>
+ 80011ec:	2300      	movs	r3, #0
+ 80011ee:	61fb      	str	r3, [r7, #28]
+ 80011f0:	e00a      	b.n	8001208 <Drive_UpdateTargetsWithRamp+0x160>
         drive_axes[i].target_tps = g_current_target_tps;
- 8001212:	4b0a      	ldr	r3, [pc, #40]	@ (800123c <Drive_UpdateTargetsWithRamp+0x194>)
- 8001214:	681a      	ldr	r2, [r3, #0]
- 8001216:	490a      	ldr	r1, [pc, #40]	@ (8001240 <Drive_UpdateTargetsWithRamp+0x198>)
- 8001218:	69fb      	ldr	r3, [r7, #28]
- 800121a:	019b      	lsls	r3, r3, #6
- 800121c:	440b      	add	r3, r1
- 800121e:	3328      	adds	r3, #40	@ 0x28
- 8001220:	601a      	str	r2, [r3, #0]
+ 80011f2:	4b0a      	ldr	r3, [pc, #40]	@ (800121c <Drive_UpdateTargetsWithRamp+0x174>)
+ 80011f4:	681a      	ldr	r2, [r3, #0]
+ 80011f6:	490a      	ldr	r1, [pc, #40]	@ (8001220 <Drive_UpdateTargetsWithRamp+0x178>)
+ 80011f8:	69fb      	ldr	r3, [r7, #28]
+ 80011fa:	019b      	lsls	r3, r3, #6
+ 80011fc:	440b      	add	r3, r1
+ 80011fe:	3328      	adds	r3, #40	@ 0x28
+ 8001200:	601a      	str	r2, [r3, #0]
     for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
- 8001222:	69fb      	ldr	r3, [r7, #28]
- 8001224:	3301      	adds	r3, #1
- 8001226:	61fb      	str	r3, [r7, #28]
- 8001228:	69fb      	ldr	r3, [r7, #28]
- 800122a:	2b03      	cmp	r3, #3
- 800122c:	d9f1      	bls.n	8001212 <Drive_UpdateTargetsWithRamp+0x16a>
+ 8001202:	69fb      	ldr	r3, [r7, #28]
+ 8001204:	3301      	adds	r3, #1
+ 8001206:	61fb      	str	r3, [r7, #28]
+ 8001208:	69fb      	ldr	r3, [r7, #28]
+ 800120a:	2b03      	cmp	r3, #3
+ 800120c:	d9f1      	bls.n	80011f2 <Drive_UpdateTargetsWithRamp+0x14a>
     }
 }
- 800122e:	3728      	adds	r7, #40	@ 0x28
- 8001230:	46bd      	mov	sp, r7
- 8001232:	bd80      	pop	{r7, pc}
- 8001234:	3a83126f 	.word	0x3a83126f
- 8001238:	20001014 	.word	0x20001014
- 800123c:	20001018 	.word	0x20001018
- 8001240:	20000000 	.word	0x20000000
- 8001244:	00000000 	.word	0x00000000
- 8001248:	44fa0000 	.word	0x44fa0000
- 800124c:	447a0000 	.word	0x447a0000
+ 800120e:	3728      	adds	r7, #40	@ 0x28
+ 8001210:	46bd      	mov	sp, r7
+ 8001212:	bd80      	pop	{r7, pc}
+ 8001214:	3a83126f 	.word	0x3a83126f
+ 8001218:	20001014 	.word	0x20001014
+ 800121c:	20001018 	.word	0x20001018
+ 8001220:	20000000 	.word	0x20000000
+ 8001224:	00000000 	.word	0x00000000
+ 8001228:	447a0000 	.word	0x447a0000
 
-08001250 <Drive_UpdateAll>:
+0800122c <Drive_UpdateAll>:
 
 // อัพเดต PID ความเร็วล้อ drive ทั้งหมด
 void Drive_UpdateAll(float dt_s)
 {
- 8001250:	b580      	push	{r7, lr}
- 8001252:	b08c      	sub	sp, #48	@ 0x30
- 8001254:	af00      	add	r7, sp, #0
- 8001256:	ed87 0a01 	vstr	s0, [r7, #4]
+ 800122c:	b580      	push	{r7, lr}
+ 800122e:	b08c      	sub	sp, #48	@ 0x30
+ 8001230:	af00      	add	r7, sp, #0
+ 8001232:	ed87 0a01 	vstr	s0, [r7, #4]
     if (dt_s <= 0.0f) dt_s = 1e-3f;
- 800125a:	edd7 7a01 	vldr	s15, [r7, #4]
- 800125e:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 8001262:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001266:	d801      	bhi.n	800126c <Drive_UpdateAll+0x1c>
- 8001268:	4b62      	ldr	r3, [pc, #392]	@ (80013f4 <Drive_UpdateAll+0x1a4>)
- 800126a:	607b      	str	r3, [r7, #4]
+ 8001236:	edd7 7a01 	vldr	s15, [r7, #4]
+ 800123a:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 800123e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001242:	d801      	bhi.n	8001248 <Drive_UpdateAll+0x1c>
+ 8001244:	4b62      	ldr	r3, [pc, #392]	@ (80013d0 <Drive_UpdateAll+0x1a4>)
+ 8001246:	607b      	str	r3, [r7, #4]
 
     static uint32_t debug_cnt = 0;
     debug_cnt++;
- 800126c:	4b62      	ldr	r3, [pc, #392]	@ (80013f8 <Drive_UpdateAll+0x1a8>)
- 800126e:	681b      	ldr	r3, [r3, #0]
- 8001270:	3301      	adds	r3, #1
- 8001272:	4a61      	ldr	r2, [pc, #388]	@ (80013f8 <Drive_UpdateAll+0x1a8>)
- 8001274:	6013      	str	r3, [r2, #0]
+ 8001248:	4b62      	ldr	r3, [pc, #392]	@ (80013d4 <Drive_UpdateAll+0x1a8>)
+ 800124a:	681b      	ldr	r3, [r3, #0]
+ 800124c:	3301      	adds	r3, #1
+ 800124e:	4a61      	ldr	r2, [pc, #388]	@ (80013d4 <Drive_UpdateAll+0x1a8>)
+ 8001250:	6013      	str	r3, [r2, #0]
 
     for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
- 8001276:	2300      	movs	r3, #0
- 8001278:	62fb      	str	r3, [r7, #44]	@ 0x2c
- 800127a:	e0b1      	b.n	80013e0 <Drive_UpdateAll+0x190>
+ 8001252:	2300      	movs	r3, #0
+ 8001254:	62fb      	str	r3, [r7, #44]	@ 0x2c
+ 8001256:	e0b1      	b.n	80013bc <Drive_UpdateAll+0x190>
         DriveAxis_t *d = &drive_axes[i];
- 800127c:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
- 800127e:	019b      	lsls	r3, r3, #6
- 8001280:	4a5e      	ldr	r2, [pc, #376]	@ (80013fc <Drive_UpdateAll+0x1ac>)
- 8001282:	4413      	add	r3, r2
- 8001284:	623b      	str	r3, [r7, #32]
+ 8001258:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 800125a:	019b      	lsls	r3, r3, #6
+ 800125c:	4a5e      	ldr	r2, [pc, #376]	@ (80013d8 <Drive_UpdateAll+0x1ac>)
+ 800125e:	4413      	add	r3, r2
+ 8001260:	623b      	str	r3, [r7, #32]
         DriveEnc_t  *w = d->wheel;
- 8001286:	6a3b      	ldr	r3, [r7, #32]
- 8001288:	689b      	ldr	r3, [r3, #8]
- 800128a:	61fb      	str	r3, [r7, #28]
+ 8001262:	6a3b      	ldr	r3, [r7, #32]
+ 8001264:	689b      	ldr	r3, [r3, #8]
+ 8001266:	61fb      	str	r3, [r7, #28]
 
         int32_t now_ticks  = w->multi_ticks;
- 800128c:	69fb      	ldr	r3, [r7, #28]
- 800128e:	691b      	ldr	r3, [r3, #16]
- 8001290:	61bb      	str	r3, [r7, #24]
+ 8001268:	69fb      	ldr	r3, [r7, #28]
+ 800126a:	691b      	ldr	r3, [r3, #16]
+ 800126c:	61bb      	str	r3, [r7, #24]
         int32_t diff_ticks = now_ticks - d->last_ticks;
- 8001292:	6a3b      	ldr	r3, [r7, #32]
- 8001294:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
- 8001296:	69ba      	ldr	r2, [r7, #24]
- 8001298:	1ad3      	subs	r3, r2, r3
- 800129a:	617b      	str	r3, [r7, #20]
+ 800126e:	6a3b      	ldr	r3, [r7, #32]
+ 8001270:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
+ 8001272:	69ba      	ldr	r2, [r7, #24]
+ 8001274:	1ad3      	subs	r3, r2, r3
+ 8001276:	617b      	str	r3, [r7, #20]
         d->last_ticks = now_ticks;
- 800129c:	6a3b      	ldr	r3, [r7, #32]
- 800129e:	69ba      	ldr	r2, [r7, #24]
- 80012a0:	62da      	str	r2, [r3, #44]	@ 0x2c
+ 8001278:	6a3b      	ldr	r3, [r7, #32]
+ 800127a:	69ba      	ldr	r2, [r7, #24]
+ 800127c:	62da      	str	r2, [r3, #44]	@ 0x2c
 
         float meas_tps = diff_ticks / dt_s;
- 80012a2:	697b      	ldr	r3, [r7, #20]
- 80012a4:	ee07 3a90 	vmov	s15, r3
- 80012a8:	eef8 6ae7 	vcvt.f32.s32	s13, s15
- 80012ac:	ed97 7a01 	vldr	s14, [r7, #4]
- 80012b0:	eec6 7a87 	vdiv.f32	s15, s13, s14
- 80012b4:	edc7 7a04 	vstr	s15, [r7, #16]
+ 800127e:	697b      	ldr	r3, [r7, #20]
+ 8001280:	ee07 3a90 	vmov	s15, r3
+ 8001284:	eef8 6ae7 	vcvt.f32.s32	s13, s15
+ 8001288:	ed97 7a01 	vldr	s14, [r7, #4]
+ 800128c:	eec6 7a87 	vdiv.f32	s15, s13, s14
+ 8001290:	edc7 7a04 	vstr	s15, [r7, #16]
         d->meas_tps = meas_tps;   // <-- เก็บไว้ใน struct
- 80012b8:	6a3b      	ldr	r3, [r7, #32]
- 80012ba:	693a      	ldr	r2, [r7, #16]
- 80012bc:	639a      	str	r2, [r3, #56]	@ 0x38
+ 8001294:	6a3b      	ldr	r3, [r7, #32]
+ 8001296:	693a      	ldr	r2, [r7, #16]
+ 8001298:	639a      	str	r2, [r3, #56]	@ 0x38
 
         // ถ้า target และ measured ใกล้ 0 มาก → หยุด + reset PID
         if (fabsf(d->target_tps) < DRIVE_DEADBAND_TPS &&
- 80012be:	6a3b      	ldr	r3, [r7, #32]
- 80012c0:	edd3 7a0a 	vldr	s15, [r3, #40]	@ 0x28
- 80012c4:	eef0 7ae7 	vabs.f32	s15, s15
- 80012c8:	eeb3 7a04 	vmov.f32	s14, #52	@ 0x41a00000  20.0
- 80012cc:	eef4 7ac7 	vcmpe.f32	s15, s14
- 80012d0:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80012d4:	d51f      	bpl.n	8001316 <Drive_UpdateAll+0xc6>
+ 800129a:	6a3b      	ldr	r3, [r7, #32]
+ 800129c:	edd3 7a0a 	vldr	s15, [r3, #40]	@ 0x28
+ 80012a0:	eef0 7ae7 	vabs.f32	s15, s15
+ 80012a4:	eeb3 7a04 	vmov.f32	s14, #52	@ 0x41a00000  20.0
+ 80012a8:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 80012ac:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80012b0:	d51f      	bpl.n	80012f2 <Drive_UpdateAll+0xc6>
             fabsf(meas_tps)     < DRIVE_DEADBAND_TPS)
- 80012d6:	edd7 7a04 	vldr	s15, [r7, #16]
- 80012da:	eef0 7ae7 	vabs.f32	s15, s15
+ 80012b2:	edd7 7a04 	vldr	s15, [r7, #16]
+ 80012b6:	eef0 7ae7 	vabs.f32	s15, s15
         if (fabsf(d->target_tps) < DRIVE_DEADBAND_TPS &&
- 80012de:	eeb3 7a04 	vmov.f32	s14, #52	@ 0x41a00000  20.0
- 80012e2:	eef4 7ac7 	vcmpe.f32	s15, s14
- 80012e6:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80012ea:	d514      	bpl.n	8001316 <Drive_UpdateAll+0xc6>
+ 80012ba:	eeb3 7a04 	vmov.f32	s14, #52	@ 0x41a00000  20.0
+ 80012be:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 80012c2:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80012c6:	d514      	bpl.n	80012f2 <Drive_UpdateAll+0xc6>
         {
             d->pid.integrator = 0.0f;
- 80012ec:	6a3b      	ldr	r3, [r7, #32]
- 80012ee:	f04f 0200 	mov.w	r2, #0
- 80012f2:	619a      	str	r2, [r3, #24]
+ 80012c8:	6a3b      	ldr	r3, [r7, #32]
+ 80012ca:	f04f 0200 	mov.w	r2, #0
+ 80012ce:	619a      	str	r2, [r3, #24]
             d->pid.prev_error = 0.0f;
- 80012f4:	6a3b      	ldr	r3, [r7, #32]
- 80012f6:	f04f 0200 	mov.w	r2, #0
- 80012fa:	61da      	str	r2, [r3, #28]
+ 80012d0:	6a3b      	ldr	r3, [r7, #32]
+ 80012d2:	f04f 0200 	mov.w	r2, #0
+ 80012d6:	61da      	str	r2, [r3, #28]
             d->last_duty      = 0.0f;
- 80012fc:	6a3b      	ldr	r3, [r7, #32]
- 80012fe:	f04f 0200 	mov.w	r2, #0
- 8001302:	63da      	str	r2, [r3, #60]	@ 0x3c
+ 80012d8:	6a3b      	ldr	r3, [r7, #32]
+ 80012da:	f04f 0200 	mov.w	r2, #0
+ 80012de:	63da      	str	r2, [r3, #60]	@ 0x3c
 
             Motor_set(d->motor_idx, MOTOR_DIR_BRAKE, 0.0f);
- 8001304:	6a3b      	ldr	r3, [r7, #32]
- 8001306:	791b      	ldrb	r3, [r3, #4]
- 8001308:	ed9f 0a3d 	vldr	s0, [pc, #244]	@ 8001400 <Drive_UpdateAll+0x1b0>
- 800130c:	2100      	movs	r1, #0
- 800130e:	4618      	mov	r0, r3
- 8001310:	f000 ff8e 	bl	8002230 <Motor_set>
+ 80012e0:	6a3b      	ldr	r3, [r7, #32]
+ 80012e2:	791b      	ldrb	r3, [r3, #4]
+ 80012e4:	ed9f 0a3d 	vldr	s0, [pc, #244]	@ 80013dc <Drive_UpdateAll+0x1b0>
+ 80012e8:	2100      	movs	r1, #0
+ 80012ea:	4618      	mov	r0, r3
+ 80012ec:	f000 ff8e 	bl	800220c <Motor_set>
             continue;
- 8001314:	e061      	b.n	80013da <Drive_UpdateAll+0x18a>
+ 80012f0:	e061      	b.n	80013b6 <Drive_UpdateAll+0x18a>
         }
 
         float error = d->target_tps - meas_tps;
- 8001316:	6a3b      	ldr	r3, [r7, #32]
- 8001318:	ed93 7a0a 	vldr	s14, [r3, #40]	@ 0x28
- 800131c:	edd7 7a04 	vldr	s15, [r7, #16]
- 8001320:	ee77 7a67 	vsub.f32	s15, s14, s15
- 8001324:	edc7 7a03 	vstr	s15, [r7, #12]
+ 80012f2:	6a3b      	ldr	r3, [r7, #32]
+ 80012f4:	ed93 7a0a 	vldr	s14, [r3, #40]	@ 0x28
+ 80012f8:	edd7 7a04 	vldr	s15, [r7, #16]
+ 80012fc:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 8001300:	edc7 7a03 	vstr	s15, [r7, #12]
 
         // ใช้ error → u (สเกล -1..+1 ตาม out_min/out_max ของ PID)
         float u = PID_Step(&d->pid, error, dt_s);
- 8001328:	6a3b      	ldr	r3, [r7, #32]
- 800132a:	330c      	adds	r3, #12
- 800132c:	edd7 0a01 	vldr	s1, [r7, #4]
- 8001330:	ed97 0a03 	vldr	s0, [r7, #12]
- 8001334:	4618      	mov	r0, r3
- 8001336:	f000 f865 	bl	8001404 <PID_Step>
- 800133a:	ed87 0a02 	vstr	s0, [r7, #8]
+ 8001304:	6a3b      	ldr	r3, [r7, #32]
+ 8001306:	330c      	adds	r3, #12
+ 8001308:	edd7 0a01 	vldr	s1, [r7, #4]
+ 800130c:	ed97 0a03 	vldr	s0, [r7, #12]
+ 8001310:	4618      	mov	r0, r3
+ 8001312:	f000 f865 	bl	80013e0 <PID_Step>
+ 8001316:	ed87 0a02 	vstr	s0, [r7, #8]
 
         MotorDir_t dir;
         float duty;
 
         if (u >= 0.0f) {
- 800133e:	edd7 7a02 	vldr	s15, [r7, #8]
- 8001342:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 8001346:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 800134a:	db05      	blt.n	8001358 <Drive_UpdateAll+0x108>
+ 800131a:	edd7 7a02 	vldr	s15, [r7, #8]
+ 800131e:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 8001322:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001326:	db05      	blt.n	8001334 <Drive_UpdateAll+0x108>
             dir  = MOTOR_DIR_FWD;
- 800134c:	2301      	movs	r3, #1
- 800134e:	f887 302b 	strb.w	r3, [r7, #43]	@ 0x2b
+ 8001328:	2301      	movs	r3, #1
+ 800132a:	f887 302b 	strb.w	r3, [r7, #43]	@ 0x2b
             duty = u;
- 8001352:	68bb      	ldr	r3, [r7, #8]
- 8001354:	627b      	str	r3, [r7, #36]	@ 0x24
- 8001356:	e008      	b.n	800136a <Drive_UpdateAll+0x11a>
+ 800132e:	68bb      	ldr	r3, [r7, #8]
+ 8001330:	627b      	str	r3, [r7, #36]	@ 0x24
+ 8001332:	e008      	b.n	8001346 <Drive_UpdateAll+0x11a>
         } else {
             dir  = MOTOR_DIR_REV;
- 8001358:	23ff      	movs	r3, #255	@ 0xff
- 800135a:	f887 302b 	strb.w	r3, [r7, #43]	@ 0x2b
+ 8001334:	23ff      	movs	r3, #255	@ 0xff
+ 8001336:	f887 302b 	strb.w	r3, [r7, #43]	@ 0x2b
             duty = -u;
- 800135e:	edd7 7a02 	vldr	s15, [r7, #8]
- 8001362:	eef1 7a67 	vneg.f32	s15, s15
- 8001366:	edc7 7a09 	vstr	s15, [r7, #36]	@ 0x24
+ 800133a:	edd7 7a02 	vldr	s15, [r7, #8]
+ 800133e:	eef1 7a67 	vneg.f32	s15, s15
+ 8001342:	edc7 7a09 	vstr	s15, [r7, #36]	@ 0x24
         }
 
         // *** จุดสำคัญ: duty = base + สัดส่วนจาก PID ***
         if (d->target_tps != 0.0f) {
- 800136a:	6a3b      	ldr	r3, [r7, #32]
- 800136c:	edd3 7a0a 	vldr	s15, [r3, #40]	@ 0x28
- 8001370:	eef5 7a40 	vcmp.f32	s15, #0.0
- 8001374:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001378:	d009      	beq.n	800138e <Drive_UpdateAll+0x13e>
+ 8001346:	6a3b      	ldr	r3, [r7, #32]
+ 8001348:	edd3 7a0a 	vldr	s15, [r3, #40]	@ 0x28
+ 800134c:	eef5 7a40 	vcmp.f32	s15, #0.0
+ 8001350:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001354:	d009      	beq.n	800136a <Drive_UpdateAll+0x13e>
             duty = d->duty_base + duty;   // base ต่อ-ล้อ + สัดส่วนจาก PID
- 800137a:	6a3b      	ldr	r3, [r7, #32]
- 800137c:	edd3 7a0d 	vldr	s15, [r3, #52]	@ 0x34
- 8001380:	ed97 7a09 	vldr	s14, [r7, #36]	@ 0x24
- 8001384:	ee77 7a27 	vadd.f32	s15, s14, s15
- 8001388:	edc7 7a09 	vstr	s15, [r7, #36]	@ 0x24
- 800138c:	e002      	b.n	8001394 <Drive_UpdateAll+0x144>
+ 8001356:	6a3b      	ldr	r3, [r7, #32]
+ 8001358:	edd3 7a0d 	vldr	s15, [r3, #52]	@ 0x34
+ 800135c:	ed97 7a09 	vldr	s14, [r7, #36]	@ 0x24
+ 8001360:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 8001364:	edc7 7a09 	vstr	s15, [r7, #36]	@ 0x24
+ 8001368:	e002      	b.n	8001370 <Drive_UpdateAll+0x144>
         } else {
             duty = 0.0f;                  // target = 0 -> ไม่ต้องใส่ base
- 800138e:	f04f 0300 	mov.w	r3, #0
- 8001392:	627b      	str	r3, [r7, #36]	@ 0x24
+ 800136a:	f04f 0300 	mov.w	r3, #0
+ 800136e:	627b      	str	r3, [r7, #36]	@ 0x24
         }
 
         // clamp
         if (duty > 1.0f) duty = 1.0f;
- 8001394:	edd7 7a09 	vldr	s15, [r7, #36]	@ 0x24
- 8001398:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
- 800139c:	eef4 7ac7 	vcmpe.f32	s15, s14
- 80013a0:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80013a4:	dd02      	ble.n	80013ac <Drive_UpdateAll+0x15c>
- 80013a6:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
- 80013aa:	627b      	str	r3, [r7, #36]	@ 0x24
+ 8001370:	edd7 7a09 	vldr	s15, [r7, #36]	@ 0x24
+ 8001374:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
+ 8001378:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 800137c:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001380:	dd02      	ble.n	8001388 <Drive_UpdateAll+0x15c>
+ 8001382:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
+ 8001386:	627b      	str	r3, [r7, #36]	@ 0x24
         if (duty < 0.0f) duty = 0.0f;
- 80013ac:	edd7 7a09 	vldr	s15, [r7, #36]	@ 0x24
- 80013b0:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 80013b4:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80013b8:	d502      	bpl.n	80013c0 <Drive_UpdateAll+0x170>
- 80013ba:	f04f 0300 	mov.w	r3, #0
- 80013be:	627b      	str	r3, [r7, #36]	@ 0x24
+ 8001388:	edd7 7a09 	vldr	s15, [r7, #36]	@ 0x24
+ 800138c:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 8001390:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001394:	d502      	bpl.n	800139c <Drive_UpdateAll+0x170>
+ 8001396:	f04f 0300 	mov.w	r3, #0
+ 800139a:	627b      	str	r3, [r7, #36]	@ 0x24
 
         d->last_duty = duty;              // <-- เก็บ duty ล่าสุด
- 80013c0:	6a3b      	ldr	r3, [r7, #32]
- 80013c2:	6a7a      	ldr	r2, [r7, #36]	@ 0x24
- 80013c4:	63da      	str	r2, [r3, #60]	@ 0x3c
+ 800139c:	6a3b      	ldr	r3, [r7, #32]
+ 800139e:	6a7a      	ldr	r2, [r7, #36]	@ 0x24
+ 80013a0:	63da      	str	r2, [r3, #60]	@ 0x3c
         Motor_set(d->motor_idx, dir, duty);
- 80013c6:	6a3b      	ldr	r3, [r7, #32]
- 80013c8:	791b      	ldrb	r3, [r3, #4]
- 80013ca:	f997 202b 	ldrsb.w	r2, [r7, #43]	@ 0x2b
- 80013ce:	ed97 0a09 	vldr	s0, [r7, #36]	@ 0x24
- 80013d2:	4611      	mov	r1, r2
- 80013d4:	4618      	mov	r0, r3
- 80013d6:	f000 ff2b 	bl	8002230 <Motor_set>
+ 80013a2:	6a3b      	ldr	r3, [r7, #32]
+ 80013a4:	791b      	ldrb	r3, [r3, #4]
+ 80013a6:	f997 202b 	ldrsb.w	r2, [r7, #43]	@ 0x2b
+ 80013aa:	ed97 0a09 	vldr	s0, [r7, #36]	@ 0x24
+ 80013ae:	4611      	mov	r1, r2
+ 80013b0:	4618      	mov	r0, r3
+ 80013b2:	f000 ff2b 	bl	800220c <Motor_set>
     for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
- 80013da:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
- 80013dc:	3301      	adds	r3, #1
- 80013de:	62fb      	str	r3, [r7, #44]	@ 0x2c
- 80013e0:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
- 80013e2:	2b03      	cmp	r3, #3
- 80013e4:	f67f af4a 	bls.w	800127c <Drive_UpdateAll+0x2c>
+ 80013b6:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 80013b8:	3301      	adds	r3, #1
+ 80013ba:	62fb      	str	r3, [r7, #44]	@ 0x2c
+ 80013bc:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 80013be:	2b03      	cmp	r3, #3
+ 80013c0:	f67f af4a 	bls.w	8001258 <Drive_UpdateAll+0x2c>
 //                   d->last_duty,
 //                   d->duty_base,
 //                   (int)dir);
 //        }
     }
 }
- 80013e8:	bf00      	nop
- 80013ea:	bf00      	nop
- 80013ec:	3730      	adds	r7, #48	@ 0x30
- 80013ee:	46bd      	mov	sp, r7
- 80013f0:	bd80      	pop	{r7, pc}
- 80013f2:	bf00      	nop
- 80013f4:	3a83126f 	.word	0x3a83126f
- 80013f8:	20000648 	.word	0x20000648
- 80013fc:	20000000 	.word	0x20000000
- 8001400:	00000000 	.word	0x00000000
+ 80013c4:	bf00      	nop
+ 80013c6:	bf00      	nop
+ 80013c8:	3730      	adds	r7, #48	@ 0x30
+ 80013ca:	46bd      	mov	sp, r7
+ 80013cc:	bd80      	pop	{r7, pc}
+ 80013ce:	bf00      	nop
+ 80013d0:	3a83126f 	.word	0x3a83126f
+ 80013d4:	20000648 	.word	0x20000648
+ 80013d8:	20000000 	.word	0x20000000
+ 80013dc:	00000000 	.word	0x00000000
 
-08001404 <PID_Step>:
+080013e0 <PID_Step>:
  */
 
 #include "Control/pid_ctrl.h"
 
 float PID_Step(PID_t *p, float error, float dt)
 {
- 8001404:	b480      	push	{r7}
- 8001406:	b08b      	sub	sp, #44	@ 0x2c
- 8001408:	af00      	add	r7, sp, #0
- 800140a:	60f8      	str	r0, [r7, #12]
- 800140c:	ed87 0a02 	vstr	s0, [r7, #8]
- 8001410:	edc7 0a01 	vstr	s1, [r7, #4]
+ 80013e0:	b480      	push	{r7}
+ 80013e2:	b08b      	sub	sp, #44	@ 0x2c
+ 80013e4:	af00      	add	r7, sp, #0
+ 80013e6:	60f8      	str	r0, [r7, #12]
+ 80013e8:	ed87 0a02 	vstr	s0, [r7, #8]
+ 80013ec:	edc7 0a01 	vstr	s1, [r7, #4]
     // P
     float p_out = p->kp * error;
- 8001414:	68fb      	ldr	r3, [r7, #12]
- 8001416:	edd3 7a00 	vldr	s15, [r3]
- 800141a:	ed97 7a02 	vldr	s14, [r7, #8]
- 800141e:	ee67 7a27 	vmul.f32	s15, s14, s15
- 8001422:	edc7 7a07 	vstr	s15, [r7, #28]
+ 80013f0:	68fb      	ldr	r3, [r7, #12]
+ 80013f2:	edd3 7a00 	vldr	s15, [r3]
+ 80013f6:	ed97 7a02 	vldr	s14, [r7, #8]
+ 80013fa:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 80013fe:	edc7 7a07 	vstr	s15, [r7, #28]
 
     // I
     p->integrator += error * dt;
- 8001426:	68fb      	ldr	r3, [r7, #12]
- 8001428:	ed93 7a03 	vldr	s14, [r3, #12]
- 800142c:	edd7 6a02 	vldr	s13, [r7, #8]
- 8001430:	edd7 7a01 	vldr	s15, [r7, #4]
- 8001434:	ee66 7aa7 	vmul.f32	s15, s13, s15
- 8001438:	ee77 7a27 	vadd.f32	s15, s14, s15
- 800143c:	68fb      	ldr	r3, [r7, #12]
- 800143e:	edc3 7a03 	vstr	s15, [r3, #12]
+ 8001402:	68fb      	ldr	r3, [r7, #12]
+ 8001404:	ed93 7a03 	vldr	s14, [r3, #12]
+ 8001408:	edd7 6a02 	vldr	s13, [r7, #8]
+ 800140c:	edd7 7a01 	vldr	s15, [r7, #4]
+ 8001410:	ee66 7aa7 	vmul.f32	s15, s13, s15
+ 8001414:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 8001418:	68fb      	ldr	r3, [r7, #12]
+ 800141a:	edc3 7a03 	vstr	s15, [r3, #12]
     float i_out = p->ki * p->integrator;
- 8001442:	68fb      	ldr	r3, [r7, #12]
- 8001444:	ed93 7a01 	vldr	s14, [r3, #4]
- 8001448:	68fb      	ldr	r3, [r7, #12]
- 800144a:	edd3 7a03 	vldr	s15, [r3, #12]
- 800144e:	ee67 7a27 	vmul.f32	s15, s14, s15
- 8001452:	edc7 7a06 	vstr	s15, [r7, #24]
+ 800141e:	68fb      	ldr	r3, [r7, #12]
+ 8001420:	ed93 7a01 	vldr	s14, [r3, #4]
+ 8001424:	68fb      	ldr	r3, [r7, #12]
+ 8001426:	edd3 7a03 	vldr	s15, [r3, #12]
+ 800142a:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 800142e:	edc7 7a06 	vstr	s15, [r7, #24]
 
     // D
     float d_term = 0.0f;
- 8001456:	f04f 0300 	mov.w	r3, #0
- 800145a:	627b      	str	r3, [r7, #36]	@ 0x24
+ 8001432:	f04f 0300 	mov.w	r3, #0
+ 8001436:	627b      	str	r3, [r7, #36]	@ 0x24
     if (dt > 0.0f) {
- 800145c:	edd7 7a01 	vldr	s15, [r7, #4]
- 8001460:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 8001464:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001468:	dd0c      	ble.n	8001484 <PID_Step+0x80>
+ 8001438:	edd7 7a01 	vldr	s15, [r7, #4]
+ 800143c:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 8001440:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001444:	dd0c      	ble.n	8001460 <PID_Step+0x80>
         d_term = (error - p->prev_error) / dt;
- 800146a:	68fb      	ldr	r3, [r7, #12]
- 800146c:	edd3 7a04 	vldr	s15, [r3, #16]
- 8001470:	ed97 7a02 	vldr	s14, [r7, #8]
- 8001474:	ee77 6a67 	vsub.f32	s13, s14, s15
- 8001478:	ed97 7a01 	vldr	s14, [r7, #4]
- 800147c:	eec6 7a87 	vdiv.f32	s15, s13, s14
- 8001480:	edc7 7a09 	vstr	s15, [r7, #36]	@ 0x24
+ 8001446:	68fb      	ldr	r3, [r7, #12]
+ 8001448:	edd3 7a04 	vldr	s15, [r3, #16]
+ 800144c:	ed97 7a02 	vldr	s14, [r7, #8]
+ 8001450:	ee77 6a67 	vsub.f32	s13, s14, s15
+ 8001454:	ed97 7a01 	vldr	s14, [r7, #4]
+ 8001458:	eec6 7a87 	vdiv.f32	s15, s13, s14
+ 800145c:	edc7 7a09 	vstr	s15, [r7, #36]	@ 0x24
     }
     float d_out = p->kd * d_term;
- 8001484:	68fb      	ldr	r3, [r7, #12]
- 8001486:	edd3 7a02 	vldr	s15, [r3, #8]
- 800148a:	ed97 7a09 	vldr	s14, [r7, #36]	@ 0x24
- 800148e:	ee67 7a27 	vmul.f32	s15, s14, s15
- 8001492:	edc7 7a05 	vstr	s15, [r7, #20]
+ 8001460:	68fb      	ldr	r3, [r7, #12]
+ 8001462:	edd3 7a02 	vldr	s15, [r3, #8]
+ 8001466:	ed97 7a09 	vldr	s14, [r7, #36]	@ 0x24
+ 800146a:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 800146e:	edc7 7a05 	vstr	s15, [r7, #20]
 
     float out = p_out + i_out + d_out;
- 8001496:	ed97 7a07 	vldr	s14, [r7, #28]
- 800149a:	edd7 7a06 	vldr	s15, [r7, #24]
- 800149e:	ee77 7a27 	vadd.f32	s15, s14, s15
- 80014a2:	ed97 7a05 	vldr	s14, [r7, #20]
- 80014a6:	ee77 7a27 	vadd.f32	s15, s14, s15
- 80014aa:	edc7 7a08 	vstr	s15, [r7, #32]
+ 8001472:	ed97 7a07 	vldr	s14, [r7, #28]
+ 8001476:	edd7 7a06 	vldr	s15, [r7, #24]
+ 800147a:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 800147e:	ed97 7a05 	vldr	s14, [r7, #20]
+ 8001482:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 8001486:	edc7 7a08 	vstr	s15, [r7, #32]
 
     // clamp
     if (out > p->out_max) out = p->out_max;
- 80014ae:	68fb      	ldr	r3, [r7, #12]
- 80014b0:	edd3 7a06 	vldr	s15, [r3, #24]
- 80014b4:	ed97 7a08 	vldr	s14, [r7, #32]
- 80014b8:	eeb4 7ae7 	vcmpe.f32	s14, s15
- 80014bc:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80014c0:	dd02      	ble.n	80014c8 <PID_Step+0xc4>
- 80014c2:	68fb      	ldr	r3, [r7, #12]
- 80014c4:	699b      	ldr	r3, [r3, #24]
- 80014c6:	623b      	str	r3, [r7, #32]
+ 800148a:	68fb      	ldr	r3, [r7, #12]
+ 800148c:	edd3 7a06 	vldr	s15, [r3, #24]
+ 8001490:	ed97 7a08 	vldr	s14, [r7, #32]
+ 8001494:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 8001498:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800149c:	dd02      	ble.n	80014a4 <PID_Step+0xc4>
+ 800149e:	68fb      	ldr	r3, [r7, #12]
+ 80014a0:	699b      	ldr	r3, [r3, #24]
+ 80014a2:	623b      	str	r3, [r7, #32]
     if (out < p->out_min) out = p->out_min;
- 80014c8:	68fb      	ldr	r3, [r7, #12]
- 80014ca:	edd3 7a05 	vldr	s15, [r3, #20]
- 80014ce:	ed97 7a08 	vldr	s14, [r7, #32]
- 80014d2:	eeb4 7ae7 	vcmpe.f32	s14, s15
- 80014d6:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80014da:	d502      	bpl.n	80014e2 <PID_Step+0xde>
- 80014dc:	68fb      	ldr	r3, [r7, #12]
- 80014de:	695b      	ldr	r3, [r3, #20]
- 80014e0:	623b      	str	r3, [r7, #32]
+ 80014a4:	68fb      	ldr	r3, [r7, #12]
+ 80014a6:	edd3 7a05 	vldr	s15, [r3, #20]
+ 80014aa:	ed97 7a08 	vldr	s14, [r7, #32]
+ 80014ae:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 80014b2:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80014b6:	d502      	bpl.n	80014be <PID_Step+0xde>
+ 80014b8:	68fb      	ldr	r3, [r7, #12]
+ 80014ba:	695b      	ldr	r3, [r3, #20]
+ 80014bc:	623b      	str	r3, [r7, #32]
 
     p->prev_error = error;
- 80014e2:	68fb      	ldr	r3, [r7, #12]
- 80014e4:	68ba      	ldr	r2, [r7, #8]
- 80014e6:	611a      	str	r2, [r3, #16]
+ 80014be:	68fb      	ldr	r3, [r7, #12]
+ 80014c0:	68ba      	ldr	r2, [r7, #8]
+ 80014c2:	611a      	str	r2, [r3, #16]
     return out;
- 80014e8:	6a3b      	ldr	r3, [r7, #32]
- 80014ea:	ee07 3a90 	vmov	s15, r3
+ 80014c4:	6a3b      	ldr	r3, [r7, #32]
+ 80014c6:	ee07 3a90 	vmov	s15, r3
 }
- 80014ee:	eeb0 0a67 	vmov.f32	s0, s15
- 80014f2:	372c      	adds	r7, #44	@ 0x2c
- 80014f4:	46bd      	mov	sp, r7
- 80014f6:	f85d 7b04 	ldr.w	r7, [sp], #4
- 80014fa:	4770      	bx	lr
+ 80014ca:	eeb0 0a67 	vmov.f32	s0, s15
+ 80014ce:	372c      	adds	r7, #44	@ 0x2c
+ 80014d0:	46bd      	mov	sp, r7
+ 80014d2:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80014d6:	4770      	bx	lr
 
-080014fc <wrap_ticks>:
+080014d8 <wrap_ticks>:
     -1,  // 2: STEER_RL (rear-left)
     +1   // 3: STEER_FL (front-left)
 };
 
 uint16_t wrap_ticks(int32_t t)
 {
- 80014fc:	b480      	push	{r7}
- 80014fe:	b083      	sub	sp, #12
- 8001500:	af00      	add	r7, sp, #0
- 8001502:	6078      	str	r0, [r7, #4]
+ 80014d8:	b480      	push	{r7}
+ 80014da:	b083      	sub	sp, #12
+ 80014dc:	af00      	add	r7, sp, #0
+ 80014de:	6078      	str	r0, [r7, #4]
     while (t < 0)                 			t += STEER_TICKS_MAX;
- 8001504:	e003      	b.n	800150e <wrap_ticks+0x12>
- 8001506:	687b      	ldr	r3, [r7, #4]
- 8001508:	f503 6380 	add.w	r3, r3, #1024	@ 0x400
- 800150c:	607b      	str	r3, [r7, #4]
- 800150e:	687b      	ldr	r3, [r7, #4]
- 8001510:	2b00      	cmp	r3, #0
- 8001512:	dbf8      	blt.n	8001506 <wrap_ticks+0xa>
+ 80014e0:	e003      	b.n	80014ea <wrap_ticks+0x12>
+ 80014e2:	687b      	ldr	r3, [r7, #4]
+ 80014e4:	f503 6380 	add.w	r3, r3, #1024	@ 0x400
+ 80014e8:	607b      	str	r3, [r7, #4]
+ 80014ea:	687b      	ldr	r3, [r7, #4]
+ 80014ec:	2b00      	cmp	r3, #0
+ 80014ee:	dbf8      	blt.n	80014e2 <wrap_ticks+0xa>
     while (t >= (int32_t)STEER_TICKS_MAX)	t -= STEER_TICKS_MAX;
- 8001514:	e003      	b.n	800151e <wrap_ticks+0x22>
- 8001516:	687b      	ldr	r3, [r7, #4]
- 8001518:	f5a3 6380 	sub.w	r3, r3, #1024	@ 0x400
- 800151c:	607b      	str	r3, [r7, #4]
- 800151e:	687b      	ldr	r3, [r7, #4]
- 8001520:	f5b3 6f80 	cmp.w	r3, #1024	@ 0x400
- 8001524:	daf7      	bge.n	8001516 <wrap_ticks+0x1a>
+ 80014f0:	e003      	b.n	80014fa <wrap_ticks+0x22>
+ 80014f2:	687b      	ldr	r3, [r7, #4]
+ 80014f4:	f5a3 6380 	sub.w	r3, r3, #1024	@ 0x400
+ 80014f8:	607b      	str	r3, [r7, #4]
+ 80014fa:	687b      	ldr	r3, [r7, #4]
+ 80014fc:	f5b3 6f80 	cmp.w	r3, #1024	@ 0x400
+ 8001500:	daf7      	bge.n	80014f2 <wrap_ticks+0x1a>
     return (uint16_t)t;
- 8001526:	687b      	ldr	r3, [r7, #4]
- 8001528:	b29b      	uxth	r3, r3
+ 8001502:	687b      	ldr	r3, [r7, #4]
+ 8001504:	b29b      	uxth	r3, r3
 }
- 800152a:	4618      	mov	r0, r3
- 800152c:	370c      	adds	r7, #12
- 800152e:	46bd      	mov	sp, r7
- 8001530:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8001534:	4770      	bx	lr
+ 8001506:	4618      	mov	r0, r3
+ 8001508:	370c      	adds	r7, #12
+ 800150a:	46bd      	mov	sp, r7
+ 800150c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8001510:	4770      	bx	lr
 	...
 
-08001538 <Steer_SetTargetAngleDeg>:
+08001514 <Steer_SetTargetAngleDeg>:
     }
 }
 
 // คำนวณ target_ticks ของทุกล้อตามมุม angle_deg (ใช้ zero_offset ของแต่ละล้อ) (AWS: ล้อหน้า+, ล้อหลัง-)
 void Steer_SetTargetAngleDeg(float angle_deg)
 {
- 8001538:	b580      	push	{r7, lr}
- 800153a:	b086      	sub	sp, #24
- 800153c:	af00      	add	r7, sp, #0
- 800153e:	ed87 0a01 	vstr	s0, [r7, #4]
+ 8001514:	b580      	push	{r7, lr}
+ 8001516:	b086      	sub	sp, #24
+ 8001518:	af00      	add	r7, sp, #0
+ 800151a:	ed87 0a01 	vstr	s0, [r7, #4]
     // clamp มุมไม่เกิน ±STEER_MAX_DEG
     if (angle_deg >  STEER_MAX_DEG) angle_deg =  STEER_MAX_DEG;
- 8001542:	edd7 7a01 	vldr	s15, [r7, #4]
- 8001546:	eeb3 7a0c 	vmov.f32	s14, #60	@ 0x41e00000  28.0
- 800154a:	eef4 7ac7 	vcmpe.f32	s15, s14
- 800154e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001552:	dd01      	ble.n	8001558 <Steer_SetTargetAngleDeg+0x20>
- 8001554:	4b26      	ldr	r3, [pc, #152]	@ (80015f0 <Steer_SetTargetAngleDeg+0xb8>)
- 8001556:	607b      	str	r3, [r7, #4]
+ 800151e:	edd7 7a01 	vldr	s15, [r7, #4]
+ 8001522:	eeb3 7a0c 	vmov.f32	s14, #60	@ 0x41e00000  28.0
+ 8001526:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 800152a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800152e:	dd01      	ble.n	8001534 <Steer_SetTargetAngleDeg+0x20>
+ 8001530:	4b26      	ldr	r3, [pc, #152]	@ (80015cc <Steer_SetTargetAngleDeg+0xb8>)
+ 8001532:	607b      	str	r3, [r7, #4]
     if (angle_deg < -STEER_MAX_DEG) angle_deg = -STEER_MAX_DEG;
- 8001558:	edd7 7a01 	vldr	s15, [r7, #4]
- 800155c:	eebb 7a0c 	vmov.f32	s14, #188	@ 0xc1e00000 -28.0
- 8001560:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8001564:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001568:	d501      	bpl.n	800156e <Steer_SetTargetAngleDeg+0x36>
- 800156a:	4b22      	ldr	r3, [pc, #136]	@ (80015f4 <Steer_SetTargetAngleDeg+0xbc>)
- 800156c:	607b      	str	r3, [r7, #4]
+ 8001534:	edd7 7a01 	vldr	s15, [r7, #4]
+ 8001538:	eebb 7a0c 	vmov.f32	s14, #188	@ 0xc1e00000 -28.0
+ 800153c:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8001540:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001544:	d501      	bpl.n	800154a <Steer_SetTargetAngleDeg+0x36>
+ 8001546:	4b22      	ldr	r3, [pc, #136]	@ (80015d0 <Steer_SetTargetAngleDeg+0xbc>)
+ 8001548:	607b      	str	r3, [r7, #4]
 
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
- 800156e:	2300      	movs	r3, #0
- 8001570:	617b      	str	r3, [r7, #20]
- 8001572:	e034      	b.n	80015de <Steer_SetTargetAngleDeg+0xa6>
+ 800154a:	2300      	movs	r3, #0
+ 800154c:	617b      	str	r3, [r7, #20]
+ 800154e:	e034      	b.n	80015ba <Steer_SetTargetAngleDeg+0xa6>
         // AWS:
         //  - ล้อหน้า: steer_turn_sign = +1  -> ได้มุม +angle_deg
         //  - ล้อหลัง: steer_turn_sign = -1  -> ได้มุม -angle_deg
         float delta_ticks_f = angle_deg * (float)steer_turn_sign[i] * ENC_TICKS_PER_DEG;
- 8001574:	4a20      	ldr	r2, [pc, #128]	@ (80015f8 <Steer_SetTargetAngleDeg+0xc0>)
- 8001576:	697b      	ldr	r3, [r7, #20]
- 8001578:	4413      	add	r3, r2
- 800157a:	f993 3000 	ldrsb.w	r3, [r3]
- 800157e:	ee07 3a90 	vmov	s15, r3
- 8001582:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 8001586:	edd7 7a01 	vldr	s15, [r7, #4]
- 800158a:	ee67 7a27 	vmul.f32	s15, s14, s15
- 800158e:	ed9f 7a1b 	vldr	s14, [pc, #108]	@ 80015fc <Steer_SetTargetAngleDeg+0xc4>
- 8001592:	ee67 7a87 	vmul.f32	s15, s15, s14
- 8001596:	edc7 7a04 	vstr	s15, [r7, #16]
+ 8001550:	4a20      	ldr	r2, [pc, #128]	@ (80015d4 <Steer_SetTargetAngleDeg+0xc0>)
+ 8001552:	697b      	ldr	r3, [r7, #20]
+ 8001554:	4413      	add	r3, r2
+ 8001556:	f993 3000 	ldrsb.w	r3, [r3]
+ 800155a:	ee07 3a90 	vmov	s15, r3
+ 800155e:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 8001562:	edd7 7a01 	vldr	s15, [r7, #4]
+ 8001566:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 800156a:	ed9f 7a1b 	vldr	s14, [pc, #108]	@ 80015d8 <Steer_SetTargetAngleDeg+0xc4>
+ 800156e:	ee67 7a87 	vmul.f32	s15, s15, s14
+ 8001572:	edc7 7a04 	vstr	s15, [r7, #16]
 
         int32_t base  = (int32_t)steer_axes[i].zero_offset;
- 800159a:	4a19      	ldr	r2, [pc, #100]	@ (8001600 <Steer_SetTargetAngleDeg+0xc8>)
- 800159c:	697b      	ldr	r3, [r7, #20]
- 800159e:	2134      	movs	r1, #52	@ 0x34
- 80015a0:	fb01 f303 	mul.w	r3, r1, r3
- 80015a4:	4413      	add	r3, r2
- 80015a6:	3308      	adds	r3, #8
- 80015a8:	881b      	ldrh	r3, [r3, #0]
- 80015aa:	60fb      	str	r3, [r7, #12]
+ 8001576:	4a19      	ldr	r2, [pc, #100]	@ (80015dc <Steer_SetTargetAngleDeg+0xc8>)
+ 8001578:	697b      	ldr	r3, [r7, #20]
+ 800157a:	2134      	movs	r1, #52	@ 0x34
+ 800157c:	fb01 f303 	mul.w	r3, r1, r3
+ 8001580:	4413      	add	r3, r2
+ 8001582:	3308      	adds	r3, #8
+ 8001584:	881b      	ldrh	r3, [r3, #0]
+ 8001586:	60fb      	str	r3, [r7, #12]
         int32_t delta = (int32_t)lrintf(delta_ticks_f);
- 80015ac:	ed97 0a04 	vldr	s0, [r7, #16]
- 80015b0:	f016 f9ba 	bl	8017928 <lrintf>
- 80015b4:	60b8      	str	r0, [r7, #8]
+ 8001588:	ed97 0a04 	vldr	s0, [r7, #16]
+ 800158c:	f016 f9cc 	bl	8017928 <lrintf>
+ 8001590:	60b8      	str	r0, [r7, #8]
 
         steer_axes[i].target_ticks = wrap_ticks(base + delta);
- 80015b6:	68fa      	ldr	r2, [r7, #12]
- 80015b8:	68bb      	ldr	r3, [r7, #8]
- 80015ba:	4413      	add	r3, r2
- 80015bc:	4618      	mov	r0, r3
- 80015be:	f7ff ff9d 	bl	80014fc <wrap_ticks>
- 80015c2:	4603      	mov	r3, r0
- 80015c4:	4618      	mov	r0, r3
- 80015c6:	4a0e      	ldr	r2, [pc, #56]	@ (8001600 <Steer_SetTargetAngleDeg+0xc8>)
- 80015c8:	697b      	ldr	r3, [r7, #20]
- 80015ca:	2134      	movs	r1, #52	@ 0x34
- 80015cc:	fb01 f303 	mul.w	r3, r1, r3
- 80015d0:	4413      	add	r3, r2
- 80015d2:	330c      	adds	r3, #12
- 80015d4:	4602      	mov	r2, r0
- 80015d6:	801a      	strh	r2, [r3, #0]
+ 8001592:	68fa      	ldr	r2, [r7, #12]
+ 8001594:	68bb      	ldr	r3, [r7, #8]
+ 8001596:	4413      	add	r3, r2
+ 8001598:	4618      	mov	r0, r3
+ 800159a:	f7ff ff9d 	bl	80014d8 <wrap_ticks>
+ 800159e:	4603      	mov	r3, r0
+ 80015a0:	4618      	mov	r0, r3
+ 80015a2:	4a0e      	ldr	r2, [pc, #56]	@ (80015dc <Steer_SetTargetAngleDeg+0xc8>)
+ 80015a4:	697b      	ldr	r3, [r7, #20]
+ 80015a6:	2134      	movs	r1, #52	@ 0x34
+ 80015a8:	fb01 f303 	mul.w	r3, r1, r3
+ 80015ac:	4413      	add	r3, r2
+ 80015ae:	330c      	adds	r3, #12
+ 80015b0:	4602      	mov	r2, r0
+ 80015b2:	801a      	strh	r2, [r3, #0]
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
- 80015d8:	697b      	ldr	r3, [r7, #20]
- 80015da:	3301      	adds	r3, #1
- 80015dc:	617b      	str	r3, [r7, #20]
- 80015de:	697b      	ldr	r3, [r7, #20]
- 80015e0:	2b03      	cmp	r3, #3
- 80015e2:	d9c7      	bls.n	8001574 <Steer_SetTargetAngleDeg+0x3c>
+ 80015b4:	697b      	ldr	r3, [r7, #20]
+ 80015b6:	3301      	adds	r3, #1
+ 80015b8:	617b      	str	r3, [r7, #20]
+ 80015ba:	697b      	ldr	r3, [r7, #20]
+ 80015bc:	2b03      	cmp	r3, #3
+ 80015be:	d9c7      	bls.n	8001550 <Steer_SetTargetAngleDeg+0x3c>
     }
 }
- 80015e4:	bf00      	nop
- 80015e6:	bf00      	nop
- 80015e8:	3718      	adds	r7, #24
- 80015ea:	46bd      	mov	sp, r7
- 80015ec:	bd80      	pop	{r7, pc}
- 80015ee:	bf00      	nop
- 80015f0:	41e00000 	.word	0x41e00000
- 80015f4:	c1e00000 	.word	0xc1e00000
- 80015f8:	0801ab74 	.word	0x0801ab74
- 80015fc:	40360b61 	.word	0x40360b61
- 8001600:	2000010c 	.word	0x2000010c
+ 80015c0:	bf00      	nop
+ 80015c2:	bf00      	nop
+ 80015c4:	3718      	adds	r7, #24
+ 80015c6:	46bd      	mov	sp, r7
+ 80015c8:	bd80      	pop	{r7, pc}
+ 80015ca:	bf00      	nop
+ 80015cc:	41e00000 	.word	0x41e00000
+ 80015d0:	c1e00000 	.word	0xc1e00000
+ 80015d4:	0801ab74 	.word	0x0801ab74
+ 80015d8:	40360b61 	.word	0x40360b61
+ 80015dc:	2000010c 	.word	0x2000010c
 
-08001604 <SteerMotor_Jog>:
+080015e0 <SteerMotor_Jog>:
 
 void SteerMotor_Jog(uint8_t axis, MotorDir_t dir, float duty)
 {
- 8001604:	b580      	push	{r7, lr}
- 8001606:	b084      	sub	sp, #16
- 8001608:	af00      	add	r7, sp, #0
- 800160a:	4603      	mov	r3, r0
- 800160c:	460a      	mov	r2, r1
- 800160e:	ed87 0a00 	vstr	s0, [r7]
- 8001612:	71fb      	strb	r3, [r7, #7]
- 8001614:	4613      	mov	r3, r2
- 8001616:	71bb      	strb	r3, [r7, #6]
+ 80015e0:	b580      	push	{r7, lr}
+ 80015e2:	b084      	sub	sp, #16
+ 80015e4:	af00      	add	r7, sp, #0
+ 80015e6:	4603      	mov	r3, r0
+ 80015e8:	460a      	mov	r2, r1
+ 80015ea:	ed87 0a00 	vstr	s0, [r7]
+ 80015ee:	71fb      	strb	r3, [r7, #7]
+ 80015f0:	4613      	mov	r3, r2
+ 80015f2:	71bb      	strb	r3, [r7, #6]
     if (axis >= 4) return;
- 8001618:	79fb      	ldrb	r3, [r7, #7]
- 800161a:	2b03      	cmp	r3, #3
- 800161c:	d80d      	bhi.n	800163a <SteerMotor_Jog+0x36>
+ 80015f4:	79fb      	ldrb	r3, [r7, #7]
+ 80015f6:	2b03      	cmp	r3, #3
+ 80015f8:	d80d      	bhi.n	8001616 <SteerMotor_Jog+0x36>
     uint8_t motor_idx = steer_motor_ids[axis];
- 800161e:	79fb      	ldrb	r3, [r7, #7]
- 8001620:	4a08      	ldr	r2, [pc, #32]	@ (8001644 <SteerMotor_Jog+0x40>)
- 8001622:	5cd3      	ldrb	r3, [r2, r3]
- 8001624:	73fb      	strb	r3, [r7, #15]
+ 80015fa:	79fb      	ldrb	r3, [r7, #7]
+ 80015fc:	4a08      	ldr	r2, [pc, #32]	@ (8001620 <SteerMotor_Jog+0x40>)
+ 80015fe:	5cd3      	ldrb	r3, [r2, r3]
+ 8001600:	73fb      	strb	r3, [r7, #15]
     Motor_set(motor_idx, dir, duty);
- 8001626:	f997 2006 	ldrsb.w	r2, [r7, #6]
- 800162a:	7bfb      	ldrb	r3, [r7, #15]
- 800162c:	ed97 0a00 	vldr	s0, [r7]
- 8001630:	4611      	mov	r1, r2
- 8001632:	4618      	mov	r0, r3
- 8001634:	f000 fdfc 	bl	8002230 <Motor_set>
- 8001638:	e000      	b.n	800163c <SteerMotor_Jog+0x38>
+ 8001602:	f997 2006 	ldrsb.w	r2, [r7, #6]
+ 8001606:	7bfb      	ldrb	r3, [r7, #15]
+ 8001608:	ed97 0a00 	vldr	s0, [r7]
+ 800160c:	4611      	mov	r1, r2
+ 800160e:	4618      	mov	r0, r3
+ 8001610:	f000 fdfc 	bl	800220c <Motor_set>
+ 8001614:	e000      	b.n	8001618 <SteerMotor_Jog+0x38>
     if (axis >= 4) return;
- 800163a:	bf00      	nop
+ 8001616:	bf00      	nop
 }
- 800163c:	3710      	adds	r7, #16
- 800163e:	46bd      	mov	sp, r7
- 8001640:	bd80      	pop	{r7, pc}
- 8001642:	bf00      	nop
- 8001644:	0801ab70 	.word	0x0801ab70
+ 8001618:	3710      	adds	r7, #16
+ 800161a:	46bd      	mov	sp, r7
+ 800161c:	bd80      	pop	{r7, pc}
+ 800161e:	bf00      	nop
+ 8001620:	0801ab70 	.word	0x0801ab70
 
-08001648 <Steer_PrintCurrentZeroConfig>:
+08001624 <Steer_PrintCurrentZeroConfig>:
 
 // พิมพ์ค่า zero_offset ปัจจุบันของทุกล้อในรูปโค้ด steer_axes[]
 void Steer_PrintCurrentZeroConfig(void)
 {
- 8001648:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
- 800164c:	b0a7      	sub	sp, #156	@ 0x9c
- 800164e:	af10      	add	r7, sp, #64	@ 0x40
+ 8001624:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 8001628:	b0a7      	sub	sp, #156	@ 0x9c
+ 800162a:	af10      	add	r7, sp, #64	@ 0x40
     uint16_t ticks[STEER_NUM];
     float    degs[STEER_NUM];
 
     // อ่าน encoder ทุกแกน
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
- 8001650:	2300      	movs	r3, #0
- 8001652:	657b      	str	r3, [r7, #84]	@ 0x54
- 8001654:	e02a      	b.n	80016ac <Steer_PrintCurrentZeroConfig+0x64>
+ 800162c:	2300      	movs	r3, #0
+ 800162e:	657b      	str	r3, [r7, #84]	@ 0x54
+ 8001630:	e02a      	b.n	8001688 <Steer_PrintCurrentZeroConfig+0x64>
         uint16_t t = ENC_ReadRaw_ByIndex(steer_axes[i].enc_index);
- 8001656:	4a6e      	ldr	r2, [pc, #440]	@ (8001810 <Steer_PrintCurrentZeroConfig+0x1c8>)
- 8001658:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
- 800165a:	2134      	movs	r1, #52	@ 0x34
- 800165c:	fb01 f303 	mul.w	r3, r1, r3
- 8001660:	4413      	add	r3, r2
- 8001662:	3304      	adds	r3, #4
- 8001664:	681b      	ldr	r3, [r3, #0]
- 8001666:	4618      	mov	r0, r3
- 8001668:	f000 fca0 	bl	8001fac <ENC_ReadRaw_ByIndex>
- 800166c:	4603      	mov	r3, r0
- 800166e:	f8a7 3044 	strh.w	r3, [r7, #68]	@ 0x44
+ 8001632:	4a6e      	ldr	r2, [pc, #440]	@ (80017ec <Steer_PrintCurrentZeroConfig+0x1c8>)
+ 8001634:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
+ 8001636:	2134      	movs	r1, #52	@ 0x34
+ 8001638:	fb01 f303 	mul.w	r3, r1, r3
+ 800163c:	4413      	add	r3, r2
+ 800163e:	3304      	adds	r3, #4
+ 8001640:	681b      	ldr	r3, [r3, #0]
+ 8001642:	4618      	mov	r0, r3
+ 8001644:	f000 fca0 	bl	8001f88 <ENC_ReadRaw_ByIndex>
+ 8001648:	4603      	mov	r3, r0
+ 800164a:	f8a7 3044 	strh.w	r3, [r7, #68]	@ 0x44
         ticks[i] = t;
- 8001672:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
- 8001674:	005b      	lsls	r3, r3, #1
- 8001676:	3330      	adds	r3, #48	@ 0x30
- 8001678:	f107 0228 	add.w	r2, r7, #40	@ 0x28
- 800167c:	4413      	add	r3, r2
- 800167e:	f8b7 2044 	ldrh.w	r2, [r7, #68]	@ 0x44
- 8001682:	f823 2c1c 	strh.w	r2, [r3, #-28]
+ 800164e:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
+ 8001650:	005b      	lsls	r3, r3, #1
+ 8001652:	3330      	adds	r3, #48	@ 0x30
+ 8001654:	f107 0228 	add.w	r2, r7, #40	@ 0x28
+ 8001658:	4413      	add	r3, r2
+ 800165a:	f8b7 2044 	ldrh.w	r2, [r7, #68]	@ 0x44
+ 800165e:	f823 2c1c 	strh.w	r2, [r3, #-28]
         degs[i]  = ENC_TicksToDeg(t);
- 8001686:	f8b7 3044 	ldrh.w	r3, [r7, #68]	@ 0x44
- 800168a:	4618      	mov	r0, r3
- 800168c:	f000 fcea 	bl	8002064 <ENC_TicksToDeg>
- 8001690:	eef0 7a40 	vmov.f32	s15, s0
- 8001694:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
- 8001696:	009b      	lsls	r3, r3, #2
- 8001698:	3330      	adds	r3, #48	@ 0x30
- 800169a:	f107 0228 	add.w	r2, r7, #40	@ 0x28
- 800169e:	4413      	add	r3, r2
- 80016a0:	3b2c      	subs	r3, #44	@ 0x2c
- 80016a2:	edc3 7a00 	vstr	s15, [r3]
+ 8001662:	f8b7 3044 	ldrh.w	r3, [r7, #68]	@ 0x44
+ 8001666:	4618      	mov	r0, r3
+ 8001668:	f000 fcea 	bl	8002040 <ENC_TicksToDeg>
+ 800166c:	eef0 7a40 	vmov.f32	s15, s0
+ 8001670:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
+ 8001672:	009b      	lsls	r3, r3, #2
+ 8001674:	3330      	adds	r3, #48	@ 0x30
+ 8001676:	f107 0228 	add.w	r2, r7, #40	@ 0x28
+ 800167a:	4413      	add	r3, r2
+ 800167c:	3b2c      	subs	r3, #44	@ 0x2c
+ 800167e:	edc3 7a00 	vstr	s15, [r3]
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
- 80016a6:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
- 80016a8:	3301      	adds	r3, #1
- 80016aa:	657b      	str	r3, [r7, #84]	@ 0x54
- 80016ac:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
- 80016ae:	2b03      	cmp	r3, #3
- 80016b0:	d9d1      	bls.n	8001656 <Steer_PrintCurrentZeroConfig+0xe>
+ 8001682:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
+ 8001684:	3301      	adds	r3, #1
+ 8001686:	657b      	str	r3, [r7, #84]	@ 0x54
+ 8001688:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
+ 800168a:	2b03      	cmp	r3, #3
+ 800168c:	d9d1      	bls.n	8001632 <Steer_PrintCurrentZeroConfig+0xe>
     }
 
     printf("\r\n==== STEER ZERO CAL RESULT ====\r\n");
- 80016b2:	4858      	ldr	r0, [pc, #352]	@ (8001814 <Steer_PrintCurrentZeroConfig+0x1cc>)
- 80016b4:	f014 f9be 	bl	8015a34 <puts>
+ 800168e:	4858      	ldr	r0, [pc, #352]	@ (80017f0 <Steer_PrintCurrentZeroConfig+0x1cc>)
+ 8001690:	f014 f9d0 	bl	8015a34 <puts>
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
- 80016b8:	2300      	movs	r3, #0
- 80016ba:	653b      	str	r3, [r7, #80]	@ 0x50
- 80016bc:	e026      	b.n	800170c <Steer_PrintCurrentZeroConfig+0xc4>
+ 8001694:	2300      	movs	r3, #0
+ 8001696:	653b      	str	r3, [r7, #80]	@ 0x50
+ 8001698:	e026      	b.n	80016e8 <Steer_PrintCurrentZeroConfig+0xc4>
         printf("[ZCAL] %s: tick=%4u (%.2f deg)\r\n",
- 80016be:	4a54      	ldr	r2, [pc, #336]	@ (8001810 <Steer_PrintCurrentZeroConfig+0x1c8>)
- 80016c0:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
- 80016c2:	2134      	movs	r1, #52	@ 0x34
- 80016c4:	fb01 f303 	mul.w	r3, r1, r3
- 80016c8:	4413      	add	r3, r2
- 80016ca:	681c      	ldr	r4, [r3, #0]
+ 800169a:	4a54      	ldr	r2, [pc, #336]	@ (80017ec <Steer_PrintCurrentZeroConfig+0x1c8>)
+ 800169c:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
+ 800169e:	2134      	movs	r1, #52	@ 0x34
+ 80016a0:	fb01 f303 	mul.w	r3, r1, r3
+ 80016a4:	4413      	add	r3, r2
+ 80016a6:	681c      	ldr	r4, [r3, #0]
                steer_axes[i].name,
                (unsigned)ticks[i],
- 80016cc:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
- 80016ce:	005b      	lsls	r3, r3, #1
- 80016d0:	3330      	adds	r3, #48	@ 0x30
- 80016d2:	f107 0228 	add.w	r2, r7, #40	@ 0x28
- 80016d6:	4413      	add	r3, r2
- 80016d8:	f833 3c1c 	ldrh.w	r3, [r3, #-28]
+ 80016a8:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
+ 80016aa:	005b      	lsls	r3, r3, #1
+ 80016ac:	3330      	adds	r3, #48	@ 0x30
+ 80016ae:	f107 0228 	add.w	r2, r7, #40	@ 0x28
+ 80016b2:	4413      	add	r3, r2
+ 80016b4:	f833 3c1c 	ldrh.w	r3, [r3, #-28]
         printf("[ZCAL] %s: tick=%4u (%.2f deg)\r\n",
- 80016dc:	461d      	mov	r5, r3
+ 80016b8:	461d      	mov	r5, r3
                degs[i]);
- 80016de:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
- 80016e0:	009b      	lsls	r3, r3, #2
- 80016e2:	3330      	adds	r3, #48	@ 0x30
- 80016e4:	f107 0228 	add.w	r2, r7, #40	@ 0x28
- 80016e8:	4413      	add	r3, r2
- 80016ea:	3b2c      	subs	r3, #44	@ 0x2c
- 80016ec:	681b      	ldr	r3, [r3, #0]
+ 80016ba:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
+ 80016bc:	009b      	lsls	r3, r3, #2
+ 80016be:	3330      	adds	r3, #48	@ 0x30
+ 80016c0:	f107 0228 	add.w	r2, r7, #40	@ 0x28
+ 80016c4:	4413      	add	r3, r2
+ 80016c6:	3b2c      	subs	r3, #44	@ 0x2c
+ 80016c8:	681b      	ldr	r3, [r3, #0]
         printf("[ZCAL] %s: tick=%4u (%.2f deg)\r\n",
- 80016ee:	4618      	mov	r0, r3
- 80016f0:	f7fe ff4a 	bl	8000588 <__aeabi_f2d>
- 80016f4:	4602      	mov	r2, r0
- 80016f6:	460b      	mov	r3, r1
- 80016f8:	e9cd 2300 	strd	r2, r3, [sp]
- 80016fc:	462a      	mov	r2, r5
- 80016fe:	4621      	mov	r1, r4
- 8001700:	4845      	ldr	r0, [pc, #276]	@ (8001818 <Steer_PrintCurrentZeroConfig+0x1d0>)
- 8001702:	f014 f92f 	bl	8015964 <iprintf>
+ 80016ca:	4618      	mov	r0, r3
+ 80016cc:	f7fe ff5c 	bl	8000588 <__aeabi_f2d>
+ 80016d0:	4602      	mov	r2, r0
+ 80016d2:	460b      	mov	r3, r1
+ 80016d4:	e9cd 2300 	strd	r2, r3, [sp]
+ 80016d8:	462a      	mov	r2, r5
+ 80016da:	4621      	mov	r1, r4
+ 80016dc:	4845      	ldr	r0, [pc, #276]	@ (80017f4 <Steer_PrintCurrentZeroConfig+0x1d0>)
+ 80016de:	f014 f941 	bl	8015964 <iprintf>
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
- 8001706:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
- 8001708:	3301      	adds	r3, #1
- 800170a:	653b      	str	r3, [r7, #80]	@ 0x50
- 800170c:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
- 800170e:	2b03      	cmp	r3, #3
- 8001710:	d9d5      	bls.n	80016be <Steer_PrintCurrentZeroConfig+0x76>
+ 80016e2:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
+ 80016e4:	3301      	adds	r3, #1
+ 80016e6:	653b      	str	r3, [r7, #80]	@ 0x50
+ 80016e8:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
+ 80016ea:	2b03      	cmp	r3, #3
+ 80016ec:	d9d5      	bls.n	800169a <Steer_PrintCurrentZeroConfig+0x76>
     }
 
     printf("\r\n/* Paste config below into your code (steer_axes[]): */\r\n");
- 8001712:	4842      	ldr	r0, [pc, #264]	@ (800181c <Steer_PrintCurrentZeroConfig+0x1d4>)
- 8001714:	f014 f98e 	bl	8015a34 <puts>
+ 80016ee:	4842      	ldr	r0, [pc, #264]	@ (80017f8 <Steer_PrintCurrentZeroConfig+0x1d4>)
+ 80016f0:	f014 f9a0 	bl	8015a34 <puts>
     printf("static SteerAxis_t steer_axes[] = {\r\n");
- 8001718:	4841      	ldr	r0, [pc, #260]	@ (8001820 <Steer_PrintCurrentZeroConfig+0x1d8>)
- 800171a:	f014 f98b 	bl	8015a34 <puts>
+ 80016f4:	4841      	ldr	r0, [pc, #260]	@ (80017fc <Steer_PrintCurrentZeroConfig+0x1d8>)
+ 80016f6:	f014 f99d 	bl	8015a34 <puts>
 
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
- 800171e:	2300      	movs	r3, #0
- 8001720:	64fb      	str	r3, [r7, #76]	@ 0x4c
- 8001722:	e06a      	b.n	80017fa <Steer_PrintCurrentZeroConfig+0x1b2>
+ 80016fa:	2300      	movs	r3, #0
+ 80016fc:	64fb      	str	r3, [r7, #76]	@ 0x4c
+ 80016fe:	e06a      	b.n	80017d6 <Steer_PrintCurrentZeroConfig+0x1b2>
         SteerAxis_t *ax = &steer_axes[i];
- 8001724:	6cfb      	ldr	r3, [r7, #76]	@ 0x4c
- 8001726:	2234      	movs	r2, #52	@ 0x34
- 8001728:	fb02 f303 	mul.w	r3, r2, r3
- 800172c:	4a38      	ldr	r2, [pc, #224]	@ (8001810 <Steer_PrintCurrentZeroConfig+0x1c8>)
- 800172e:	4413      	add	r3, r2
- 8001730:	64bb      	str	r3, [r7, #72]	@ 0x48
+ 8001700:	6cfb      	ldr	r3, [r7, #76]	@ 0x4c
+ 8001702:	2234      	movs	r2, #52	@ 0x34
+ 8001704:	fb02 f303 	mul.w	r3, r2, r3
+ 8001708:	4a38      	ldr	r2, [pc, #224]	@ (80017ec <Steer_PrintCurrentZeroConfig+0x1c8>)
+ 800170a:	4413      	add	r3, r2
+ 800170c:	64bb      	str	r3, [r7, #72]	@ 0x48
         uint16_t z = ticks[i];
- 8001732:	6cfb      	ldr	r3, [r7, #76]	@ 0x4c
- 8001734:	005b      	lsls	r3, r3, #1
- 8001736:	3330      	adds	r3, #48	@ 0x30
- 8001738:	f107 0228 	add.w	r2, r7, #40	@ 0x28
- 800173c:	4413      	add	r3, r2
- 800173e:	f833 3c1c 	ldrh.w	r3, [r3, #-28]
- 8001742:	f8a7 3046 	strh.w	r3, [r7, #70]	@ 0x46
+ 800170e:	6cfb      	ldr	r3, [r7, #76]	@ 0x4c
+ 8001710:	005b      	lsls	r3, r3, #1
+ 8001712:	3330      	adds	r3, #48	@ 0x30
+ 8001714:	f107 0228 	add.w	r2, r7, #40	@ 0x28
+ 8001718:	4413      	add	r3, r2
+ 800171a:	f833 3c1c 	ldrh.w	r3, [r3, #-28]
+ 800171e:	f8a7 3046 	strh.w	r3, [r7, #70]	@ 0x46
 
         printf("    { \"%s\", %d, %u, %u, %d, %u, %.2ff,\r\n"
- 8001746:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
- 8001748:	681b      	ldr	r3, [r3, #0]
- 800174a:	627b      	str	r3, [r7, #36]	@ 0x24
- 800174c:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
- 800174e:	685a      	ldr	r2, [r3, #4]
- 8001750:	623a      	str	r2, [r7, #32]
- 8001752:	f8b7 0046 	ldrh.w	r0, [r7, #70]	@ 0x46
- 8001756:	61f8      	str	r0, [r7, #28]
+ 8001722:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 8001724:	681b      	ldr	r3, [r3, #0]
+ 8001726:	627b      	str	r3, [r7, #36]	@ 0x24
+ 8001728:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 800172a:	685a      	ldr	r2, [r3, #4]
+ 800172c:	623a      	str	r2, [r7, #32]
+ 800172e:	f8b7 0046 	ldrh.w	r0, [r7, #70]	@ 0x46
+ 8001732:	61f8      	str	r0, [r7, #28]
                "        .integrator=0, .prev_error=0,\r\n"
                "        .out_min=%.1ff, .out_max=%.1ff }, 0.0f },\r\n",
                ax->name,
                ax->enc_index,
                (unsigned)z,        // zero_offset ใหม่
                ax->motor_idx,
- 8001758:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
- 800175a:	7a9b      	ldrb	r3, [r3, #10]
+ 8001734:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 8001736:	7a9b      	ldrb	r3, [r3, #10]
         printf("    { \"%s\", %d, %u, %u, %d, %u, %.2ff,\r\n"
- 800175c:	61bb      	str	r3, [r7, #24]
+ 8001738:	61bb      	str	r3, [r7, #24]
                (int)ax->enc_dir,
- 800175e:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
- 8001760:	f993 300b 	ldrsb.w	r3, [r3, #11]
+ 800173a:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 800173c:	f993 300b 	ldrsb.w	r3, [r3, #11]
         printf("    { \"%s\", %d, %u, %u, %d, %u, %.2ff,\r\n"
- 8001764:	617b      	str	r3, [r7, #20]
- 8001766:	f8b7 6046 	ldrh.w	r6, [r7, #70]	@ 0x46
+ 8001740:	617b      	str	r3, [r7, #20]
+ 8001742:	f8b7 6046 	ldrh.w	r6, [r7, #70]	@ 0x46
                (unsigned)z,        // target_ticks เริ่มต้น = zero_offset
                ax->duty_base,
- 800176a:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
- 800176c:	691b      	ldr	r3, [r3, #16]
+ 8001746:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 8001748:	691b      	ldr	r3, [r3, #16]
         printf("    { \"%s\", %d, %u, %u, %d, %u, %.2ff,\r\n"
- 800176e:	4618      	mov	r0, r3
- 8001770:	f7fe ff0a 	bl	8000588 <__aeabi_f2d>
- 8001774:	e9c7 0102 	strd	r0, r1, [r7, #8]
+ 800174a:	4618      	mov	r0, r3
+ 800174c:	f7fe ff1c 	bl	8000588 <__aeabi_f2d>
+ 8001750:	e9c7 0102 	strd	r0, r1, [r7, #8]
                ax->pid.kp,
- 8001778:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
- 800177a:	695b      	ldr	r3, [r3, #20]
+ 8001754:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 8001756:	695b      	ldr	r3, [r3, #20]
         printf("    { \"%s\", %d, %u, %u, %d, %u, %.2ff,\r\n"
- 800177c:	4618      	mov	r0, r3
- 800177e:	f7fe ff03 	bl	8000588 <__aeabi_f2d>
- 8001782:	e9c7 0100 	strd	r0, r1, [r7]
+ 8001758:	4618      	mov	r0, r3
+ 800175a:	f7fe ff15 	bl	8000588 <__aeabi_f2d>
+ 800175e:	e9c7 0100 	strd	r0, r1, [r7]
                ax->pid.ki,
- 8001786:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
- 8001788:	699b      	ldr	r3, [r3, #24]
+ 8001762:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 8001764:	699b      	ldr	r3, [r3, #24]
         printf("    { \"%s\", %d, %u, %u, %d, %u, %.2ff,\r\n"
- 800178a:	4618      	mov	r0, r3
- 800178c:	f7fe fefc 	bl	8000588 <__aeabi_f2d>
- 8001790:	4682      	mov	sl, r0
- 8001792:	468b      	mov	fp, r1
+ 8001766:	4618      	mov	r0, r3
+ 8001768:	f7fe ff0e 	bl	8000588 <__aeabi_f2d>
+ 800176c:	4682      	mov	sl, r0
+ 800176e:	468b      	mov	fp, r1
                ax->pid.kd,
- 8001794:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
- 8001796:	69db      	ldr	r3, [r3, #28]
+ 8001770:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 8001772:	69db      	ldr	r3, [r3, #28]
         printf("    { \"%s\", %d, %u, %u, %d, %u, %.2ff,\r\n"
- 8001798:	4618      	mov	r0, r3
- 800179a:	f7fe fef5 	bl	8000588 <__aeabi_f2d>
- 800179e:	4680      	mov	r8, r0
- 80017a0:	4689      	mov	r9, r1
+ 8001774:	4618      	mov	r0, r3
+ 8001776:	f7fe ff07 	bl	8000588 <__aeabi_f2d>
+ 800177a:	4680      	mov	r8, r0
+ 800177c:	4689      	mov	r9, r1
                ax->pid.out_min,
- 80017a2:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
- 80017a4:	6a9b      	ldr	r3, [r3, #40]	@ 0x28
+ 800177e:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 8001780:	6a9b      	ldr	r3, [r3, #40]	@ 0x28
         printf("    { \"%s\", %d, %u, %u, %d, %u, %.2ff,\r\n"
- 80017a6:	4618      	mov	r0, r3
- 80017a8:	f7fe feee 	bl	8000588 <__aeabi_f2d>
- 80017ac:	4604      	mov	r4, r0
- 80017ae:	460d      	mov	r5, r1
+ 8001782:	4618      	mov	r0, r3
+ 8001784:	f7fe ff00 	bl	8000588 <__aeabi_f2d>
+ 8001788:	4604      	mov	r4, r0
+ 800178a:	460d      	mov	r5, r1
                ax->pid.out_max);
- 80017b0:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
- 80017b2:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
+ 800178c:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
+ 800178e:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
         printf("    { \"%s\", %d, %u, %u, %d, %u, %.2ff,\r\n"
- 80017b4:	4618      	mov	r0, r3
- 80017b6:	f7fe fee7 	bl	8000588 <__aeabi_f2d>
- 80017ba:	4602      	mov	r2, r0
- 80017bc:	460b      	mov	r3, r1
- 80017be:	e9cd 230e 	strd	r2, r3, [sp, #56]	@ 0x38
- 80017c2:	e9cd 450c 	strd	r4, r5, [sp, #48]	@ 0x30
- 80017c6:	e9cd 890a 	strd	r8, r9, [sp, #40]	@ 0x28
- 80017ca:	e9cd ab08 	strd	sl, fp, [sp, #32]
- 80017ce:	ed97 7b00 	vldr	d7, [r7]
- 80017d2:	ed8d 7b06 	vstr	d7, [sp, #24]
- 80017d6:	ed97 7b02 	vldr	d7, [r7, #8]
- 80017da:	ed8d 7b04 	vstr	d7, [sp, #16]
- 80017de:	9602      	str	r6, [sp, #8]
- 80017e0:	697c      	ldr	r4, [r7, #20]
- 80017e2:	9401      	str	r4, [sp, #4]
- 80017e4:	69bc      	ldr	r4, [r7, #24]
- 80017e6:	9400      	str	r4, [sp, #0]
- 80017e8:	69fb      	ldr	r3, [r7, #28]
- 80017ea:	6a3a      	ldr	r2, [r7, #32]
- 80017ec:	6a79      	ldr	r1, [r7, #36]	@ 0x24
- 80017ee:	480d      	ldr	r0, [pc, #52]	@ (8001824 <Steer_PrintCurrentZeroConfig+0x1dc>)
- 80017f0:	f014 f8b8 	bl	8015964 <iprintf>
+ 8001790:	4618      	mov	r0, r3
+ 8001792:	f7fe fef9 	bl	8000588 <__aeabi_f2d>
+ 8001796:	4602      	mov	r2, r0
+ 8001798:	460b      	mov	r3, r1
+ 800179a:	e9cd 230e 	strd	r2, r3, [sp, #56]	@ 0x38
+ 800179e:	e9cd 450c 	strd	r4, r5, [sp, #48]	@ 0x30
+ 80017a2:	e9cd 890a 	strd	r8, r9, [sp, #40]	@ 0x28
+ 80017a6:	e9cd ab08 	strd	sl, fp, [sp, #32]
+ 80017aa:	ed97 7b00 	vldr	d7, [r7]
+ 80017ae:	ed8d 7b06 	vstr	d7, [sp, #24]
+ 80017b2:	ed97 7b02 	vldr	d7, [r7, #8]
+ 80017b6:	ed8d 7b04 	vstr	d7, [sp, #16]
+ 80017ba:	9602      	str	r6, [sp, #8]
+ 80017bc:	697c      	ldr	r4, [r7, #20]
+ 80017be:	9401      	str	r4, [sp, #4]
+ 80017c0:	69bc      	ldr	r4, [r7, #24]
+ 80017c2:	9400      	str	r4, [sp, #0]
+ 80017c4:	69fb      	ldr	r3, [r7, #28]
+ 80017c6:	6a3a      	ldr	r2, [r7, #32]
+ 80017c8:	6a79      	ldr	r1, [r7, #36]	@ 0x24
+ 80017ca:	480d      	ldr	r0, [pc, #52]	@ (8001800 <Steer_PrintCurrentZeroConfig+0x1dc>)
+ 80017cc:	f014 f8ca 	bl	8015964 <iprintf>
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
- 80017f4:	6cfb      	ldr	r3, [r7, #76]	@ 0x4c
- 80017f6:	3301      	adds	r3, #1
- 80017f8:	64fb      	str	r3, [r7, #76]	@ 0x4c
- 80017fa:	6cfb      	ldr	r3, [r7, #76]	@ 0x4c
- 80017fc:	2b03      	cmp	r3, #3
- 80017fe:	d991      	bls.n	8001724 <Steer_PrintCurrentZeroConfig+0xdc>
+ 80017d0:	6cfb      	ldr	r3, [r7, #76]	@ 0x4c
+ 80017d2:	3301      	adds	r3, #1
+ 80017d4:	64fb      	str	r3, [r7, #76]	@ 0x4c
+ 80017d6:	6cfb      	ldr	r3, [r7, #76]	@ 0x4c
+ 80017d8:	2b03      	cmp	r3, #3
+ 80017da:	d991      	bls.n	8001700 <Steer_PrintCurrentZeroConfig+0xdc>
     }
 
     printf("};\r\n\n");
- 8001800:	4809      	ldr	r0, [pc, #36]	@ (8001828 <Steer_PrintCurrentZeroConfig+0x1e0>)
- 8001802:	f014 f917 	bl	8015a34 <puts>
+ 80017dc:	4809      	ldr	r0, [pc, #36]	@ (8001804 <Steer_PrintCurrentZeroConfig+0x1e0>)
+ 80017de:	f014 f929 	bl	8015a34 <puts>
 }
- 8001806:	bf00      	nop
- 8001808:	375c      	adds	r7, #92	@ 0x5c
- 800180a:	46bd      	mov	sp, r7
- 800180c:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
- 8001810:	2000010c 	.word	0x2000010c
- 8001814:	08017b58 	.word	0x08017b58
- 8001818:	08017b7c 	.word	0x08017b7c
- 800181c:	08017ba0 	.word	0x08017ba0
- 8001820:	08017bdc 	.word	0x08017bdc
- 8001824:	08017c04 	.word	0x08017c04
- 8001828:	08017cb4 	.word	0x08017cb4
+ 80017e2:	bf00      	nop
+ 80017e4:	375c      	adds	r7, #92	@ 0x5c
+ 80017e6:	46bd      	mov	sp, r7
+ 80017e8:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ 80017ec:	2000010c 	.word	0x2000010c
+ 80017f0:	08017b58 	.word	0x08017b58
+ 80017f4:	08017b7c 	.word	0x08017b7c
+ 80017f8:	08017ba0 	.word	0x08017ba0
+ 80017fc:	08017bdc 	.word	0x08017bdc
+ 8001800:	08017c04 	.word	0x08017c04
+ 8001804:	08017cb4 	.word	0x08017cb4
 
-0800182c <Steer_SetCmdTargetDeg>:
+08001808 <Steer_SetCmdTargetDeg>:
 
 void Steer_SetCmdTargetDeg(float angle_deg)
 {
- 800182c:	b480      	push	{r7}
- 800182e:	b083      	sub	sp, #12
- 8001830:	af00      	add	r7, sp, #0
- 8001832:	ed87 0a01 	vstr	s0, [r7, #4]
+ 8001808:	b480      	push	{r7}
+ 800180a:	b083      	sub	sp, #12
+ 800180c:	af00      	add	r7, sp, #0
+ 800180e:	ed87 0a01 	vstr	s0, [r7, #4]
     // clamp อีกครั้งเผื่อ caller ส่งเกิน
     if (angle_deg >  STEER_MAX_DEG) angle_deg =  STEER_MAX_DEG;
- 8001836:	edd7 7a01 	vldr	s15, [r7, #4]
- 800183a:	eeb3 7a0c 	vmov.f32	s14, #60	@ 0x41e00000  28.0
- 800183e:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8001842:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001846:	dd01      	ble.n	800184c <Steer_SetCmdTargetDeg+0x20>
- 8001848:	4b0a      	ldr	r3, [pc, #40]	@ (8001874 <Steer_SetCmdTargetDeg+0x48>)
- 800184a:	607b      	str	r3, [r7, #4]
+ 8001812:	edd7 7a01 	vldr	s15, [r7, #4]
+ 8001816:	eeb3 7a0c 	vmov.f32	s14, #60	@ 0x41e00000  28.0
+ 800181a:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 800181e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001822:	dd01      	ble.n	8001828 <Steer_SetCmdTargetDeg+0x20>
+ 8001824:	4b0a      	ldr	r3, [pc, #40]	@ (8001850 <Steer_SetCmdTargetDeg+0x48>)
+ 8001826:	607b      	str	r3, [r7, #4]
     if (angle_deg < -STEER_MAX_DEG) angle_deg = -STEER_MAX_DEG;
- 800184c:	edd7 7a01 	vldr	s15, [r7, #4]
- 8001850:	eebb 7a0c 	vmov.f32	s14, #188	@ 0xc1e00000 -28.0
- 8001854:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8001858:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 800185c:	d501      	bpl.n	8001862 <Steer_SetCmdTargetDeg+0x36>
- 800185e:	4b06      	ldr	r3, [pc, #24]	@ (8001878 <Steer_SetCmdTargetDeg+0x4c>)
- 8001860:	607b      	str	r3, [r7, #4]
+ 8001828:	edd7 7a01 	vldr	s15, [r7, #4]
+ 800182c:	eebb 7a0c 	vmov.f32	s14, #188	@ 0xc1e00000 -28.0
+ 8001830:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8001834:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001838:	d501      	bpl.n	800183e <Steer_SetCmdTargetDeg+0x36>
+ 800183a:	4b06      	ldr	r3, [pc, #24]	@ (8001854 <Steer_SetCmdTargetDeg+0x4c>)
+ 800183c:	607b      	str	r3, [r7, #4]
     g_cmd_target_deg = angle_deg;
- 8001862:	4a06      	ldr	r2, [pc, #24]	@ (800187c <Steer_SetCmdTargetDeg+0x50>)
- 8001864:	687b      	ldr	r3, [r7, #4]
- 8001866:	6013      	str	r3, [r2, #0]
+ 800183e:	4a06      	ldr	r2, [pc, #24]	@ (8001858 <Steer_SetCmdTargetDeg+0x50>)
+ 8001840:	687b      	ldr	r3, [r7, #4]
+ 8001842:	6013      	str	r3, [r2, #0]
 }
- 8001868:	bf00      	nop
- 800186a:	370c      	adds	r7, #12
- 800186c:	46bd      	mov	sp, r7
- 800186e:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8001872:	4770      	bx	lr
- 8001874:	41e00000 	.word	0x41e00000
- 8001878:	c1e00000 	.word	0xc1e00000
- 800187c:	2000064c 	.word	0x2000064c
+ 8001844:	bf00      	nop
+ 8001846:	370c      	adds	r7, #12
+ 8001848:	46bd      	mov	sp, r7
+ 800184a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800184e:	4770      	bx	lr
+ 8001850:	41e00000 	.word	0x41e00000
+ 8001854:	c1e00000 	.word	0xc1e00000
+ 8001858:	2000064c 	.word	0x2000064c
 
-08001880 <Steer_InitTargetsToZero>:
+0800185c <Steer_InitTargetsToZero>:
 
 // เริ่มต้น: ให้ target = zero ทั้งหมด
 void Steer_InitTargetsToZero(void)
 {
- 8001880:	b580      	push	{r7, lr}
- 8001882:	af00      	add	r7, sp, #0
+ 800185c:	b580      	push	{r7, lr}
+ 800185e:	af00      	add	r7, sp, #0
     g_cmd_target_deg     = 0.0f;
- 8001884:	4b06      	ldr	r3, [pc, #24]	@ (80018a0 <Steer_InitTargetsToZero+0x20>)
- 8001886:	f04f 0200 	mov.w	r2, #0
- 800188a:	601a      	str	r2, [r3, #0]
+ 8001860:	4b06      	ldr	r3, [pc, #24]	@ (800187c <Steer_InitTargetsToZero+0x20>)
+ 8001862:	f04f 0200 	mov.w	r2, #0
+ 8001866:	601a      	str	r2, [r3, #0]
     g_current_target_deg = 0.0f;
- 800188c:	4b05      	ldr	r3, [pc, #20]	@ (80018a4 <Steer_InitTargetsToZero+0x24>)
- 800188e:	f04f 0200 	mov.w	r2, #0
- 8001892:	601a      	str	r2, [r3, #0]
+ 8001868:	4b05      	ldr	r3, [pc, #20]	@ (8001880 <Steer_InitTargetsToZero+0x24>)
+ 800186a:	f04f 0200 	mov.w	r2, #0
+ 800186e:	601a      	str	r2, [r3, #0]
     Steer_SetTargetAngleDeg(0.0f);
- 8001894:	ed9f 0a04 	vldr	s0, [pc, #16]	@ 80018a8 <Steer_InitTargetsToZero+0x28>
- 8001898:	f7ff fe4e 	bl	8001538 <Steer_SetTargetAngleDeg>
+ 8001870:	ed9f 0a04 	vldr	s0, [pc, #16]	@ 8001884 <Steer_InitTargetsToZero+0x28>
+ 8001874:	f7ff fe4e 	bl	8001514 <Steer_SetTargetAngleDeg>
 }
- 800189c:	bf00      	nop
- 800189e:	bd80      	pop	{r7, pc}
- 80018a0:	2000064c 	.word	0x2000064c
- 80018a4:	20000650 	.word	0x20000650
- 80018a8:	00000000 	.word	0x00000000
+ 8001878:	bf00      	nop
+ 800187a:	bd80      	pop	{r7, pc}
+ 800187c:	2000064c 	.word	0x2000064c
+ 8001880:	20000650 	.word	0x20000650
+ 8001884:	00000000 	.word	0x00000000
 
-080018ac <Steer_UpdateTargetWithRamp>:
+08001888 <Steer_UpdateTargetWithRamp>:
 
 // อัปเดตมุมเป้าหมายแบบ ramp จาก g_cmd_target_deg -> g_current_target_deg
 void Steer_UpdateTargetWithRamp(float dt_s)
 {
- 80018ac:	b580      	push	{r7, lr}
- 80018ae:	b084      	sub	sp, #16
- 80018b0:	af00      	add	r7, sp, #0
- 80018b2:	ed87 0a01 	vstr	s0, [r7, #4]
+ 8001888:	b580      	push	{r7, lr}
+ 800188a:	b084      	sub	sp, #16
+ 800188c:	af00      	add	r7, sp, #0
+ 800188e:	ed87 0a01 	vstr	s0, [r7, #4]
     if (dt_s <= 0.0f) dt_s = 0.001f;
- 80018b6:	edd7 7a01 	vldr	s15, [r7, #4]
- 80018ba:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 80018be:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80018c2:	d801      	bhi.n	80018c8 <Steer_UpdateTargetWithRamp+0x1c>
- 80018c4:	4b30      	ldr	r3, [pc, #192]	@ (8001988 <Steer_UpdateTargetWithRamp+0xdc>)
- 80018c6:	607b      	str	r3, [r7, #4]
+ 8001892:	edd7 7a01 	vldr	s15, [r7, #4]
+ 8001896:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 800189a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800189e:	d801      	bhi.n	80018a4 <Steer_UpdateTargetWithRamp+0x1c>
+ 80018a0:	4b30      	ldr	r3, [pc, #192]	@ (8001964 <Steer_UpdateTargetWithRamp+0xdc>)
+ 80018a2:	607b      	str	r3, [r7, #4]
 
     // ต่างของมุม (deg)
     float delta = g_cmd_target_deg - g_current_target_deg;
- 80018c8:	4b30      	ldr	r3, [pc, #192]	@ (800198c <Steer_UpdateTargetWithRamp+0xe0>)
- 80018ca:	ed93 7a00 	vldr	s14, [r3]
- 80018ce:	4b30      	ldr	r3, [pc, #192]	@ (8001990 <Steer_UpdateTargetWithRamp+0xe4>)
- 80018d0:	edd3 7a00 	vldr	s15, [r3]
- 80018d4:	ee77 7a67 	vsub.f32	s15, s14, s15
- 80018d8:	edc7 7a03 	vstr	s15, [r7, #12]
+ 80018a4:	4b30      	ldr	r3, [pc, #192]	@ (8001968 <Steer_UpdateTargetWithRamp+0xe0>)
+ 80018a6:	ed93 7a00 	vldr	s14, [r3]
+ 80018aa:	4b30      	ldr	r3, [pc, #192]	@ (800196c <Steer_UpdateTargetWithRamp+0xe4>)
+ 80018ac:	edd3 7a00 	vldr	s15, [r3]
+ 80018b0:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 80018b4:	edc7 7a03 	vstr	s15, [r7, #12]
 
     // limit การเปลี่ยนแปลงต่อรอบ (deg)
     float max_step = STEER_RAMP_DEG_PER_SEC * dt_s;
- 80018dc:	edd7 7a01 	vldr	s15, [r7, #4]
- 80018e0:	ed9f 7a2c 	vldr	s14, [pc, #176]	@ 8001994 <Steer_UpdateTargetWithRamp+0xe8>
- 80018e4:	ee67 7a87 	vmul.f32	s15, s15, s14
- 80018e8:	edc7 7a02 	vstr	s15, [r7, #8]
+ 80018b8:	edd7 7a01 	vldr	s15, [r7, #4]
+ 80018bc:	ed9f 7a2c 	vldr	s14, [pc, #176]	@ 8001970 <Steer_UpdateTargetWithRamp+0xe8>
+ 80018c0:	ee67 7a87 	vmul.f32	s15, s15, s14
+ 80018c4:	edc7 7a02 	vstr	s15, [r7, #8]
 
     if (delta >  max_step) delta =  max_step;
- 80018ec:	ed97 7a03 	vldr	s14, [r7, #12]
- 80018f0:	edd7 7a02 	vldr	s15, [r7, #8]
- 80018f4:	eeb4 7ae7 	vcmpe.f32	s14, s15
- 80018f8:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80018fc:	dd01      	ble.n	8001902 <Steer_UpdateTargetWithRamp+0x56>
- 80018fe:	68bb      	ldr	r3, [r7, #8]
- 8001900:	60fb      	str	r3, [r7, #12]
+ 80018c8:	ed97 7a03 	vldr	s14, [r7, #12]
+ 80018cc:	edd7 7a02 	vldr	s15, [r7, #8]
+ 80018d0:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 80018d4:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80018d8:	dd01      	ble.n	80018de <Steer_UpdateTargetWithRamp+0x56>
+ 80018da:	68bb      	ldr	r3, [r7, #8]
+ 80018dc:	60fb      	str	r3, [r7, #12]
     if (delta < -max_step) delta = -max_step;
- 8001902:	edd7 7a02 	vldr	s15, [r7, #8]
- 8001906:	eef1 7a67 	vneg.f32	s15, s15
- 800190a:	ed97 7a03 	vldr	s14, [r7, #12]
- 800190e:	eeb4 7ae7 	vcmpe.f32	s14, s15
- 8001912:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001916:	d505      	bpl.n	8001924 <Steer_UpdateTargetWithRamp+0x78>
- 8001918:	edd7 7a02 	vldr	s15, [r7, #8]
- 800191c:	eef1 7a67 	vneg.f32	s15, s15
- 8001920:	edc7 7a03 	vstr	s15, [r7, #12]
+ 80018de:	edd7 7a02 	vldr	s15, [r7, #8]
+ 80018e2:	eef1 7a67 	vneg.f32	s15, s15
+ 80018e6:	ed97 7a03 	vldr	s14, [r7, #12]
+ 80018ea:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 80018ee:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80018f2:	d505      	bpl.n	8001900 <Steer_UpdateTargetWithRamp+0x78>
+ 80018f4:	edd7 7a02 	vldr	s15, [r7, #8]
+ 80018f8:	eef1 7a67 	vneg.f32	s15, s15
+ 80018fc:	edc7 7a03 	vstr	s15, [r7, #12]
 
     g_current_target_deg += delta;
- 8001924:	4b1a      	ldr	r3, [pc, #104]	@ (8001990 <Steer_UpdateTargetWithRamp+0xe4>)
- 8001926:	ed93 7a00 	vldr	s14, [r3]
- 800192a:	edd7 7a03 	vldr	s15, [r7, #12]
- 800192e:	ee77 7a27 	vadd.f32	s15, s14, s15
- 8001932:	4b17      	ldr	r3, [pc, #92]	@ (8001990 <Steer_UpdateTargetWithRamp+0xe4>)
- 8001934:	edc3 7a00 	vstr	s15, [r3]
+ 8001900:	4b1a      	ldr	r3, [pc, #104]	@ (800196c <Steer_UpdateTargetWithRamp+0xe4>)
+ 8001902:	ed93 7a00 	vldr	s14, [r3]
+ 8001906:	edd7 7a03 	vldr	s15, [r7, #12]
+ 800190a:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 800190e:	4b17      	ldr	r3, [pc, #92]	@ (800196c <Steer_UpdateTargetWithRamp+0xe4>)
+ 8001910:	edc3 7a00 	vstr	s15, [r3]
 
     // deadzone เล็ก ๆ รอบ 0 กันค้างค่าจิ๋ว ๆ
     if (fabsf(g_current_target_deg) < 0.05f && fabsf(g_cmd_target_deg) < 0.05f) {
- 8001938:	4b15      	ldr	r3, [pc, #84]	@ (8001990 <Steer_UpdateTargetWithRamp+0xe4>)
- 800193a:	edd3 7a00 	vldr	s15, [r3]
- 800193e:	eef0 7ae7 	vabs.f32	s15, s15
- 8001942:	ed9f 7a15 	vldr	s14, [pc, #84]	@ 8001998 <Steer_UpdateTargetWithRamp+0xec>
- 8001946:	eef4 7ac7 	vcmpe.f32	s15, s14
- 800194a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 800194e:	d50f      	bpl.n	8001970 <Steer_UpdateTargetWithRamp+0xc4>
- 8001950:	4b0e      	ldr	r3, [pc, #56]	@ (800198c <Steer_UpdateTargetWithRamp+0xe0>)
- 8001952:	edd3 7a00 	vldr	s15, [r3]
- 8001956:	eef0 7ae7 	vabs.f32	s15, s15
- 800195a:	ed9f 7a0f 	vldr	s14, [pc, #60]	@ 8001998 <Steer_UpdateTargetWithRamp+0xec>
- 800195e:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8001962:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001966:	d503      	bpl.n	8001970 <Steer_UpdateTargetWithRamp+0xc4>
+ 8001914:	4b15      	ldr	r3, [pc, #84]	@ (800196c <Steer_UpdateTargetWithRamp+0xe4>)
+ 8001916:	edd3 7a00 	vldr	s15, [r3]
+ 800191a:	eef0 7ae7 	vabs.f32	s15, s15
+ 800191e:	ed9f 7a15 	vldr	s14, [pc, #84]	@ 8001974 <Steer_UpdateTargetWithRamp+0xec>
+ 8001922:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8001926:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800192a:	d50f      	bpl.n	800194c <Steer_UpdateTargetWithRamp+0xc4>
+ 800192c:	4b0e      	ldr	r3, [pc, #56]	@ (8001968 <Steer_UpdateTargetWithRamp+0xe0>)
+ 800192e:	edd3 7a00 	vldr	s15, [r3]
+ 8001932:	eef0 7ae7 	vabs.f32	s15, s15
+ 8001936:	ed9f 7a0f 	vldr	s14, [pc, #60]	@ 8001974 <Steer_UpdateTargetWithRamp+0xec>
+ 800193a:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 800193e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001942:	d503      	bpl.n	800194c <Steer_UpdateTargetWithRamp+0xc4>
         g_current_target_deg = 0.0f;
- 8001968:	4b09      	ldr	r3, [pc, #36]	@ (8001990 <Steer_UpdateTargetWithRamp+0xe4>)
- 800196a:	f04f 0200 	mov.w	r2, #0
- 800196e:	601a      	str	r2, [r3, #0]
+ 8001944:	4b09      	ldr	r3, [pc, #36]	@ (800196c <Steer_UpdateTargetWithRamp+0xe4>)
+ 8001946:	f04f 0200 	mov.w	r2, #0
+ 800194a:	601a      	str	r2, [r3, #0]
     }
 
     // เซ็ต target_ticks ของทุกล้อจากมุมที่ ramp แล้ว
     Steer_SetTargetAngleDeg(g_current_target_deg);
- 8001970:	4b07      	ldr	r3, [pc, #28]	@ (8001990 <Steer_UpdateTargetWithRamp+0xe4>)
- 8001972:	edd3 7a00 	vldr	s15, [r3]
- 8001976:	eeb0 0a67 	vmov.f32	s0, s15
- 800197a:	f7ff fddd 	bl	8001538 <Steer_SetTargetAngleDeg>
+ 800194c:	4b07      	ldr	r3, [pc, #28]	@ (800196c <Steer_UpdateTargetWithRamp+0xe4>)
+ 800194e:	edd3 7a00 	vldr	s15, [r3]
+ 8001952:	eeb0 0a67 	vmov.f32	s0, s15
+ 8001956:	f7ff fddd 	bl	8001514 <Steer_SetTargetAngleDeg>
 }
- 800197e:	bf00      	nop
- 8001980:	3710      	adds	r7, #16
- 8001982:	46bd      	mov	sp, r7
- 8001984:	bd80      	pop	{r7, pc}
- 8001986:	bf00      	nop
- 8001988:	3a83126f 	.word	0x3a83126f
- 800198c:	2000064c 	.word	0x2000064c
- 8001990:	20000650 	.word	0x20000650
- 8001994:	42700000 	.word	0x42700000
- 8001998:	3d4ccccd 	.word	0x3d4ccccd
+ 800195a:	bf00      	nop
+ 800195c:	3710      	adds	r7, #16
+ 800195e:	46bd      	mov	sp, r7
+ 8001960:	bd80      	pop	{r7, pc}
+ 8001962:	bf00      	nop
+ 8001964:	3a83126f 	.word	0x3a83126f
+ 8001968:	2000064c 	.word	0x2000064c
+ 800196c:	20000650 	.word	0x20000650
+ 8001970:	42700000 	.word	0x42700000
+ 8001974:	3d4ccccd 	.word	0x3d4ccccd
 
-0800199c <Steer_UpdateAll>:
+08001978 <Steer_UpdateAll>:
 
 // รัน P-control ของทั้ง 4 ล้อให้เข้า target_ticks (ใช้ encoder_abs)
 void Steer_UpdateAll(float dt_s)
 {
- 800199c:	b580      	push	{r7, lr}
- 800199e:	b08c      	sub	sp, #48	@ 0x30
- 80019a0:	af00      	add	r7, sp, #0
- 80019a2:	ed87 0a01 	vstr	s0, [r7, #4]
+ 8001978:	b580      	push	{r7, lr}
+ 800197a:	b08c      	sub	sp, #48	@ 0x30
+ 800197c:	af00      	add	r7, sp, #0
+ 800197e:	ed87 0a01 	vstr	s0, [r7, #4]
     if (dt_s <= 0.0f) dt_s = 0.001f;
- 80019a6:	edd7 7a01 	vldr	s15, [r7, #4]
- 80019aa:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 80019ae:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80019b2:	d801      	bhi.n	80019b8 <Steer_UpdateAll+0x1c>
- 80019b4:	4b7a      	ldr	r3, [pc, #488]	@ (8001ba0 <Steer_UpdateAll+0x204>)
- 80019b6:	607b      	str	r3, [r7, #4]
+ 8001982:	edd7 7a01 	vldr	s15, [r7, #4]
+ 8001986:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 800198a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800198e:	d801      	bhi.n	8001994 <Steer_UpdateAll+0x1c>
+ 8001990:	4b7a      	ldr	r3, [pc, #488]	@ (8001b7c <Steer_UpdateAll+0x204>)
+ 8001992:	607b      	str	r3, [r7, #4]
 
     static uint32_t dbg_cnt = 0;
     dbg_cnt++;
- 80019b8:	4b7a      	ldr	r3, [pc, #488]	@ (8001ba4 <Steer_UpdateAll+0x208>)
- 80019ba:	681b      	ldr	r3, [r3, #0]
- 80019bc:	3301      	adds	r3, #1
- 80019be:	4a79      	ldr	r2, [pc, #484]	@ (8001ba4 <Steer_UpdateAll+0x208>)
- 80019c0:	6013      	str	r3, [r2, #0]
+ 8001994:	4b7a      	ldr	r3, [pc, #488]	@ (8001b80 <Steer_UpdateAll+0x208>)
+ 8001996:	681b      	ldr	r3, [r3, #0]
+ 8001998:	3301      	adds	r3, #1
+ 800199a:	4a79      	ldr	r2, [pc, #484]	@ (8001b80 <Steer_UpdateAll+0x208>)
+ 800199c:	6013      	str	r3, [r2, #0]
 
     // ถ้า |cmd - current| > 0.5° แปลว่ายัง ramp อยู่
     bool steering_ramping = (fabsf(g_cmd_target_deg - g_current_target_deg) > 0.5f);
- 80019c2:	4b79      	ldr	r3, [pc, #484]	@ (8001ba8 <Steer_UpdateAll+0x20c>)
- 80019c4:	ed93 7a00 	vldr	s14, [r3]
- 80019c8:	4b78      	ldr	r3, [pc, #480]	@ (8001bac <Steer_UpdateAll+0x210>)
- 80019ca:	edd3 7a00 	vldr	s15, [r3]
- 80019ce:	ee77 7a67 	vsub.f32	s15, s14, s15
- 80019d2:	eef0 7ae7 	vabs.f32	s15, s15
- 80019d6:	eeb6 7a00 	vmov.f32	s14, #96	@ 0x3f000000  0.5
- 80019da:	eef4 7ac7 	vcmpe.f32	s15, s14
- 80019de:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80019e2:	bfcc      	ite	gt
- 80019e4:	2301      	movgt	r3, #1
- 80019e6:	2300      	movle	r3, #0
- 80019e8:	76fb      	strb	r3, [r7, #27]
+ 800199e:	4b79      	ldr	r3, [pc, #484]	@ (8001b84 <Steer_UpdateAll+0x20c>)
+ 80019a0:	ed93 7a00 	vldr	s14, [r3]
+ 80019a4:	4b78      	ldr	r3, [pc, #480]	@ (8001b88 <Steer_UpdateAll+0x210>)
+ 80019a6:	edd3 7a00 	vldr	s15, [r3]
+ 80019aa:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 80019ae:	eef0 7ae7 	vabs.f32	s15, s15
+ 80019b2:	eeb6 7a00 	vmov.f32	s14, #96	@ 0x3f000000  0.5
+ 80019b6:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 80019ba:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80019be:	bfcc      	ite	gt
+ 80019c0:	2301      	movgt	r3, #1
+ 80019c2:	2300      	movle	r3, #0
+ 80019c4:	76fb      	strb	r3, [r7, #27]
 
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
- 80019ea:	2300      	movs	r3, #0
- 80019ec:	62fb      	str	r3, [r7, #44]	@ 0x2c
- 80019ee:	e0cd      	b.n	8001b8c <Steer_UpdateAll+0x1f0>
+ 80019c6:	2300      	movs	r3, #0
+ 80019c8:	62fb      	str	r3, [r7, #44]	@ 0x2c
+ 80019ca:	e0cd      	b.n	8001b68 <Steer_UpdateAll+0x1f0>
         SteerAxis_t *ax = &steer_axes[i];
- 80019f0:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
- 80019f2:	2234      	movs	r2, #52	@ 0x34
- 80019f4:	fb02 f303 	mul.w	r3, r2, r3
- 80019f8:	4a6d      	ldr	r2, [pc, #436]	@ (8001bb0 <Steer_UpdateAll+0x214>)
- 80019fa:	4413      	add	r3, r2
- 80019fc:	617b      	str	r3, [r7, #20]
+ 80019cc:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 80019ce:	2234      	movs	r2, #52	@ 0x34
+ 80019d0:	fb02 f303 	mul.w	r3, r2, r3
+ 80019d4:	4a6d      	ldr	r2, [pc, #436]	@ (8001b8c <Steer_UpdateAll+0x214>)
+ 80019d6:	4413      	add	r3, r2
+ 80019d8:	617b      	str	r3, [r7, #20]
 
         uint16_t ticks = ENC_ReadRaw_ByIndex(ax->enc_index);
- 80019fe:	697b      	ldr	r3, [r7, #20]
- 8001a00:	685b      	ldr	r3, [r3, #4]
- 8001a02:	4618      	mov	r0, r3
- 8001a04:	f000 fad2 	bl	8001fac <ENC_ReadRaw_ByIndex>
- 8001a08:	4603      	mov	r3, r0
- 8001a0a:	827b      	strh	r3, [r7, #18]
+ 80019da:	697b      	ldr	r3, [r7, #20]
+ 80019dc:	685b      	ldr	r3, [r3, #4]
+ 80019de:	4618      	mov	r0, r3
+ 80019e0:	f000 fad2 	bl	8001f88 <ENC_ReadRaw_ByIndex>
+ 80019e4:	4603      	mov	r3, r0
+ 80019e6:	827b      	strh	r3, [r7, #18]
         if (ticks == 0xFFFF) {
- 8001a0c:	8a7b      	ldrh	r3, [r7, #18]
- 8001a0e:	f64f 72ff 	movw	r2, #65535	@ 0xffff
- 8001a12:	4293      	cmp	r3, r2
- 8001a14:	d10c      	bne.n	8001a30 <Steer_UpdateAll+0x94>
+ 80019e8:	8a7b      	ldrh	r3, [r7, #18]
+ 80019ea:	f64f 72ff 	movw	r2, #65535	@ 0xffff
+ 80019ee:	4293      	cmp	r3, r2
+ 80019f0:	d10c      	bne.n	8001a0c <Steer_UpdateAll+0x94>
             Motor_set(ax->motor_idx, MOTOR_DIR_BRAKE, 0.0f);
- 8001a16:	697b      	ldr	r3, [r7, #20]
- 8001a18:	7a9b      	ldrb	r3, [r3, #10]
- 8001a1a:	ed9f 0a66 	vldr	s0, [pc, #408]	@ 8001bb4 <Steer_UpdateAll+0x218>
- 8001a1e:	2100      	movs	r1, #0
- 8001a20:	4618      	mov	r0, r3
- 8001a22:	f000 fc05 	bl	8002230 <Motor_set>
+ 80019f2:	697b      	ldr	r3, [r7, #20]
+ 80019f4:	7a9b      	ldrb	r3, [r3, #10]
+ 80019f6:	ed9f 0a66 	vldr	s0, [pc, #408]	@ 8001b90 <Steer_UpdateAll+0x218>
+ 80019fa:	2100      	movs	r1, #0
+ 80019fc:	4618      	mov	r0, r3
+ 80019fe:	f000 fc05 	bl	800220c <Motor_set>
             ax->last_duty = 0.0f;
- 8001a26:	697b      	ldr	r3, [r7, #20]
- 8001a28:	f04f 0200 	mov.w	r2, #0
- 8001a2c:	631a      	str	r2, [r3, #48]	@ 0x30
+ 8001a02:	697b      	ldr	r3, [r7, #20]
+ 8001a04:	f04f 0200 	mov.w	r2, #0
+ 8001a08:	631a      	str	r2, [r3, #48]	@ 0x30
             continue;
- 8001a2e:	e0aa      	b.n	8001b86 <Steer_UpdateAll+0x1ea>
+ 8001a0a:	e0aa      	b.n	8001b62 <Steer_UpdateAll+0x1ea>
         }
 
         int16_t err_ticks = ENC10_Diff(ticks, ax->target_ticks);
- 8001a30:	697b      	ldr	r3, [r7, #20]
- 8001a32:	899a      	ldrh	r2, [r3, #12]
- 8001a34:	8a7b      	ldrh	r3, [r7, #18]
- 8001a36:	4611      	mov	r1, r2
- 8001a38:	4618      	mov	r0, r3
- 8001a3a:	f000 fb3b 	bl	80020b4 <ENC10_Diff>
- 8001a3e:	4603      	mov	r3, r0
- 8001a40:	823b      	strh	r3, [r7, #16]
+ 8001a0c:	697b      	ldr	r3, [r7, #20]
+ 8001a0e:	899a      	ldrh	r2, [r3, #12]
+ 8001a10:	8a7b      	ldrh	r3, [r7, #18]
+ 8001a12:	4611      	mov	r1, r2
+ 8001a14:	4618      	mov	r0, r3
+ 8001a16:	f000 fb3b 	bl	8002090 <ENC10_Diff>
+ 8001a1a:	4603      	mov	r3, r0
+ 8001a1c:	823b      	strh	r3, [r7, #16]
         err_ticks = (int16_t)(err_ticks * ax->enc_dir);
- 8001a42:	697b      	ldr	r3, [r7, #20]
- 8001a44:	f993 300b 	ldrsb.w	r3, [r3, #11]
- 8001a48:	b29a      	uxth	r2, r3
- 8001a4a:	8a3b      	ldrh	r3, [r7, #16]
- 8001a4c:	fb12 f303 	smulbb	r3, r2, r3
- 8001a50:	b29b      	uxth	r3, r3
- 8001a52:	823b      	strh	r3, [r7, #16]
+ 8001a1e:	697b      	ldr	r3, [r7, #20]
+ 8001a20:	f993 300b 	ldrsb.w	r3, [r3, #11]
+ 8001a24:	b29a      	uxth	r2, r3
+ 8001a26:	8a3b      	ldrh	r3, [r7, #16]
+ 8001a28:	fb12 f303 	smulbb	r3, r2, r3
+ 8001a2c:	b29b      	uxth	r3, r3
+ 8001a2e:	823b      	strh	r3, [r7, #16]
         float err_f = (float)err_ticks;
- 8001a54:	f9b7 3010 	ldrsh.w	r3, [r7, #16]
- 8001a58:	ee07 3a90 	vmov	s15, r3
- 8001a5c:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 8001a60:	edc7 7a03 	vstr	s15, [r7, #12]
+ 8001a30:	f9b7 3010 	ldrsh.w	r3, [r7, #16]
+ 8001a34:	ee07 3a90 	vmov	s15, r3
+ 8001a38:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 8001a3c:	edc7 7a03 	vstr	s15, [r7, #12]
 
         bool in_deadband = (err_f > -STEER_DEADBAND_TICKS &&
- 8001a64:	edd7 7a03 	vldr	s15, [r7, #12]
- 8001a68:	eeb9 7a04 	vmov.f32	s14, #148	@ 0xc0a00000 -5.0
- 8001a6c:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8001a70:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001a74:	dd0a      	ble.n	8001a8c <Steer_UpdateAll+0xf0>
- 8001a76:	edd7 7a03 	vldr	s15, [r7, #12]
- 8001a7a:	eeb1 7a04 	vmov.f32	s14, #20	@ 0x40a00000  5.0
- 8001a7e:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8001a82:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001a86:	d501      	bpl.n	8001a8c <Steer_UpdateAll+0xf0>
- 8001a88:	2301      	movs	r3, #1
- 8001a8a:	e000      	b.n	8001a8e <Steer_UpdateAll+0xf2>
- 8001a8c:	2300      	movs	r3, #0
- 8001a8e:	72fb      	strb	r3, [r7, #11]
- 8001a90:	7afb      	ldrb	r3, [r7, #11]
- 8001a92:	f003 0301 	and.w	r3, r3, #1
- 8001a96:	72fb      	strb	r3, [r7, #11]
+ 8001a40:	edd7 7a03 	vldr	s15, [r7, #12]
+ 8001a44:	eeb9 7a04 	vmov.f32	s14, #148	@ 0xc0a00000 -5.0
+ 8001a48:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8001a4c:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001a50:	dd0a      	ble.n	8001a68 <Steer_UpdateAll+0xf0>
+ 8001a52:	edd7 7a03 	vldr	s15, [r7, #12]
+ 8001a56:	eeb1 7a04 	vmov.f32	s14, #20	@ 0x40a00000  5.0
+ 8001a5a:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8001a5e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001a62:	d501      	bpl.n	8001a68 <Steer_UpdateAll+0xf0>
+ 8001a64:	2301      	movs	r3, #1
+ 8001a66:	e000      	b.n	8001a6a <Steer_UpdateAll+0xf2>
+ 8001a68:	2300      	movs	r3, #0
+ 8001a6a:	72fb      	strb	r3, [r7, #11]
+ 8001a6c:	7afb      	ldrb	r3, [r7, #11]
+ 8001a6e:	f003 0301 	and.w	r3, r3, #1
+ 8001a72:	72fb      	strb	r3, [r7, #11]
                             err_f <  STEER_DEADBAND_TICKS);
 
         // ถ้าไม่ ramp แล้ว และอยู่ใน deadband -> hold เฉย ๆ
         if (!steering_ramping && in_deadband) {
- 8001a98:	7efb      	ldrb	r3, [r7, #27]
- 8001a9a:	f083 0301 	eor.w	r3, r3, #1
- 8001a9e:	b2db      	uxtb	r3, r3
- 8001aa0:	2b00      	cmp	r3, #0
- 8001aa2:	d00f      	beq.n	8001ac4 <Steer_UpdateAll+0x128>
- 8001aa4:	7afb      	ldrb	r3, [r7, #11]
- 8001aa6:	2b00      	cmp	r3, #0
- 8001aa8:	d00c      	beq.n	8001ac4 <Steer_UpdateAll+0x128>
+ 8001a74:	7efb      	ldrb	r3, [r7, #27]
+ 8001a76:	f083 0301 	eor.w	r3, r3, #1
+ 8001a7a:	b2db      	uxtb	r3, r3
+ 8001a7c:	2b00      	cmp	r3, #0
+ 8001a7e:	d00f      	beq.n	8001aa0 <Steer_UpdateAll+0x128>
+ 8001a80:	7afb      	ldrb	r3, [r7, #11]
+ 8001a82:	2b00      	cmp	r3, #0
+ 8001a84:	d00c      	beq.n	8001aa0 <Steer_UpdateAll+0x128>
             Motor_set(ax->motor_idx, MOTOR_DIR_BRAKE, 0.0f);
- 8001aaa:	697b      	ldr	r3, [r7, #20]
- 8001aac:	7a9b      	ldrb	r3, [r3, #10]
- 8001aae:	ed9f 0a41 	vldr	s0, [pc, #260]	@ 8001bb4 <Steer_UpdateAll+0x218>
- 8001ab2:	2100      	movs	r1, #0
- 8001ab4:	4618      	mov	r0, r3
- 8001ab6:	f000 fbbb 	bl	8002230 <Motor_set>
+ 8001a86:	697b      	ldr	r3, [r7, #20]
+ 8001a88:	7a9b      	ldrb	r3, [r3, #10]
+ 8001a8a:	ed9f 0a41 	vldr	s0, [pc, #260]	@ 8001b90 <Steer_UpdateAll+0x218>
+ 8001a8e:	2100      	movs	r1, #0
+ 8001a90:	4618      	mov	r0, r3
+ 8001a92:	f000 fbbb 	bl	800220c <Motor_set>
             ax->last_duty = 0.0f;
- 8001aba:	697b      	ldr	r3, [r7, #20]
- 8001abc:	f04f 0200 	mov.w	r2, #0
- 8001ac0:	631a      	str	r2, [r3, #48]	@ 0x30
+ 8001a96:	697b      	ldr	r3, [r7, #20]
+ 8001a98:	f04f 0200 	mov.w	r2, #0
+ 8001a9c:	631a      	str	r2, [r3, #48]	@ 0x30
             continue;
- 8001ac2:	e060      	b.n	8001b86 <Steer_UpdateAll+0x1ea>
+ 8001a9e:	e060      	b.n	8001b62 <Steer_UpdateAll+0x1ea>
         }
 
         // ----- P control ล้วน ๆ -----
         // u = Kp * error  (หน่วยเดียวกับ out_min/out_max = -1..+1)
         float u = ax->pid.kp * err_f;
- 8001ac4:	697b      	ldr	r3, [r7, #20]
- 8001ac6:	edd3 7a05 	vldr	s15, [r3, #20]
- 8001aca:	ed97 7a03 	vldr	s14, [r7, #12]
- 8001ace:	ee67 7a27 	vmul.f32	s15, s14, s15
- 8001ad2:	edc7 7a0a 	vstr	s15, [r7, #40]	@ 0x28
+ 8001aa0:	697b      	ldr	r3, [r7, #20]
+ 8001aa2:	edd3 7a05 	vldr	s15, [r3, #20]
+ 8001aa6:	ed97 7a03 	vldr	s14, [r7, #12]
+ 8001aaa:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 8001aae:	edc7 7a0a 	vstr	s15, [r7, #40]	@ 0x28
 
         // ----- PID control -----
         // float u = PID_Step(&ax->pid, err_f, dt_s);
 
         // clamp ตามขอบเขต PID เดิม
         if (u > ax->pid.out_max) u = ax->pid.out_max;
- 8001ad6:	697b      	ldr	r3, [r7, #20]
- 8001ad8:	edd3 7a0b 	vldr	s15, [r3, #44]	@ 0x2c
- 8001adc:	ed97 7a0a 	vldr	s14, [r7, #40]	@ 0x28
- 8001ae0:	eeb4 7ae7 	vcmpe.f32	s14, s15
- 8001ae4:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001ae8:	dd02      	ble.n	8001af0 <Steer_UpdateAll+0x154>
- 8001aea:	697b      	ldr	r3, [r7, #20]
- 8001aec:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
- 8001aee:	62bb      	str	r3, [r7, #40]	@ 0x28
+ 8001ab2:	697b      	ldr	r3, [r7, #20]
+ 8001ab4:	edd3 7a0b 	vldr	s15, [r3, #44]	@ 0x2c
+ 8001ab8:	ed97 7a0a 	vldr	s14, [r7, #40]	@ 0x28
+ 8001abc:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 8001ac0:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001ac4:	dd02      	ble.n	8001acc <Steer_UpdateAll+0x154>
+ 8001ac6:	697b      	ldr	r3, [r7, #20]
+ 8001ac8:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
+ 8001aca:	62bb      	str	r3, [r7, #40]	@ 0x28
         if (u < ax->pid.out_min) u = ax->pid.out_min;
- 8001af0:	697b      	ldr	r3, [r7, #20]
- 8001af2:	edd3 7a0a 	vldr	s15, [r3, #40]	@ 0x28
- 8001af6:	ed97 7a0a 	vldr	s14, [r7, #40]	@ 0x28
- 8001afa:	eeb4 7ae7 	vcmpe.f32	s14, s15
- 8001afe:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001b02:	d502      	bpl.n	8001b0a <Steer_UpdateAll+0x16e>
- 8001b04:	697b      	ldr	r3, [r7, #20]
- 8001b06:	6a9b      	ldr	r3, [r3, #40]	@ 0x28
- 8001b08:	62bb      	str	r3, [r7, #40]	@ 0x28
+ 8001acc:	697b      	ldr	r3, [r7, #20]
+ 8001ace:	edd3 7a0a 	vldr	s15, [r3, #40]	@ 0x28
+ 8001ad2:	ed97 7a0a 	vldr	s14, [r7, #40]	@ 0x28
+ 8001ad6:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 8001ada:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001ade:	d502      	bpl.n	8001ae6 <Steer_UpdateAll+0x16e>
+ 8001ae0:	697b      	ldr	r3, [r7, #20]
+ 8001ae2:	6a9b      	ldr	r3, [r3, #40]	@ 0x28
+ 8001ae4:	62bb      	str	r3, [r7, #40]	@ 0x28
 
         MotorDir_t dir;
         float duty_raw;
 
         if (u >= 0.0f) {
- 8001b0a:	edd7 7a0a 	vldr	s15, [r7, #40]	@ 0x28
- 8001b0e:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 8001b12:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001b16:	db05      	blt.n	8001b24 <Steer_UpdateAll+0x188>
+ 8001ae6:	edd7 7a0a 	vldr	s15, [r7, #40]	@ 0x28
+ 8001aea:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 8001aee:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001af2:	db05      	blt.n	8001b00 <Steer_UpdateAll+0x188>
             dir      = MOTOR_DIR_FWD;
- 8001b18:	2301      	movs	r3, #1
- 8001b1a:	f887 3027 	strb.w	r3, [r7, #39]	@ 0x27
+ 8001af4:	2301      	movs	r3, #1
+ 8001af6:	f887 3027 	strb.w	r3, [r7, #39]	@ 0x27
             duty_raw =  u;
- 8001b1e:	6abb      	ldr	r3, [r7, #40]	@ 0x28
- 8001b20:	623b      	str	r3, [r7, #32]
- 8001b22:	e008      	b.n	8001b36 <Steer_UpdateAll+0x19a>
+ 8001afa:	6abb      	ldr	r3, [r7, #40]	@ 0x28
+ 8001afc:	623b      	str	r3, [r7, #32]
+ 8001afe:	e008      	b.n	8001b12 <Steer_UpdateAll+0x19a>
         } else {
             dir      = MOTOR_DIR_REV;
- 8001b24:	23ff      	movs	r3, #255	@ 0xff
- 8001b26:	f887 3027 	strb.w	r3, [r7, #39]	@ 0x27
+ 8001b00:	23ff      	movs	r3, #255	@ 0xff
+ 8001b02:	f887 3027 	strb.w	r3, [r7, #39]	@ 0x27
             duty_raw = -u;
- 8001b2a:	edd7 7a0a 	vldr	s15, [r7, #40]	@ 0x28
- 8001b2e:	eef1 7a67 	vneg.f32	s15, s15
- 8001b32:	edc7 7a08 	vstr	s15, [r7, #32]
+ 8001b06:	edd7 7a0a 	vldr	s15, [r7, #40]	@ 0x28
+ 8001b0a:	eef1 7a67 	vneg.f32	s15, s15
+ 8001b0e:	edc7 7a08 	vstr	s15, [r7, #32]
         }
 
         // base duty + clamp
         float duty = duty_raw;
- 8001b36:	6a3b      	ldr	r3, [r7, #32]
- 8001b38:	61fb      	str	r3, [r7, #28]
+ 8001b12:	6a3b      	ldr	r3, [r7, #32]
+ 8001b14:	61fb      	str	r3, [r7, #28]
         if (duty < ax->duty_base) duty = ax->duty_base;
- 8001b3a:	697b      	ldr	r3, [r7, #20]
- 8001b3c:	edd3 7a04 	vldr	s15, [r3, #16]
- 8001b40:	ed97 7a07 	vldr	s14, [r7, #28]
- 8001b44:	eeb4 7ae7 	vcmpe.f32	s14, s15
- 8001b48:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001b4c:	d502      	bpl.n	8001b54 <Steer_UpdateAll+0x1b8>
- 8001b4e:	697b      	ldr	r3, [r7, #20]
- 8001b50:	691b      	ldr	r3, [r3, #16]
- 8001b52:	61fb      	str	r3, [r7, #28]
+ 8001b16:	697b      	ldr	r3, [r7, #20]
+ 8001b18:	edd3 7a04 	vldr	s15, [r3, #16]
+ 8001b1c:	ed97 7a07 	vldr	s14, [r7, #28]
+ 8001b20:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 8001b24:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001b28:	d502      	bpl.n	8001b30 <Steer_UpdateAll+0x1b8>
+ 8001b2a:	697b      	ldr	r3, [r7, #20]
+ 8001b2c:	691b      	ldr	r3, [r3, #16]
+ 8001b2e:	61fb      	str	r3, [r7, #28]
         if (duty > 1.0f)          duty = 1.0f;
- 8001b54:	edd7 7a07 	vldr	s15, [r7, #28]
- 8001b58:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
- 8001b5c:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8001b60:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8001b64:	dd02      	ble.n	8001b6c <Steer_UpdateAll+0x1d0>
- 8001b66:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
- 8001b6a:	61fb      	str	r3, [r7, #28]
+ 8001b30:	edd7 7a07 	vldr	s15, [r7, #28]
+ 8001b34:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
+ 8001b38:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8001b3c:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8001b40:	dd02      	ble.n	8001b48 <Steer_UpdateAll+0x1d0>
+ 8001b42:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
+ 8001b46:	61fb      	str	r3, [r7, #28]
 //
 //        if (duty > 1.0f) {
 //            duty = 1.0f;
 //        }
 
         ax->last_duty = duty;
- 8001b6c:	697b      	ldr	r3, [r7, #20]
- 8001b6e:	69fa      	ldr	r2, [r7, #28]
- 8001b70:	631a      	str	r2, [r3, #48]	@ 0x30
+ 8001b48:	697b      	ldr	r3, [r7, #20]
+ 8001b4a:	69fa      	ldr	r2, [r7, #28]
+ 8001b4c:	631a      	str	r2, [r3, #48]	@ 0x30
         Motor_set(ax->motor_idx, dir, duty);
- 8001b72:	697b      	ldr	r3, [r7, #20]
- 8001b74:	7a9b      	ldrb	r3, [r3, #10]
- 8001b76:	f997 2027 	ldrsb.w	r2, [r7, #39]	@ 0x27
- 8001b7a:	ed97 0a07 	vldr	s0, [r7, #28]
- 8001b7e:	4611      	mov	r1, r2
- 8001b80:	4618      	mov	r0, r3
- 8001b82:	f000 fb55 	bl	8002230 <Motor_set>
+ 8001b4e:	697b      	ldr	r3, [r7, #20]
+ 8001b50:	7a9b      	ldrb	r3, [r3, #10]
+ 8001b52:	f997 2027 	ldrsb.w	r2, [r7, #39]	@ 0x27
+ 8001b56:	ed97 0a07 	vldr	s0, [r7, #28]
+ 8001b5a:	4611      	mov	r1, r2
+ 8001b5c:	4618      	mov	r0, r3
+ 8001b5e:	f000 fb55 	bl	800220c <Motor_set>
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
- 8001b86:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
- 8001b88:	3301      	adds	r3, #1
- 8001b8a:	62fb      	str	r3, [r7, #44]	@ 0x2c
- 8001b8c:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
- 8001b8e:	2b03      	cmp	r3, #3
- 8001b90:	f67f af2e 	bls.w	80019f0 <Steer_UpdateAll+0x54>
+ 8001b62:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 8001b64:	3301      	adds	r3, #1
+ 8001b66:	62fb      	str	r3, [r7, #44]	@ 0x2c
+ 8001b68:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 8001b6a:	2b03      	cmp	r3, #3
+ 8001b6c:	f67f af2e 	bls.w	80019cc <Steer_UpdateAll+0x54>
                    (int)dir,
                    (int)steering_ramping);
         }
         */
     }
 }
- 8001b94:	bf00      	nop
- 8001b96:	bf00      	nop
- 8001b98:	3730      	adds	r7, #48	@ 0x30
- 8001b9a:	46bd      	mov	sp, r7
- 8001b9c:	bd80      	pop	{r7, pc}
- 8001b9e:	bf00      	nop
- 8001ba0:	3a83126f 	.word	0x3a83126f
- 8001ba4:	20000654 	.word	0x20000654
- 8001ba8:	2000064c 	.word	0x2000064c
- 8001bac:	20000650 	.word	0x20000650
- 8001bb0:	2000010c 	.word	0x2000010c
- 8001bb4:	00000000 	.word	0x00000000
+ 8001b70:	bf00      	nop
+ 8001b72:	bf00      	nop
+ 8001b74:	3730      	adds	r7, #48	@ 0x30
+ 8001b76:	46bd      	mov	sp, r7
+ 8001b78:	bd80      	pop	{r7, pc}
+ 8001b7a:	bf00      	nop
+ 8001b7c:	3a83126f 	.word	0x3a83126f
+ 8001b80:	20000654 	.word	0x20000654
+ 8001b84:	2000064c 	.word	0x2000064c
+ 8001b88:	20000650 	.word	0x20000650
+ 8001b8c:	2000010c 	.word	0x2000010c
+ 8001b90:	00000000 	.word	0x00000000
 
-08001bb8 <Steer_PrintModeHelp>:
+08001b94 <Steer_PrintModeHelp>:
 
 void Steer_PrintModeHelp(RunMode_t mode)
 {
- 8001bb8:	b580      	push	{r7, lr}
- 8001bba:	b082      	sub	sp, #8
- 8001bbc:	af00      	add	r7, sp, #0
- 8001bbe:	4603      	mov	r3, r0
- 8001bc0:	71fb      	strb	r3, [r7, #7]
+ 8001b94:	b580      	push	{r7, lr}
+ 8001b96:	b082      	sub	sp, #8
+ 8001b98:	af00      	add	r7, sp, #0
+ 8001b9a:	4603      	mov	r3, r0
+ 8001b9c:	71fb      	strb	r3, [r7, #7]
     printf("\r\n=============================\r\n");
- 8001bc2:	4819      	ldr	r0, [pc, #100]	@ (8001c28 <Steer_PrintModeHelp+0x70>)
- 8001bc4:	f013 ff36 	bl	8015a34 <puts>
+ 8001b9e:	4819      	ldr	r0, [pc, #100]	@ (8001c04 <Steer_PrintModeHelp+0x70>)
+ 8001ba0:	f013 ff48 	bl	8015a34 <puts>
     if (mode == RUN_MODE_STEER_CALIB) {
- 8001bc8:	79fb      	ldrb	r3, [r7, #7]
- 8001bca:	2b00      	cmp	r3, #0
- 8001bcc:	d118      	bne.n	8001c00 <Steer_PrintModeHelp+0x48>
+ 8001ba4:	79fb      	ldrb	r3, [r7, #7]
+ 8001ba6:	2b00      	cmp	r3, #0
+ 8001ba8:	d118      	bne.n	8001bdc <Steer_PrintModeHelp+0x48>
         printf(" RUN MODE: STEER CALIB (JOG)\r\n");
- 8001bce:	4817      	ldr	r0, [pc, #92]	@ (8001c2c <Steer_PrintModeHelp+0x74>)
- 8001bd0:	f013 ff30 	bl	8015a34 <puts>
+ 8001baa:	4817      	ldr	r0, [pc, #92]	@ (8001c08 <Steer_PrintModeHelp+0x74>)
+ 8001bac:	f013 ff42 	bl	8015a34 <puts>
         printf("  1-4 : select steer axis (1..4)\r\n");
- 8001bd4:	4816      	ldr	r0, [pc, #88]	@ (8001c30 <Steer_PrintModeHelp+0x78>)
- 8001bd6:	f013 ff2d 	bl	8015a34 <puts>
+ 8001bb0:	4816      	ldr	r0, [pc, #88]	@ (8001c0c <Steer_PrintModeHelp+0x78>)
+ 8001bb2:	f013 ff3f 	bl	8015a34 <puts>
         printf("  a   : turn LEFT  (REV)\r\n");
- 8001bda:	4816      	ldr	r0, [pc, #88]	@ (8001c34 <Steer_PrintModeHelp+0x7c>)
- 8001bdc:	f013 ff2a 	bl	8015a34 <puts>
+ 8001bb6:	4816      	ldr	r0, [pc, #88]	@ (8001c10 <Steer_PrintModeHelp+0x7c>)
+ 8001bb8:	f013 ff3c 	bl	8015a34 <puts>
         printf("  d   : turn RIGHT (FWD)\r\n");
- 8001be0:	4815      	ldr	r0, [pc, #84]	@ (8001c38 <Steer_PrintModeHelp+0x80>)
- 8001be2:	f013 ff27 	bl	8015a34 <puts>
+ 8001bbc:	4815      	ldr	r0, [pc, #84]	@ (8001c14 <Steer_PrintModeHelp+0x80>)
+ 8001bbe:	f013 ff39 	bl	8015a34 <puts>
         printf("  s   : stop motor\r\n");
- 8001be6:	4815      	ldr	r0, [pc, #84]	@ (8001c3c <Steer_PrintModeHelp+0x84>)
- 8001be8:	f013 ff24 	bl	8015a34 <puts>
+ 8001bc2:	4815      	ldr	r0, [pc, #84]	@ (8001c18 <Steer_PrintModeHelp+0x84>)
+ 8001bc4:	f013 ff36 	bl	8015a34 <puts>
         printf("  z   : read encoder tick for current axis\r\n");
- 8001bec:	4814      	ldr	r0, [pc, #80]	@ (8001c40 <Steer_PrintModeHelp+0x88>)
- 8001bee:	f013 ff21 	bl	8015a34 <puts>
+ 8001bc8:	4814      	ldr	r0, [pc, #80]	@ (8001c1c <Steer_PrintModeHelp+0x88>)
+ 8001bca:	f013 ff33 	bl	8015a34 <puts>
         printf("  Z   : print all axis zeros (steer_axes[] config)\r\n");
- 8001bf2:	4814      	ldr	r0, [pc, #80]	@ (8001c44 <Steer_PrintModeHelp+0x8c>)
- 8001bf4:	f013 ff1e 	bl	8015a34 <puts>
+ 8001bce:	4814      	ldr	r0, [pc, #80]	@ (8001c20 <Steer_PrintModeHelp+0x8c>)
+ 8001bd0:	f013 ff30 	bl	8015a34 <puts>
         printf("  p   : switch to PID mode\r\n");
- 8001bf8:	4813      	ldr	r0, [pc, #76]	@ (8001c48 <Steer_PrintModeHelp+0x90>)
- 8001bfa:	f013 ff1b 	bl	8015a34 <puts>
- 8001bfe:	e00b      	b.n	8001c18 <Steer_PrintModeHelp+0x60>
+ 8001bd4:	4813      	ldr	r0, [pc, #76]	@ (8001c24 <Steer_PrintModeHelp+0x90>)
+ 8001bd6:	f013 ff2d 	bl	8015a34 <puts>
+ 8001bda:	e00b      	b.n	8001bf4 <Steer_PrintModeHelp+0x60>
     } else {
         printf(" RUN MODE: STEER PID (from ROS /cmd_vel)\r\n");
- 8001c00:	4812      	ldr	r0, [pc, #72]	@ (8001c4c <Steer_PrintModeHelp+0x94>)
- 8001c02:	f013 ff17 	bl	8015a34 <puts>
+ 8001bdc:	4812      	ldr	r0, [pc, #72]	@ (8001c28 <Steer_PrintModeHelp+0x94>)
+ 8001bde:	f013 ff29 	bl	8015a34 <puts>
         printf("  - Drive: from serial/UDP Twist\r\n");
- 8001c06:	4812      	ldr	r0, [pc, #72]	@ (8001c50 <Steer_PrintModeHelp+0x98>)
- 8001c08:	f013 ff14 	bl	8015a34 <puts>
+ 8001be2:	4812      	ldr	r0, [pc, #72]	@ (8001c2c <Steer_PrintModeHelp+0x98>)
+ 8001be4:	f013 ff26 	bl	8015a34 <puts>
         printf("  - Steer: PID to target angle (max 40 deg)\r\n");
- 8001c0c:	4811      	ldr	r0, [pc, #68]	@ (8001c54 <Steer_PrintModeHelp+0x9c>)
- 8001c0e:	f013 ff11 	bl	8015a34 <puts>
+ 8001be8:	4811      	ldr	r0, [pc, #68]	@ (8001c30 <Steer_PrintModeHelp+0x9c>)
+ 8001bea:	f013 ff23 	bl	8015a34 <puts>
         printf("  c : switch to CALIB mode\r\n");
- 8001c12:	4811      	ldr	r0, [pc, #68]	@ (8001c58 <Steer_PrintModeHelp+0xa0>)
- 8001c14:	f013 ff0e 	bl	8015a34 <puts>
+ 8001bee:	4811      	ldr	r0, [pc, #68]	@ (8001c34 <Steer_PrintModeHelp+0xa0>)
+ 8001bf0:	f013 ff20 	bl	8015a34 <puts>
     }
     printf("=============================\r\n");
- 8001c18:	4810      	ldr	r0, [pc, #64]	@ (8001c5c <Steer_PrintModeHelp+0xa4>)
- 8001c1a:	f013 ff0b 	bl	8015a34 <puts>
+ 8001bf4:	4810      	ldr	r0, [pc, #64]	@ (8001c38 <Steer_PrintModeHelp+0xa4>)
+ 8001bf6:	f013 ff1d 	bl	8015a34 <puts>
 }
- 8001c1e:	bf00      	nop
- 8001c20:	3708      	adds	r7, #8
- 8001c22:	46bd      	mov	sp, r7
- 8001c24:	bd80      	pop	{r7, pc}
- 8001c26:	bf00      	nop
- 8001c28:	08017cbc 	.word	0x08017cbc
- 8001c2c:	08017ce0 	.word	0x08017ce0
- 8001c30:	08017d00 	.word	0x08017d00
- 8001c34:	08017d24 	.word	0x08017d24
- 8001c38:	08017d40 	.word	0x08017d40
- 8001c3c:	08017d5c 	.word	0x08017d5c
- 8001c40:	08017d70 	.word	0x08017d70
- 8001c44:	08017d9c 	.word	0x08017d9c
- 8001c48:	08017dd0 	.word	0x08017dd0
- 8001c4c:	08017dec 	.word	0x08017dec
- 8001c50:	08017e18 	.word	0x08017e18
- 8001c54:	08017e3c 	.word	0x08017e3c
- 8001c58:	08017e6c 	.word	0x08017e6c
- 8001c5c:	08017e88 	.word	0x08017e88
+ 8001bfa:	bf00      	nop
+ 8001bfc:	3708      	adds	r7, #8
+ 8001bfe:	46bd      	mov	sp, r7
+ 8001c00:	bd80      	pop	{r7, pc}
+ 8001c02:	bf00      	nop
+ 8001c04:	08017cbc 	.word	0x08017cbc
+ 8001c08:	08017ce0 	.word	0x08017ce0
+ 8001c0c:	08017d00 	.word	0x08017d00
+ 8001c10:	08017d24 	.word	0x08017d24
+ 8001c14:	08017d40 	.word	0x08017d40
+ 8001c18:	08017d5c 	.word	0x08017d5c
+ 8001c1c:	08017d70 	.word	0x08017d70
+ 8001c20:	08017d9c 	.word	0x08017d9c
+ 8001c24:	08017dd0 	.word	0x08017dd0
+ 8001c28:	08017dec 	.word	0x08017dec
+ 8001c2c:	08017e18 	.word	0x08017e18
+ 8001c30:	08017e3c 	.word	0x08017e3c
+ 8001c34:	08017e6c 	.word	0x08017e6c
+ 8001c38:	08017e88 	.word	0x08017e88
 
-08001c60 <Steer_JogCalib_HandleUart>:
+08001c3c <Steer_JogCalib_HandleUart>:
 
 void Steer_JogCalib_HandleUart(void)
 {
- 8001c60:	b5f0      	push	{r4, r5, r6, r7, lr}
- 8001c62:	b089      	sub	sp, #36	@ 0x24
- 8001c64:	af02      	add	r7, sp, #8
+ 8001c3c:	b5f0      	push	{r4, r5, r6, r7, lr}
+ 8001c3e:	b089      	sub	sp, #36	@ 0x24
+ 8001c40:	af02      	add	r7, sp, #8
     static uint8_t current_axis = 0;              // 0..3 -> STEER1..4
 
     const float    jog_duty = STEER_JOG_DUTY_DEFAULT;
- 8001c66:	4bb4      	ldr	r3, [pc, #720]	@ (8001f38 <Steer_JogCalib_HandleUart+0x2d8>)
- 8001c68:	617b      	str	r3, [r7, #20]
+ 8001c42:	4bb4      	ldr	r3, [pc, #720]	@ (8001f14 <Steer_JogCalib_HandleUart+0x2d8>)
+ 8001c44:	617b      	str	r3, [r7, #20]
     const uint32_t JOG_MS   = STEER_JOG_MS_DEFAULT;
- 8001c6a:	2364      	movs	r3, #100	@ 0x64
- 8001c6c:	613b      	str	r3, [r7, #16]
+ 8001c46:	2364      	movs	r3, #100	@ 0x64
+ 8001c48:	613b      	str	r3, [r7, #16]
 
     uint8_t ch;
 
     if (HAL_UART_Receive(&huart3, &ch, 1, 10) != HAL_OK) {
- 8001c6e:	1df9      	adds	r1, r7, #7
- 8001c70:	230a      	movs	r3, #10
- 8001c72:	2201      	movs	r2, #1
- 8001c74:	48b1      	ldr	r0, [pc, #708]	@ (8001f3c <Steer_JogCalib_HandleUart+0x2dc>)
- 8001c76:	f007 fdba 	bl	80097ee <HAL_UART_Receive>
- 8001c7a:	4603      	mov	r3, r0
- 8001c7c:	2b00      	cmp	r3, #0
- 8001c7e:	f040 8155 	bne.w	8001f2c <Steer_JogCalib_HandleUart+0x2cc>
+ 8001c4a:	1df9      	adds	r1, r7, #7
+ 8001c4c:	230a      	movs	r3, #10
+ 8001c4e:	2201      	movs	r2, #1
+ 8001c50:	48b1      	ldr	r0, [pc, #708]	@ (8001f18 <Steer_JogCalib_HandleUart+0x2dc>)
+ 8001c52:	f007 fdcc 	bl	80097ee <HAL_UART_Receive>
+ 8001c56:	4603      	mov	r3, r0
+ 8001c58:	2b00      	cmp	r3, #0
+ 8001c5a:	f040 8155 	bne.w	8001f08 <Steer_JogCalib_HandleUart+0x2cc>
         return;
     }
 
     switch (ch)
- 8001c82:	79fb      	ldrb	r3, [r7, #7]
- 8001c84:	3b31      	subs	r3, #49	@ 0x31
- 8001c86:	2b49      	cmp	r3, #73	@ 0x49
- 8001c88:	f200 8152 	bhi.w	8001f30 <Steer_JogCalib_HandleUart+0x2d0>
- 8001c8c:	a201      	add	r2, pc, #4	@ (adr r2, 8001c94 <Steer_JogCalib_HandleUart+0x34>)
- 8001c8e:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
- 8001c92:	bf00      	nop
- 8001c94:	08001dbd 	.word	0x08001dbd
- 8001c98:	08001dbd 	.word	0x08001dbd
- 8001c9c:	08001dbd 	.word	0x08001dbd
- 8001ca0:	08001dbd 	.word	0x08001dbd
- 8001ca4:	08001f31 	.word	0x08001f31
- 8001ca8:	08001f31 	.word	0x08001f31
- 8001cac:	08001f31 	.word	0x08001f31
- 8001cb0:	08001f31 	.word	0x08001f31
- 8001cb4:	08001f31 	.word	0x08001f31
- 8001cb8:	08001f31 	.word	0x08001f31
- 8001cbc:	08001f31 	.word	0x08001f31
- 8001cc0:	08001f31 	.word	0x08001f31
- 8001cc4:	08001f31 	.word	0x08001f31
- 8001cc8:	08001f31 	.word	0x08001f31
- 8001ccc:	08001f31 	.word	0x08001f31
- 8001cd0:	08001f31 	.word	0x08001f31
- 8001cd4:	08001dd7 	.word	0x08001dd7
- 8001cd8:	08001f31 	.word	0x08001f31
- 8001cdc:	08001efd 	.word	0x08001efd
- 8001ce0:	08001e37 	.word	0x08001e37
- 8001ce4:	08001f31 	.word	0x08001f31
- 8001ce8:	08001f31 	.word	0x08001f31
- 8001cec:	08001f31 	.word	0x08001f31
- 8001cf0:	08001f31 	.word	0x08001f31
- 8001cf4:	08001f31 	.word	0x08001f31
- 8001cf8:	08001f31 	.word	0x08001f31
- 8001cfc:	08001f31 	.word	0x08001f31
- 8001d00:	08001f31 	.word	0x08001f31
- 8001d04:	08001f31 	.word	0x08001f31
- 8001d08:	08001f31 	.word	0x08001f31
- 8001d0c:	08001f31 	.word	0x08001f31
- 8001d10:	08001f15 	.word	0x08001f15
- 8001d14:	08001f31 	.word	0x08001f31
- 8001d18:	08001f31 	.word	0x08001f31
- 8001d1c:	08001e95 	.word	0x08001e95
- 8001d20:	08001f31 	.word	0x08001f31
- 8001d24:	08001f31 	.word	0x08001f31
- 8001d28:	08001f31 	.word	0x08001f31
- 8001d2c:	08001f31 	.word	0x08001f31
- 8001d30:	08001f31 	.word	0x08001f31
- 8001d34:	08001f31 	.word	0x08001f31
- 8001d38:	08001eb5 	.word	0x08001eb5
- 8001d3c:	08001f31 	.word	0x08001f31
- 8001d40:	08001f31 	.word	0x08001f31
- 8001d44:	08001f31 	.word	0x08001f31
- 8001d48:	08001f31 	.word	0x08001f31
- 8001d4c:	08001f31 	.word	0x08001f31
- 8001d50:	08001f31 	.word	0x08001f31
- 8001d54:	08001dd7 	.word	0x08001dd7
- 8001d58:	08001f31 	.word	0x08001f31
- 8001d5c:	08001efd 	.word	0x08001efd
- 8001d60:	08001e37 	.word	0x08001e37
- 8001d64:	08001f31 	.word	0x08001f31
- 8001d68:	08001f31 	.word	0x08001f31
- 8001d6c:	08001f31 	.word	0x08001f31
- 8001d70:	08001f31 	.word	0x08001f31
- 8001d74:	08001f31 	.word	0x08001f31
- 8001d78:	08001f31 	.word	0x08001f31
- 8001d7c:	08001f31 	.word	0x08001f31
- 8001d80:	08001f31 	.word	0x08001f31
- 8001d84:	08001f31 	.word	0x08001f31
- 8001d88:	08001f31 	.word	0x08001f31
- 8001d8c:	08001f31 	.word	0x08001f31
- 8001d90:	08001f15 	.word	0x08001f15
- 8001d94:	08001f31 	.word	0x08001f31
- 8001d98:	08001f31 	.word	0x08001f31
- 8001d9c:	08001e95 	.word	0x08001e95
- 8001da0:	08001f31 	.word	0x08001f31
- 8001da4:	08001f31 	.word	0x08001f31
- 8001da8:	08001f31 	.word	0x08001f31
- 8001dac:	08001f31 	.word	0x08001f31
- 8001db0:	08001f31 	.word	0x08001f31
- 8001db4:	08001f31 	.word	0x08001f31
- 8001db8:	08001eb5 	.word	0x08001eb5
+ 8001c5e:	79fb      	ldrb	r3, [r7, #7]
+ 8001c60:	3b31      	subs	r3, #49	@ 0x31
+ 8001c62:	2b49      	cmp	r3, #73	@ 0x49
+ 8001c64:	f200 8152 	bhi.w	8001f0c <Steer_JogCalib_HandleUart+0x2d0>
+ 8001c68:	a201      	add	r2, pc, #4	@ (adr r2, 8001c70 <Steer_JogCalib_HandleUart+0x34>)
+ 8001c6a:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
+ 8001c6e:	bf00      	nop
+ 8001c70:	08001d99 	.word	0x08001d99
+ 8001c74:	08001d99 	.word	0x08001d99
+ 8001c78:	08001d99 	.word	0x08001d99
+ 8001c7c:	08001d99 	.word	0x08001d99
+ 8001c80:	08001f0d 	.word	0x08001f0d
+ 8001c84:	08001f0d 	.word	0x08001f0d
+ 8001c88:	08001f0d 	.word	0x08001f0d
+ 8001c8c:	08001f0d 	.word	0x08001f0d
+ 8001c90:	08001f0d 	.word	0x08001f0d
+ 8001c94:	08001f0d 	.word	0x08001f0d
+ 8001c98:	08001f0d 	.word	0x08001f0d
+ 8001c9c:	08001f0d 	.word	0x08001f0d
+ 8001ca0:	08001f0d 	.word	0x08001f0d
+ 8001ca4:	08001f0d 	.word	0x08001f0d
+ 8001ca8:	08001f0d 	.word	0x08001f0d
+ 8001cac:	08001f0d 	.word	0x08001f0d
+ 8001cb0:	08001db3 	.word	0x08001db3
+ 8001cb4:	08001f0d 	.word	0x08001f0d
+ 8001cb8:	08001ed9 	.word	0x08001ed9
+ 8001cbc:	08001e13 	.word	0x08001e13
+ 8001cc0:	08001f0d 	.word	0x08001f0d
+ 8001cc4:	08001f0d 	.word	0x08001f0d
+ 8001cc8:	08001f0d 	.word	0x08001f0d
+ 8001ccc:	08001f0d 	.word	0x08001f0d
+ 8001cd0:	08001f0d 	.word	0x08001f0d
+ 8001cd4:	08001f0d 	.word	0x08001f0d
+ 8001cd8:	08001f0d 	.word	0x08001f0d
+ 8001cdc:	08001f0d 	.word	0x08001f0d
+ 8001ce0:	08001f0d 	.word	0x08001f0d
+ 8001ce4:	08001f0d 	.word	0x08001f0d
+ 8001ce8:	08001f0d 	.word	0x08001f0d
+ 8001cec:	08001ef1 	.word	0x08001ef1
+ 8001cf0:	08001f0d 	.word	0x08001f0d
+ 8001cf4:	08001f0d 	.word	0x08001f0d
+ 8001cf8:	08001e71 	.word	0x08001e71
+ 8001cfc:	08001f0d 	.word	0x08001f0d
+ 8001d00:	08001f0d 	.word	0x08001f0d
+ 8001d04:	08001f0d 	.word	0x08001f0d
+ 8001d08:	08001f0d 	.word	0x08001f0d
+ 8001d0c:	08001f0d 	.word	0x08001f0d
+ 8001d10:	08001f0d 	.word	0x08001f0d
+ 8001d14:	08001e91 	.word	0x08001e91
+ 8001d18:	08001f0d 	.word	0x08001f0d
+ 8001d1c:	08001f0d 	.word	0x08001f0d
+ 8001d20:	08001f0d 	.word	0x08001f0d
+ 8001d24:	08001f0d 	.word	0x08001f0d
+ 8001d28:	08001f0d 	.word	0x08001f0d
+ 8001d2c:	08001f0d 	.word	0x08001f0d
+ 8001d30:	08001db3 	.word	0x08001db3
+ 8001d34:	08001f0d 	.word	0x08001f0d
+ 8001d38:	08001ed9 	.word	0x08001ed9
+ 8001d3c:	08001e13 	.word	0x08001e13
+ 8001d40:	08001f0d 	.word	0x08001f0d
+ 8001d44:	08001f0d 	.word	0x08001f0d
+ 8001d48:	08001f0d 	.word	0x08001f0d
+ 8001d4c:	08001f0d 	.word	0x08001f0d
+ 8001d50:	08001f0d 	.word	0x08001f0d
+ 8001d54:	08001f0d 	.word	0x08001f0d
+ 8001d58:	08001f0d 	.word	0x08001f0d
+ 8001d5c:	08001f0d 	.word	0x08001f0d
+ 8001d60:	08001f0d 	.word	0x08001f0d
+ 8001d64:	08001f0d 	.word	0x08001f0d
+ 8001d68:	08001f0d 	.word	0x08001f0d
+ 8001d6c:	08001ef1 	.word	0x08001ef1
+ 8001d70:	08001f0d 	.word	0x08001f0d
+ 8001d74:	08001f0d 	.word	0x08001f0d
+ 8001d78:	08001e71 	.word	0x08001e71
+ 8001d7c:	08001f0d 	.word	0x08001f0d
+ 8001d80:	08001f0d 	.word	0x08001f0d
+ 8001d84:	08001f0d 	.word	0x08001f0d
+ 8001d88:	08001f0d 	.word	0x08001f0d
+ 8001d8c:	08001f0d 	.word	0x08001f0d
+ 8001d90:	08001f0d 	.word	0x08001f0d
+ 8001d94:	08001e91 	.word	0x08001e91
     {
     case '1':
     case '2':
     case '3':
     case '4':
         current_axis = (uint8_t)(ch - '1');  // '1'->0, '2'->1 ...
- 8001dbc:	79fb      	ldrb	r3, [r7, #7]
- 8001dbe:	3b31      	subs	r3, #49	@ 0x31
- 8001dc0:	b2da      	uxtb	r2, r3
- 8001dc2:	4b5f      	ldr	r3, [pc, #380]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001dc4:	701a      	strb	r2, [r3, #0]
+ 8001d98:	79fb      	ldrb	r3, [r7, #7]
+ 8001d9a:	3b31      	subs	r3, #49	@ 0x31
+ 8001d9c:	b2da      	uxtb	r2, r3
+ 8001d9e:	4b5f      	ldr	r3, [pc, #380]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001da0:	701a      	strb	r2, [r3, #0]
         printf("Selected STEER axis %d\r\n", (int)(current_axis + 1));
- 8001dc6:	4b5e      	ldr	r3, [pc, #376]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001dc8:	781b      	ldrb	r3, [r3, #0]
- 8001dca:	3301      	adds	r3, #1
- 8001dcc:	4619      	mov	r1, r3
- 8001dce:	485d      	ldr	r0, [pc, #372]	@ (8001f44 <Steer_JogCalib_HandleUart+0x2e4>)
- 8001dd0:	f013 fdc8 	bl	8015964 <iprintf>
+ 8001da2:	4b5e      	ldr	r3, [pc, #376]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001da4:	781b      	ldrb	r3, [r3, #0]
+ 8001da6:	3301      	adds	r3, #1
+ 8001da8:	4619      	mov	r1, r3
+ 8001daa:	485d      	ldr	r0, [pc, #372]	@ (8001f20 <Steer_JogCalib_HandleUart+0x2e4>)
+ 8001dac:	f013 fdda 	bl	8015964 <iprintf>
         break;
- 8001dd4:	e0ad      	b.n	8001f32 <Steer_JogCalib_HandleUart+0x2d2>
+ 8001db0:	e0ad      	b.n	8001f0e <Steer_JogCalib_HandleUart+0x2d2>
 
     case 'a':
     case 'A':
         SteerMotor_Jog(current_axis, MOTOR_DIR_REV, jog_duty);
- 8001dd6:	4b5a      	ldr	r3, [pc, #360]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001dd8:	781b      	ldrb	r3, [r3, #0]
- 8001dda:	ed97 0a05 	vldr	s0, [r7, #20]
- 8001dde:	f04f 31ff 	mov.w	r1, #4294967295	@ 0xffffffff
- 8001de2:	4618      	mov	r0, r3
- 8001de4:	f7ff fc0e 	bl	8001604 <SteerMotor_Jog>
+ 8001db2:	4b5a      	ldr	r3, [pc, #360]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001db4:	781b      	ldrb	r3, [r3, #0]
+ 8001db6:	ed97 0a05 	vldr	s0, [r7, #20]
+ 8001dba:	f04f 31ff 	mov.w	r1, #4294967295	@ 0xffffffff
+ 8001dbe:	4618      	mov	r0, r3
+ 8001dc0:	f7ff fc0e 	bl	80015e0 <SteerMotor_Jog>
         HAL_Delay(JOG_MS);
- 8001de8:	6938      	ldr	r0, [r7, #16]
- 8001dea:	f002 fb9d 	bl	8004528 <HAL_Delay>
+ 8001dc4:	6938      	ldr	r0, [r7, #16]
+ 8001dc6:	f002 fbaf 	bl	8004528 <HAL_Delay>
         SteerMotor_Jog(current_axis, MOTOR_DIR_BRAKE, 0.0f);
- 8001dee:	4b54      	ldr	r3, [pc, #336]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001df0:	781b      	ldrb	r3, [r3, #0]
- 8001df2:	ed9f 0a55 	vldr	s0, [pc, #340]	@ 8001f48 <Steer_JogCalib_HandleUart+0x2e8>
- 8001df6:	2100      	movs	r1, #0
- 8001df8:	4618      	mov	r0, r3
- 8001dfa:	f7ff fc03 	bl	8001604 <SteerMotor_Jog>
+ 8001dca:	4b54      	ldr	r3, [pc, #336]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001dcc:	781b      	ldrb	r3, [r3, #0]
+ 8001dce:	ed9f 0a55 	vldr	s0, [pc, #340]	@ 8001f24 <Steer_JogCalib_HandleUart+0x2e8>
+ 8001dd2:	2100      	movs	r1, #0
+ 8001dd4:	4618      	mov	r0, r3
+ 8001dd6:	f7ff fc03 	bl	80015e0 <SteerMotor_Jog>
         printf("Axis %d: JOG LEFT  (%.0f ms, duty=%.2f)\r\n",
- 8001dfe:	4b50      	ldr	r3, [pc, #320]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001e00:	781b      	ldrb	r3, [r3, #0]
- 8001e02:	1c5e      	adds	r6, r3, #1
+ 8001dda:	4b50      	ldr	r3, [pc, #320]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001ddc:	781b      	ldrb	r3, [r3, #0]
+ 8001dde:	1c5e      	adds	r6, r3, #1
                (int)(current_axis + 1),
                (float)JOG_MS,
- 8001e04:	693b      	ldr	r3, [r7, #16]
- 8001e06:	ee07 3a90 	vmov	s15, r3
- 8001e0a:	eef8 7a67 	vcvt.f32.u32	s15, s15
+ 8001de0:	693b      	ldr	r3, [r7, #16]
+ 8001de2:	ee07 3a90 	vmov	s15, r3
+ 8001de6:	eef8 7a67 	vcvt.f32.u32	s15, s15
         printf("Axis %d: JOG LEFT  (%.0f ms, duty=%.2f)\r\n",
- 8001e0e:	ee17 0a90 	vmov	r0, s15
- 8001e12:	f7fe fbb9 	bl	8000588 <__aeabi_f2d>
- 8001e16:	4604      	mov	r4, r0
- 8001e18:	460d      	mov	r5, r1
- 8001e1a:	6978      	ldr	r0, [r7, #20]
- 8001e1c:	f7fe fbb4 	bl	8000588 <__aeabi_f2d>
- 8001e20:	4602      	mov	r2, r0
- 8001e22:	460b      	mov	r3, r1
- 8001e24:	e9cd 2300 	strd	r2, r3, [sp]
- 8001e28:	4622      	mov	r2, r4
- 8001e2a:	462b      	mov	r3, r5
- 8001e2c:	4631      	mov	r1, r6
- 8001e2e:	4847      	ldr	r0, [pc, #284]	@ (8001f4c <Steer_JogCalib_HandleUart+0x2ec>)
- 8001e30:	f013 fd98 	bl	8015964 <iprintf>
+ 8001dea:	ee17 0a90 	vmov	r0, s15
+ 8001dee:	f7fe fbcb 	bl	8000588 <__aeabi_f2d>
+ 8001df2:	4604      	mov	r4, r0
+ 8001df4:	460d      	mov	r5, r1
+ 8001df6:	6978      	ldr	r0, [r7, #20]
+ 8001df8:	f7fe fbc6 	bl	8000588 <__aeabi_f2d>
+ 8001dfc:	4602      	mov	r2, r0
+ 8001dfe:	460b      	mov	r3, r1
+ 8001e00:	e9cd 2300 	strd	r2, r3, [sp]
+ 8001e04:	4622      	mov	r2, r4
+ 8001e06:	462b      	mov	r3, r5
+ 8001e08:	4631      	mov	r1, r6
+ 8001e0a:	4847      	ldr	r0, [pc, #284]	@ (8001f28 <Steer_JogCalib_HandleUart+0x2ec>)
+ 8001e0c:	f013 fdaa 	bl	8015964 <iprintf>
                jog_duty);
         break;
- 8001e34:	e07d      	b.n	8001f32 <Steer_JogCalib_HandleUart+0x2d2>
+ 8001e10:	e07d      	b.n	8001f0e <Steer_JogCalib_HandleUart+0x2d2>
 
     case 'd':
     case 'D':
         SteerMotor_Jog(current_axis, MOTOR_DIR_FWD, jog_duty);
- 8001e36:	4b42      	ldr	r3, [pc, #264]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001e38:	781b      	ldrb	r3, [r3, #0]
- 8001e3a:	ed97 0a05 	vldr	s0, [r7, #20]
- 8001e3e:	2101      	movs	r1, #1
- 8001e40:	4618      	mov	r0, r3
- 8001e42:	f7ff fbdf 	bl	8001604 <SteerMotor_Jog>
+ 8001e12:	4b42      	ldr	r3, [pc, #264]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001e14:	781b      	ldrb	r3, [r3, #0]
+ 8001e16:	ed97 0a05 	vldr	s0, [r7, #20]
+ 8001e1a:	2101      	movs	r1, #1
+ 8001e1c:	4618      	mov	r0, r3
+ 8001e1e:	f7ff fbdf 	bl	80015e0 <SteerMotor_Jog>
         HAL_Delay(JOG_MS);
- 8001e46:	6938      	ldr	r0, [r7, #16]
- 8001e48:	f002 fb6e 	bl	8004528 <HAL_Delay>
+ 8001e22:	6938      	ldr	r0, [r7, #16]
+ 8001e24:	f002 fb80 	bl	8004528 <HAL_Delay>
         SteerMotor_Jog(current_axis, MOTOR_DIR_BRAKE, 0.0f);
- 8001e4c:	4b3c      	ldr	r3, [pc, #240]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001e4e:	781b      	ldrb	r3, [r3, #0]
- 8001e50:	ed9f 0a3d 	vldr	s0, [pc, #244]	@ 8001f48 <Steer_JogCalib_HandleUart+0x2e8>
- 8001e54:	2100      	movs	r1, #0
- 8001e56:	4618      	mov	r0, r3
- 8001e58:	f7ff fbd4 	bl	8001604 <SteerMotor_Jog>
+ 8001e28:	4b3c      	ldr	r3, [pc, #240]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001e2a:	781b      	ldrb	r3, [r3, #0]
+ 8001e2c:	ed9f 0a3d 	vldr	s0, [pc, #244]	@ 8001f24 <Steer_JogCalib_HandleUart+0x2e8>
+ 8001e30:	2100      	movs	r1, #0
+ 8001e32:	4618      	mov	r0, r3
+ 8001e34:	f7ff fbd4 	bl	80015e0 <SteerMotor_Jog>
         printf("Axis %d: JOG RIGHT (%.0f ms, duty=%.2f)\r\n",
- 8001e5c:	4b38      	ldr	r3, [pc, #224]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001e5e:	781b      	ldrb	r3, [r3, #0]
- 8001e60:	1c5e      	adds	r6, r3, #1
+ 8001e38:	4b38      	ldr	r3, [pc, #224]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001e3a:	781b      	ldrb	r3, [r3, #0]
+ 8001e3c:	1c5e      	adds	r6, r3, #1
                (int)(current_axis + 1),
                (float)JOG_MS,
- 8001e62:	693b      	ldr	r3, [r7, #16]
- 8001e64:	ee07 3a90 	vmov	s15, r3
- 8001e68:	eef8 7a67 	vcvt.f32.u32	s15, s15
+ 8001e3e:	693b      	ldr	r3, [r7, #16]
+ 8001e40:	ee07 3a90 	vmov	s15, r3
+ 8001e44:	eef8 7a67 	vcvt.f32.u32	s15, s15
         printf("Axis %d: JOG RIGHT (%.0f ms, duty=%.2f)\r\n",
- 8001e6c:	ee17 0a90 	vmov	r0, s15
- 8001e70:	f7fe fb8a 	bl	8000588 <__aeabi_f2d>
- 8001e74:	4604      	mov	r4, r0
- 8001e76:	460d      	mov	r5, r1
- 8001e78:	6978      	ldr	r0, [r7, #20]
- 8001e7a:	f7fe fb85 	bl	8000588 <__aeabi_f2d>
- 8001e7e:	4602      	mov	r2, r0
- 8001e80:	460b      	mov	r3, r1
- 8001e82:	e9cd 2300 	strd	r2, r3, [sp]
- 8001e86:	4622      	mov	r2, r4
- 8001e88:	462b      	mov	r3, r5
- 8001e8a:	4631      	mov	r1, r6
- 8001e8c:	4830      	ldr	r0, [pc, #192]	@ (8001f50 <Steer_JogCalib_HandleUart+0x2f0>)
- 8001e8e:	f013 fd69 	bl	8015964 <iprintf>
+ 8001e48:	ee17 0a90 	vmov	r0, s15
+ 8001e4c:	f7fe fb9c 	bl	8000588 <__aeabi_f2d>
+ 8001e50:	4604      	mov	r4, r0
+ 8001e52:	460d      	mov	r5, r1
+ 8001e54:	6978      	ldr	r0, [r7, #20]
+ 8001e56:	f7fe fb97 	bl	8000588 <__aeabi_f2d>
+ 8001e5a:	4602      	mov	r2, r0
+ 8001e5c:	460b      	mov	r3, r1
+ 8001e5e:	e9cd 2300 	strd	r2, r3, [sp]
+ 8001e62:	4622      	mov	r2, r4
+ 8001e64:	462b      	mov	r3, r5
+ 8001e66:	4631      	mov	r1, r6
+ 8001e68:	4830      	ldr	r0, [pc, #192]	@ (8001f2c <Steer_JogCalib_HandleUart+0x2f0>)
+ 8001e6a:	f013 fd7b 	bl	8015964 <iprintf>
                jog_duty);
         break;
- 8001e92:	e04e      	b.n	8001f32 <Steer_JogCalib_HandleUart+0x2d2>
+ 8001e6e:	e04e      	b.n	8001f0e <Steer_JogCalib_HandleUart+0x2d2>
 
     case 's':
     case 'S':
         SteerMotor_Jog(current_axis, MOTOR_DIR_BRAKE, 0.0f);
- 8001e94:	4b2a      	ldr	r3, [pc, #168]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001e96:	781b      	ldrb	r3, [r3, #0]
- 8001e98:	ed9f 0a2b 	vldr	s0, [pc, #172]	@ 8001f48 <Steer_JogCalib_HandleUart+0x2e8>
- 8001e9c:	2100      	movs	r1, #0
- 8001e9e:	4618      	mov	r0, r3
- 8001ea0:	f7ff fbb0 	bl	8001604 <SteerMotor_Jog>
+ 8001e70:	4b2a      	ldr	r3, [pc, #168]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001e72:	781b      	ldrb	r3, [r3, #0]
+ 8001e74:	ed9f 0a2b 	vldr	s0, [pc, #172]	@ 8001f24 <Steer_JogCalib_HandleUart+0x2e8>
+ 8001e78:	2100      	movs	r1, #0
+ 8001e7a:	4618      	mov	r0, r3
+ 8001e7c:	f7ff fbb0 	bl	80015e0 <SteerMotor_Jog>
         printf("Axis %d: STOP\r\n", (int)(current_axis + 1));
- 8001ea4:	4b26      	ldr	r3, [pc, #152]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001ea6:	781b      	ldrb	r3, [r3, #0]
- 8001ea8:	3301      	adds	r3, #1
- 8001eaa:	4619      	mov	r1, r3
- 8001eac:	4829      	ldr	r0, [pc, #164]	@ (8001f54 <Steer_JogCalib_HandleUart+0x2f4>)
- 8001eae:	f013 fd59 	bl	8015964 <iprintf>
+ 8001e80:	4b26      	ldr	r3, [pc, #152]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001e82:	781b      	ldrb	r3, [r3, #0]
+ 8001e84:	3301      	adds	r3, #1
+ 8001e86:	4619      	mov	r1, r3
+ 8001e88:	4829      	ldr	r0, [pc, #164]	@ (8001f30 <Steer_JogCalib_HandleUart+0x2f4>)
+ 8001e8a:	f013 fd6b 	bl	8015964 <iprintf>
         break;
- 8001eb2:	e03e      	b.n	8001f32 <Steer_JogCalib_HandleUart+0x2d2>
+ 8001e8e:	e03e      	b.n	8001f0e <Steer_JogCalib_HandleUart+0x2d2>
 
     case 'z':
     case 'Z':
     {
         if (ch == 'z') {
- 8001eb4:	79fb      	ldrb	r3, [r7, #7]
- 8001eb6:	2b7a      	cmp	r3, #122	@ 0x7a
- 8001eb8:	d11d      	bne.n	8001ef6 <Steer_JogCalib_HandleUart+0x296>
+ 8001e90:	79fb      	ldrb	r3, [r7, #7]
+ 8001e92:	2b7a      	cmp	r3, #122	@ 0x7a
+ 8001e94:	d11d      	bne.n	8001ed2 <Steer_JogCalib_HandleUart+0x296>
             		// อ่านเฉพาะแกนปัจจุบัน (ตาม current_axis)
             uint16_t ticks = ENC_ReadRaw_ByIndex(current_axis);
- 8001eba:	4b21      	ldr	r3, [pc, #132]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001ebc:	781b      	ldrb	r3, [r3, #0]
- 8001ebe:	4618      	mov	r0, r3
- 8001ec0:	f000 f874 	bl	8001fac <ENC_ReadRaw_ByIndex>
- 8001ec4:	4603      	mov	r3, r0
- 8001ec6:	81fb      	strh	r3, [r7, #14]
+ 8001e96:	4b21      	ldr	r3, [pc, #132]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001e98:	781b      	ldrb	r3, [r3, #0]
+ 8001e9a:	4618      	mov	r0, r3
+ 8001e9c:	f000 f874 	bl	8001f88 <ENC_ReadRaw_ByIndex>
+ 8001ea0:	4603      	mov	r3, r0
+ 8001ea2:	81fb      	strh	r3, [r7, #14]
             float    deg   = ENC_TicksToDeg(ticks);
- 8001ec8:	89fb      	ldrh	r3, [r7, #14]
- 8001eca:	4618      	mov	r0, r3
- 8001ecc:	f000 f8ca 	bl	8002064 <ENC_TicksToDeg>
- 8001ed0:	ed87 0a02 	vstr	s0, [r7, #8]
+ 8001ea4:	89fb      	ldrh	r3, [r7, #14]
+ 8001ea6:	4618      	mov	r0, r3
+ 8001ea8:	f000 f8ca 	bl	8002040 <ENC_TicksToDeg>
+ 8001eac:	ed87 0a02 	vstr	s0, [r7, #8]
             printf("CALIB axis %d : zero_ticks = %u (%.2f deg)\r\n",
- 8001ed4:	4b1a      	ldr	r3, [pc, #104]	@ (8001f40 <Steer_JogCalib_HandleUart+0x2e0>)
- 8001ed6:	781b      	ldrb	r3, [r3, #0]
- 8001ed8:	1c5c      	adds	r4, r3, #1
- 8001eda:	89fd      	ldrh	r5, [r7, #14]
- 8001edc:	68b8      	ldr	r0, [r7, #8]
- 8001ede:	f7fe fb53 	bl	8000588 <__aeabi_f2d>
- 8001ee2:	4602      	mov	r2, r0
- 8001ee4:	460b      	mov	r3, r1
- 8001ee6:	e9cd 2300 	strd	r2, r3, [sp]
- 8001eea:	462a      	mov	r2, r5
- 8001eec:	4621      	mov	r1, r4
- 8001eee:	481a      	ldr	r0, [pc, #104]	@ (8001f58 <Steer_JogCalib_HandleUart+0x2f8>)
- 8001ef0:	f013 fd38 	bl	8015964 <iprintf>
+ 8001eb0:	4b1a      	ldr	r3, [pc, #104]	@ (8001f1c <Steer_JogCalib_HandleUart+0x2e0>)
+ 8001eb2:	781b      	ldrb	r3, [r3, #0]
+ 8001eb4:	1c5c      	adds	r4, r3, #1
+ 8001eb6:	89fd      	ldrh	r5, [r7, #14]
+ 8001eb8:	68b8      	ldr	r0, [r7, #8]
+ 8001eba:	f7fe fb65 	bl	8000588 <__aeabi_f2d>
+ 8001ebe:	4602      	mov	r2, r0
+ 8001ec0:	460b      	mov	r3, r1
+ 8001ec2:	e9cd 2300 	strd	r2, r3, [sp]
+ 8001ec6:	462a      	mov	r2, r5
+ 8001ec8:	4621      	mov	r1, r4
+ 8001eca:	481a      	ldr	r0, [pc, #104]	@ (8001f34 <Steer_JogCalib_HandleUart+0x2f8>)
+ 8001ecc:	f013 fd4a 	bl	8015964 <iprintf>
 //        float    deg   = ENC_TicksToDeg(ticks);
 //        printf("CALIB axis %d : zero_ticks = %u (%.2f deg)\r\n",
 //               (int)(current_axis + 1),
 //               (unsigned)ticks,
 //               deg);
         break;
- 8001ef4:	e01d      	b.n	8001f32 <Steer_JogCalib_HandleUart+0x2d2>
+ 8001ed0:	e01d      	b.n	8001f0e <Steer_JogCalib_HandleUart+0x2d2>
             Steer_PrintCurrentZeroConfig();
- 8001ef6:	f7ff fba7 	bl	8001648 <Steer_PrintCurrentZeroConfig>
+ 8001ed2:	f7ff fba7 	bl	8001624 <Steer_PrintCurrentZeroConfig>
         break;
- 8001efa:	e01a      	b.n	8001f32 <Steer_JogCalib_HandleUart+0x2d2>
+ 8001ed6:	e01a      	b.n	8001f0e <Steer_JogCalib_HandleUart+0x2d2>
     }
 
     // ---- สลับโหมดกลางทางจาก CALIB -> PID / CALIB เอง ----
     case 'c':
     case 'C':
         g_steer_mode = RUN_MODE_STEER_CALIB;
- 8001efc:	4b17      	ldr	r3, [pc, #92]	@ (8001f5c <Steer_JogCalib_HandleUart+0x2fc>)
- 8001efe:	2200      	movs	r2, #0
- 8001f00:	701a      	strb	r2, [r3, #0]
+ 8001ed8:	4b17      	ldr	r3, [pc, #92]	@ (8001f38 <Steer_JogCalib_HandleUart+0x2fc>)
+ 8001eda:	2200      	movs	r2, #0
+ 8001edc:	701a      	strb	r2, [r3, #0]
         printf("\r\n[MODE] Stay in CALIB mode\r\n");
- 8001f02:	4817      	ldr	r0, [pc, #92]	@ (8001f60 <Steer_JogCalib_HandleUart+0x300>)
- 8001f04:	f013 fd96 	bl	8015a34 <puts>
+ 8001ede:	4817      	ldr	r0, [pc, #92]	@ (8001f3c <Steer_JogCalib_HandleUart+0x300>)
+ 8001ee0:	f013 fda8 	bl	8015a34 <puts>
         Steer_PrintModeHelp(g_steer_mode);
- 8001f08:	4b14      	ldr	r3, [pc, #80]	@ (8001f5c <Steer_JogCalib_HandleUart+0x2fc>)
- 8001f0a:	781b      	ldrb	r3, [r3, #0]
- 8001f0c:	4618      	mov	r0, r3
- 8001f0e:	f7ff fe53 	bl	8001bb8 <Steer_PrintModeHelp>
+ 8001ee4:	4b14      	ldr	r3, [pc, #80]	@ (8001f38 <Steer_JogCalib_HandleUart+0x2fc>)
+ 8001ee6:	781b      	ldrb	r3, [r3, #0]
+ 8001ee8:	4618      	mov	r0, r3
+ 8001eea:	f7ff fe53 	bl	8001b94 <Steer_PrintModeHelp>
         break;
- 8001f12:	e00e      	b.n	8001f32 <Steer_JogCalib_HandleUart+0x2d2>
+ 8001eee:	e00e      	b.n	8001f0e <Steer_JogCalib_HandleUart+0x2d2>
 
     case 'p':
     case 'P':
         g_steer_mode = RUN_MODE_STEER_PID;
- 8001f14:	4b11      	ldr	r3, [pc, #68]	@ (8001f5c <Steer_JogCalib_HandleUart+0x2fc>)
- 8001f16:	2201      	movs	r2, #1
- 8001f18:	701a      	strb	r2, [r3, #0]
+ 8001ef0:	4b11      	ldr	r3, [pc, #68]	@ (8001f38 <Steer_JogCalib_HandleUart+0x2fc>)
+ 8001ef2:	2201      	movs	r2, #1
+ 8001ef4:	701a      	strb	r2, [r3, #0]
         printf("\r\n[MODE] Switch to PID mode\r\n");
- 8001f1a:	4812      	ldr	r0, [pc, #72]	@ (8001f64 <Steer_JogCalib_HandleUart+0x304>)
- 8001f1c:	f013 fd8a 	bl	8015a34 <puts>
+ 8001ef6:	4812      	ldr	r0, [pc, #72]	@ (8001f40 <Steer_JogCalib_HandleUart+0x304>)
+ 8001ef8:	f013 fd9c 	bl	8015a34 <puts>
         Steer_PrintModeHelp(g_steer_mode);
- 8001f20:	4b0e      	ldr	r3, [pc, #56]	@ (8001f5c <Steer_JogCalib_HandleUart+0x2fc>)
- 8001f22:	781b      	ldrb	r3, [r3, #0]
- 8001f24:	4618      	mov	r0, r3
- 8001f26:	f7ff fe47 	bl	8001bb8 <Steer_PrintModeHelp>
+ 8001efc:	4b0e      	ldr	r3, [pc, #56]	@ (8001f38 <Steer_JogCalib_HandleUart+0x2fc>)
+ 8001efe:	781b      	ldrb	r3, [r3, #0]
+ 8001f00:	4618      	mov	r0, r3
+ 8001f02:	f7ff fe47 	bl	8001b94 <Steer_PrintModeHelp>
         break;
- 8001f2a:	e002      	b.n	8001f32 <Steer_JogCalib_HandleUart+0x2d2>
+ 8001f06:	e002      	b.n	8001f0e <Steer_JogCalib_HandleUart+0x2d2>
         return;
- 8001f2c:	bf00      	nop
- 8001f2e:	e000      	b.n	8001f32 <Steer_JogCalib_HandleUart+0x2d2>
+ 8001f08:	bf00      	nop
+ 8001f0a:	e000      	b.n	8001f0e <Steer_JogCalib_HandleUart+0x2d2>
 
     default:
         break;
- 8001f30:	bf00      	nop
+ 8001f0c:	bf00      	nop
     }
 }
- 8001f32:	371c      	adds	r7, #28
- 8001f34:	46bd      	mov	sp, r7
- 8001f36:	bdf0      	pop	{r4, r5, r6, r7, pc}
- 8001f38:	3f333333 	.word	0x3f333333
- 8001f3c:	20000aa0 	.word	0x20000aa0
- 8001f40:	20000658 	.word	0x20000658
- 8001f44:	08017ea8 	.word	0x08017ea8
- 8001f48:	00000000 	.word	0x00000000
- 8001f4c:	08017ec4 	.word	0x08017ec4
- 8001f50:	08017ef0 	.word	0x08017ef0
- 8001f54:	08017f1c 	.word	0x08017f1c
- 8001f58:	08017f2c 	.word	0x08017f2c
- 8001f5c:	20000109 	.word	0x20000109
- 8001f60:	08017f5c 	.word	0x08017f5c
- 8001f64:	08017f7c 	.word	0x08017f7c
+ 8001f0e:	371c      	adds	r7, #28
+ 8001f10:	46bd      	mov	sp, r7
+ 8001f12:	bdf0      	pop	{r4, r5, r6, r7, pc}
+ 8001f14:	3f333333 	.word	0x3f333333
+ 8001f18:	20000aa0 	.word	0x20000aa0
+ 8001f1c:	20000658 	.word	0x20000658
+ 8001f20:	08017ea8 	.word	0x08017ea8
+ 8001f24:	00000000 	.word	0x00000000
+ 8001f28:	08017ec4 	.word	0x08017ec4
+ 8001f2c:	08017ef0 	.word	0x08017ef0
+ 8001f30:	08017f1c 	.word	0x08017f1c
+ 8001f34:	08017f2c 	.word	0x08017f2c
+ 8001f38:	20000109 	.word	0x20000109
+ 8001f3c:	08017f5c 	.word	0x08017f5c
+ 8001f40:	08017f7c 	.word	0x08017f7c
 
-08001f68 <ENC_StartALL>:
+08001f44 <ENC_StartALL>:
     { &hspi4, ENC4_CS_GPIO_Port, ENC4_CS_Pin, "ENC4/SPI4" },
     { &hspi5, ENC5_CS_GPIO_Port, ENC5_CS_Pin, "ENC5/SPI5" },
 };
 
 void ENC_StartALL(void)
 {
- 8001f68:	b580      	push	{r7, lr}
- 8001f6a:	af00      	add	r7, sp, #0
+ 8001f44:	b580      	push	{r7, lr}
+ 8001f46:	af00      	add	r7, sp, #0
     // ตั้ง CS ของ encoder ทุกตัวเป็น HIGH (inactive)
     HAL_GPIO_WritePin(ENC2_CS_GPIO_Port, ENC2_CS_Pin, GPIO_PIN_SET);
- 8001f6c:	2201      	movs	r2, #1
- 8001f6e:	2110      	movs	r1, #16
- 8001f70:	480a      	ldr	r0, [pc, #40]	@ (8001f9c <ENC_StartALL+0x34>)
- 8001f72:	f003 feed 	bl	8005d50 <HAL_GPIO_WritePin>
+ 8001f48:	2201      	movs	r2, #1
+ 8001f4a:	2110      	movs	r1, #16
+ 8001f4c:	480a      	ldr	r0, [pc, #40]	@ (8001f78 <ENC_StartALL+0x34>)
+ 8001f4e:	f003 feff 	bl	8005d50 <HAL_GPIO_WritePin>
     HAL_GPIO_WritePin(ENC3_CS_GPIO_Port, ENC3_CS_Pin, GPIO_PIN_SET);
- 8001f76:	2201      	movs	r2, #1
- 8001f78:	2110      	movs	r1, #16
- 8001f7a:	4809      	ldr	r0, [pc, #36]	@ (8001fa0 <ENC_StartALL+0x38>)
- 8001f7c:	f003 fee8 	bl	8005d50 <HAL_GPIO_WritePin>
+ 8001f52:	2201      	movs	r2, #1
+ 8001f54:	2110      	movs	r1, #16
+ 8001f56:	4809      	ldr	r0, [pc, #36]	@ (8001f7c <ENC_StartALL+0x38>)
+ 8001f58:	f003 fefa 	bl	8005d50 <HAL_GPIO_WritePin>
     HAL_GPIO_WritePin(ENC4_CS_GPIO_Port, ENC4_CS_Pin, GPIO_PIN_SET);
- 8001f80:	2201      	movs	r2, #1
- 8001f82:	2110      	movs	r1, #16
- 8001f84:	4807      	ldr	r0, [pc, #28]	@ (8001fa4 <ENC_StartALL+0x3c>)
- 8001f86:	f003 fee3 	bl	8005d50 <HAL_GPIO_WritePin>
+ 8001f5c:	2201      	movs	r2, #1
+ 8001f5e:	2110      	movs	r1, #16
+ 8001f60:	4807      	ldr	r0, [pc, #28]	@ (8001f80 <ENC_StartALL+0x3c>)
+ 8001f62:	f003 fef5 	bl	8005d50 <HAL_GPIO_WritePin>
     HAL_GPIO_WritePin(ENC5_CS_GPIO_Port, ENC5_CS_Pin, GPIO_PIN_SET);
- 8001f8a:	2201      	movs	r2, #1
- 8001f8c:	f44f 7100 	mov.w	r1, #512	@ 0x200
- 8001f90:	4805      	ldr	r0, [pc, #20]	@ (8001fa8 <ENC_StartALL+0x40>)
- 8001f92:	f003 fedd 	bl	8005d50 <HAL_GPIO_WritePin>
+ 8001f66:	2201      	movs	r2, #1
+ 8001f68:	f44f 7100 	mov.w	r1, #512	@ 0x200
+ 8001f6c:	4805      	ldr	r0, [pc, #20]	@ (8001f84 <ENC_StartALL+0x40>)
+ 8001f6e:	f003 feef 	bl	8005d50 <HAL_GPIO_WritePin>
 }
- 8001f96:	bf00      	nop
- 8001f98:	bd80      	pop	{r7, pc}
- 8001f9a:	bf00      	nop
- 8001f9c:	40020400 	.word	0x40020400
- 8001fa0:	40020000 	.word	0x40020000
- 8001fa4:	40021000 	.word	0x40021000
- 8001fa8:	40021400 	.word	0x40021400
+ 8001f72:	bf00      	nop
+ 8001f74:	bd80      	pop	{r7, pc}
+ 8001f76:	bf00      	nop
+ 8001f78:	40020400 	.word	0x40020400
+ 8001f7c:	40020000 	.word	0x40020000
+ 8001f80:	40021000 	.word	0x40021000
+ 8001f84:	40021400 	.word	0x40021400
 
-08001fac <ENC_ReadRaw_ByIndex>:
+08001f88 <ENC_ReadRaw_ByIndex>:
 
 uint16_t ENC_ReadRaw_ByIndex(int idx)
 {
- 8001fac:	b580      	push	{r7, lr}
- 8001fae:	b086      	sub	sp, #24
- 8001fb0:	af00      	add	r7, sp, #0
- 8001fb2:	6078      	str	r0, [r7, #4]
+ 8001f88:	b580      	push	{r7, lr}
+ 8001f8a:	b086      	sub	sp, #24
+ 8001f8c:	af00      	add	r7, sp, #0
+ 8001f8e:	6078      	str	r0, [r7, #4]
     if (idx < 0 || idx >= ABS_ENCODER_COUNT) {
- 8001fb4:	687b      	ldr	r3, [r7, #4]
- 8001fb6:	2b00      	cmp	r3, #0
- 8001fb8:	db02      	blt.n	8001fc0 <ENC_ReadRaw_ByIndex+0x14>
- 8001fba:	687b      	ldr	r3, [r7, #4]
- 8001fbc:	2b03      	cmp	r3, #3
- 8001fbe:	dd02      	ble.n	8001fc6 <ENC_ReadRaw_ByIndex+0x1a>
+ 8001f90:	687b      	ldr	r3, [r7, #4]
+ 8001f92:	2b00      	cmp	r3, #0
+ 8001f94:	db02      	blt.n	8001f9c <ENC_ReadRaw_ByIndex+0x14>
+ 8001f96:	687b      	ldr	r3, [r7, #4]
+ 8001f98:	2b03      	cmp	r3, #3
+ 8001f9a:	dd02      	ble.n	8001fa2 <ENC_ReadRaw_ByIndex+0x1a>
         return 0xFFFF;
- 8001fc0:	f64f 73ff 	movw	r3, #65535	@ 0xffff
- 8001fc4:	e046      	b.n	8002054 <ENC_ReadRaw_ByIndex+0xa8>
+ 8001f9c:	f64f 73ff 	movw	r3, #65535	@ 0xffff
+ 8001fa0:	e046      	b.n	8002030 <ENC_ReadRaw_ByIndex+0xa8>
     }
 
     const SteerEnc_t *e = &enc_if[idx];
- 8001fc6:	687b      	ldr	r3, [r7, #4]
- 8001fc8:	011b      	lsls	r3, r3, #4
- 8001fca:	4a24      	ldr	r2, [pc, #144]	@ (800205c <ENC_ReadRaw_ByIndex+0xb0>)
- 8001fcc:	4413      	add	r3, r2
- 8001fce:	617b      	str	r3, [r7, #20]
+ 8001fa2:	687b      	ldr	r3, [r7, #4]
+ 8001fa4:	011b      	lsls	r3, r3, #4
+ 8001fa6:	4a24      	ldr	r2, [pc, #144]	@ (8002038 <ENC_ReadRaw_ByIndex+0xb0>)
+ 8001fa8:	4413      	add	r3, r2
+ 8001faa:	617b      	str	r3, [r7, #20]
 
     uint8_t rx[2] = {0xFF, 0xFF};
- 8001fd0:	f64f 73ff 	movw	r3, #65535	@ 0xffff
- 8001fd4:	81bb      	strh	r3, [r7, #12]
+ 8001fac:	f64f 73ff 	movw	r3, #65535	@ 0xffff
+ 8001fb0:	81bb      	strh	r3, [r7, #12]
 
     // CS low
     HAL_GPIO_WritePin(e->cs_port, e->cs_pin, GPIO_PIN_RESET);
- 8001fd6:	697b      	ldr	r3, [r7, #20]
- 8001fd8:	6858      	ldr	r0, [r3, #4]
- 8001fda:	697b      	ldr	r3, [r7, #20]
- 8001fdc:	891b      	ldrh	r3, [r3, #8]
- 8001fde:	2200      	movs	r2, #0
- 8001fe0:	4619      	mov	r1, r3
- 8001fe2:	f003 feb5 	bl	8005d50 <HAL_GPIO_WritePin>
+ 8001fb2:	697b      	ldr	r3, [r7, #20]
+ 8001fb4:	6858      	ldr	r0, [r3, #4]
+ 8001fb6:	697b      	ldr	r3, [r7, #20]
+ 8001fb8:	891b      	ldrh	r3, [r3, #8]
+ 8001fba:	2200      	movs	r2, #0
+ 8001fbc:	4619      	mov	r1, r3
+ 8001fbe:	f003 fec7 	bl	8005d50 <HAL_GPIO_WritePin>
 
     // small delay (guard time)
     for (volatile int i = 0; i < 100; i++) {
- 8001fe6:	2300      	movs	r3, #0
- 8001fe8:	60bb      	str	r3, [r7, #8]
- 8001fea:	e003      	b.n	8001ff4 <ENC_ReadRaw_ByIndex+0x48>
+ 8001fc2:	2300      	movs	r3, #0
+ 8001fc4:	60bb      	str	r3, [r7, #8]
+ 8001fc6:	e003      	b.n	8001fd0 <ENC_ReadRaw_ByIndex+0x48>
         __NOP();
- 8001fec:	bf00      	nop
+ 8001fc8:	bf00      	nop
     for (volatile int i = 0; i < 100; i++) {
- 8001fee:	68bb      	ldr	r3, [r7, #8]
- 8001ff0:	3301      	adds	r3, #1
- 8001ff2:	60bb      	str	r3, [r7, #8]
- 8001ff4:	68bb      	ldr	r3, [r7, #8]
- 8001ff6:	2b63      	cmp	r3, #99	@ 0x63
- 8001ff8:	ddf8      	ble.n	8001fec <ENC_ReadRaw_ByIndex+0x40>
+ 8001fca:	68bb      	ldr	r3, [r7, #8]
+ 8001fcc:	3301      	adds	r3, #1
+ 8001fce:	60bb      	str	r3, [r7, #8]
+ 8001fd0:	68bb      	ldr	r3, [r7, #8]
+ 8001fd2:	2b63      	cmp	r3, #99	@ 0x63
+ 8001fd4:	ddf8      	ble.n	8001fc8 <ENC_ReadRaw_ByIndex+0x40>
     }
 
     HAL_StatusTypeDef st = HAL_SPI_Receive(e->hspi, rx, 2, 10);
- 8001ffa:	697b      	ldr	r3, [r7, #20]
- 8001ffc:	6818      	ldr	r0, [r3, #0]
- 8001ffe:	f107 010c 	add.w	r1, r7, #12
- 8002002:	230a      	movs	r3, #10
- 8002004:	2202      	movs	r2, #2
- 8002006:	f005 fae0 	bl	80075ca <HAL_SPI_Receive>
- 800200a:	4603      	mov	r3, r0
- 800200c:	74fb      	strb	r3, [r7, #19]
+ 8001fd6:	697b      	ldr	r3, [r7, #20]
+ 8001fd8:	6818      	ldr	r0, [r3, #0]
+ 8001fda:	f107 010c 	add.w	r1, r7, #12
+ 8001fde:	230a      	movs	r3, #10
+ 8001fe0:	2202      	movs	r2, #2
+ 8001fe2:	f005 faf2 	bl	80075ca <HAL_SPI_Receive>
+ 8001fe6:	4603      	mov	r3, r0
+ 8001fe8:	74fb      	strb	r3, [r7, #19]
 
     // CS high
     HAL_GPIO_WritePin(e->cs_port, e->cs_pin, GPIO_PIN_SET);
- 800200e:	697b      	ldr	r3, [r7, #20]
- 8002010:	6858      	ldr	r0, [r3, #4]
- 8002012:	697b      	ldr	r3, [r7, #20]
- 8002014:	891b      	ldrh	r3, [r3, #8]
- 8002016:	2201      	movs	r2, #1
- 8002018:	4619      	mov	r1, r3
- 800201a:	f003 fe99 	bl	8005d50 <HAL_GPIO_WritePin>
+ 8001fea:	697b      	ldr	r3, [r7, #20]
+ 8001fec:	6858      	ldr	r0, [r3, #4]
+ 8001fee:	697b      	ldr	r3, [r7, #20]
+ 8001ff0:	891b      	ldrh	r3, [r3, #8]
+ 8001ff2:	2201      	movs	r2, #1
+ 8001ff4:	4619      	mov	r1, r3
+ 8001ff6:	f003 feab 	bl	8005d50 <HAL_GPIO_WritePin>
 
     if (st != HAL_OK) {
- 800201e:	7cfb      	ldrb	r3, [r7, #19]
- 8002020:	2b00      	cmp	r3, #0
- 8002022:	d009      	beq.n	8002038 <ENC_ReadRaw_ByIndex+0x8c>
+ 8001ffa:	7cfb      	ldrb	r3, [r7, #19]
+ 8001ffc:	2b00      	cmp	r3, #0
+ 8001ffe:	d009      	beq.n	8002014 <ENC_ReadRaw_ByIndex+0x8c>
         printf("%s SPI ERR status=%d\r\n", e->name, st);
- 8002024:	697b      	ldr	r3, [r7, #20]
- 8002026:	68db      	ldr	r3, [r3, #12]
- 8002028:	7cfa      	ldrb	r2, [r7, #19]
- 800202a:	4619      	mov	r1, r3
- 800202c:	480c      	ldr	r0, [pc, #48]	@ (8002060 <ENC_ReadRaw_ByIndex+0xb4>)
- 800202e:	f013 fc99 	bl	8015964 <iprintf>
+ 8002000:	697b      	ldr	r3, [r7, #20]
+ 8002002:	68db      	ldr	r3, [r3, #12]
+ 8002004:	7cfa      	ldrb	r2, [r7, #19]
+ 8002006:	4619      	mov	r1, r3
+ 8002008:	480c      	ldr	r0, [pc, #48]	@ (800203c <ENC_ReadRaw_ByIndex+0xb4>)
+ 800200a:	f013 fcab 	bl	8015964 <iprintf>
         return 0xFFFF;
- 8002032:	f64f 73ff 	movw	r3, #65535	@ 0xffff
- 8002036:	e00d      	b.n	8002054 <ENC_ReadRaw_ByIndex+0xa8>
+ 800200e:	f64f 73ff 	movw	r3, #65535	@ 0xffff
+ 8002012:	e00d      	b.n	8002030 <ENC_ReadRaw_ByIndex+0xa8>
     }
 
     // byte1: MSB, byte0: LSB (10-bit valid)
     uint16_t raw   = ((uint16_t)rx[1] << 8) | rx[0];
- 8002038:	7b7b      	ldrb	r3, [r7, #13]
- 800203a:	b21b      	sxth	r3, r3
- 800203c:	021b      	lsls	r3, r3, #8
- 800203e:	b21a      	sxth	r2, r3
- 8002040:	7b3b      	ldrb	r3, [r7, #12]
- 8002042:	b21b      	sxth	r3, r3
- 8002044:	4313      	orrs	r3, r2
- 8002046:	b21b      	sxth	r3, r3
- 8002048:	823b      	strh	r3, [r7, #16]
+ 8002014:	7b7b      	ldrb	r3, [r7, #13]
+ 8002016:	b21b      	sxth	r3, r3
+ 8002018:	021b      	lsls	r3, r3, #8
+ 800201a:	b21a      	sxth	r2, r3
+ 800201c:	7b3b      	ldrb	r3, [r7, #12]
+ 800201e:	b21b      	sxth	r3, r3
+ 8002020:	4313      	orrs	r3, r2
+ 8002022:	b21b      	sxth	r3, r3
+ 8002024:	823b      	strh	r3, [r7, #16]
     uint16_t ticks = raw & 0x03FF;   // 10-bit (0..1023)
- 800204a:	8a3b      	ldrh	r3, [r7, #16]
- 800204c:	f3c3 0309 	ubfx	r3, r3, #0, #10
- 8002050:	81fb      	strh	r3, [r7, #14]
+ 8002026:	8a3b      	ldrh	r3, [r7, #16]
+ 8002028:	f3c3 0309 	ubfx	r3, r3, #0, #10
+ 800202c:	81fb      	strh	r3, [r7, #14]
 
     return ticks;
- 8002052:	89fb      	ldrh	r3, [r7, #14]
+ 800202e:	89fb      	ldrh	r3, [r7, #14]
 }
- 8002054:	4618      	mov	r0, r3
- 8002056:	3718      	adds	r7, #24
- 8002058:	46bd      	mov	sp, r7
- 800205a:	bd80      	pop	{r7, pc}
- 800205c:	0801ab78 	.word	0x0801ab78
- 8002060:	08017fcc 	.word	0x08017fcc
+ 8002030:	4618      	mov	r0, r3
+ 8002032:	3718      	adds	r7, #24
+ 8002034:	46bd      	mov	sp, r7
+ 8002036:	bd80      	pop	{r7, pc}
+ 8002038:	0801ab78 	.word	0x0801ab78
+ 800203c:	08017fcc 	.word	0x08017fcc
 
-08002064 <ENC_TicksToDeg>:
+08002040 <ENC_TicksToDeg>:
 
 float ENC_TicksToDeg(uint16_t ticks)
 {
- 8002064:	b480      	push	{r7}
- 8002066:	b083      	sub	sp, #12
- 8002068:	af00      	add	r7, sp, #0
- 800206a:	4603      	mov	r3, r0
- 800206c:	80fb      	strh	r3, [r7, #6]
+ 8002040:	b480      	push	{r7}
+ 8002042:	b083      	sub	sp, #12
+ 8002044:	af00      	add	r7, sp, #0
+ 8002046:	4603      	mov	r3, r0
+ 8002048:	80fb      	strh	r3, [r7, #6]
     if (ticks == 0xFFFF) return -1.0f;
- 800206e:	88fb      	ldrh	r3, [r7, #6]
- 8002070:	f64f 72ff 	movw	r2, #65535	@ 0xffff
- 8002074:	4293      	cmp	r3, r2
- 8002076:	d102      	bne.n	800207e <ENC_TicksToDeg+0x1a>
- 8002078:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
- 800207c:	e00c      	b.n	8002098 <ENC_TicksToDeg+0x34>
+ 800204a:	88fb      	ldrh	r3, [r7, #6]
+ 800204c:	f64f 72ff 	movw	r2, #65535	@ 0xffff
+ 8002050:	4293      	cmp	r3, r2
+ 8002052:	d102      	bne.n	800205a <ENC_TicksToDeg+0x1a>
+ 8002054:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
+ 8002058:	e00c      	b.n	8002074 <ENC_TicksToDeg+0x34>
     return (float)ticks * 360.0f / ENC_RESOLUTION_TICKS;
- 800207e:	88fb      	ldrh	r3, [r7, #6]
- 8002080:	ee07 3a90 	vmov	s15, r3
- 8002084:	eef8 7a67 	vcvt.f32.u32	s15, s15
- 8002088:	ed9f 7a08 	vldr	s14, [pc, #32]	@ 80020ac <ENC_TicksToDeg+0x48>
- 800208c:	ee67 7a87 	vmul.f32	s15, s15, s14
- 8002090:	eddf 6a07 	vldr	s13, [pc, #28]	@ 80020b0 <ENC_TicksToDeg+0x4c>
- 8002094:	ee87 7aa6 	vdiv.f32	s14, s15, s13
+ 800205a:	88fb      	ldrh	r3, [r7, #6]
+ 800205c:	ee07 3a90 	vmov	s15, r3
+ 8002060:	eef8 7a67 	vcvt.f32.u32	s15, s15
+ 8002064:	ed9f 7a08 	vldr	s14, [pc, #32]	@ 8002088 <ENC_TicksToDeg+0x48>
+ 8002068:	ee67 7a87 	vmul.f32	s15, s15, s14
+ 800206c:	eddf 6a07 	vldr	s13, [pc, #28]	@ 800208c <ENC_TicksToDeg+0x4c>
+ 8002070:	ee87 7aa6 	vdiv.f32	s14, s15, s13
 }
- 8002098:	eef0 7a47 	vmov.f32	s15, s14
- 800209c:	eeb0 0a67 	vmov.f32	s0, s15
- 80020a0:	370c      	adds	r7, #12
- 80020a2:	46bd      	mov	sp, r7
- 80020a4:	f85d 7b04 	ldr.w	r7, [sp], #4
- 80020a8:	4770      	bx	lr
- 80020aa:	bf00      	nop
- 80020ac:	43b40000 	.word	0x43b40000
- 80020b0:	44800000 	.word	0x44800000
+ 8002074:	eef0 7a47 	vmov.f32	s15, s14
+ 8002078:	eeb0 0a67 	vmov.f32	s0, s15
+ 800207c:	370c      	adds	r7, #12
+ 800207e:	46bd      	mov	sp, r7
+ 8002080:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8002084:	4770      	bx	lr
+ 8002086:	bf00      	nop
+ 8002088:	43b40000 	.word	0x43b40000
+ 800208c:	44800000 	.word	0x44800000
 
-080020b4 <ENC10_Diff>:
+08002090 <ENC10_Diff>:
 
 // from -> current, to -> target (zero_offset)
 int16_t ENC10_Diff(uint16_t from, uint16_t to)
 {
- 80020b4:	b480      	push	{r7}
- 80020b6:	b085      	sub	sp, #20
- 80020b8:	af00      	add	r7, sp, #0
- 80020ba:	4603      	mov	r3, r0
- 80020bc:	460a      	mov	r2, r1
- 80020be:	80fb      	strh	r3, [r7, #6]
- 80020c0:	4613      	mov	r3, r2
- 80020c2:	80bb      	strh	r3, [r7, #4]
+ 8002090:	b480      	push	{r7}
+ 8002092:	b085      	sub	sp, #20
+ 8002094:	af00      	add	r7, sp, #0
+ 8002096:	4603      	mov	r3, r0
+ 8002098:	460a      	mov	r2, r1
+ 800209a:	80fb      	strh	r3, [r7, #6]
+ 800209c:	4613      	mov	r3, r2
+ 800209e:	80bb      	strh	r3, [r7, #4]
     int16_t diff = (int16_t)to - (int16_t)from;  // ~[-1023..+1023]
- 80020c4:	88ba      	ldrh	r2, [r7, #4]
- 80020c6:	88fb      	ldrh	r3, [r7, #6]
- 80020c8:	1ad3      	subs	r3, r2, r3
- 80020ca:	b29b      	uxth	r3, r3
- 80020cc:	81fb      	strh	r3, [r7, #14]
+ 80020a0:	88ba      	ldrh	r2, [r7, #4]
+ 80020a2:	88fb      	ldrh	r3, [r7, #6]
+ 80020a4:	1ad3      	subs	r3, r2, r3
+ 80020a6:	b29b      	uxth	r3, r3
+ 80020a8:	81fb      	strh	r3, [r7, #14]
 
     if (diff > 512) {
- 80020ce:	f9b7 300e 	ldrsh.w	r3, [r7, #14]
- 80020d2:	f5b3 7f00 	cmp.w	r3, #512	@ 0x200
- 80020d6:	dd05      	ble.n	80020e4 <ENC10_Diff+0x30>
+ 80020aa:	f9b7 300e 	ldrsh.w	r3, [r7, #14]
+ 80020ae:	f5b3 7f00 	cmp.w	r3, #512	@ 0x200
+ 80020b2:	dd05      	ble.n	80020c0 <ENC10_Diff+0x30>
         diff -= 1024;  // หมุนย้อนกลับดีกว่า
- 80020d8:	89fb      	ldrh	r3, [r7, #14]
- 80020da:	f5a3 6380 	sub.w	r3, r3, #1024	@ 0x400
- 80020de:	b29b      	uxth	r3, r3
- 80020e0:	81fb      	strh	r3, [r7, #14]
- 80020e2:	e009      	b.n	80020f8 <ENC10_Diff+0x44>
+ 80020b4:	89fb      	ldrh	r3, [r7, #14]
+ 80020b6:	f5a3 6380 	sub.w	r3, r3, #1024	@ 0x400
+ 80020ba:	b29b      	uxth	r3, r3
+ 80020bc:	81fb      	strh	r3, [r7, #14]
+ 80020be:	e009      	b.n	80020d4 <ENC10_Diff+0x44>
     } else if (diff < -512) {
- 80020e4:	f9b7 300e 	ldrsh.w	r3, [r7, #14]
- 80020e8:	f513 7f00 	cmn.w	r3, #512	@ 0x200
- 80020ec:	da04      	bge.n	80020f8 <ENC10_Diff+0x44>
+ 80020c0:	f9b7 300e 	ldrsh.w	r3, [r7, #14]
+ 80020c4:	f513 7f00 	cmn.w	r3, #512	@ 0x200
+ 80020c8:	da04      	bge.n	80020d4 <ENC10_Diff+0x44>
         diff += 1024;
- 80020ee:	89fb      	ldrh	r3, [r7, #14]
- 80020f0:	f503 6380 	add.w	r3, r3, #1024	@ 0x400
- 80020f4:	b29b      	uxth	r3, r3
- 80020f6:	81fb      	strh	r3, [r7, #14]
+ 80020ca:	89fb      	ldrh	r3, [r7, #14]
+ 80020cc:	f503 6380 	add.w	r3, r3, #1024	@ 0x400
+ 80020d0:	b29b      	uxth	r3, r3
+ 80020d2:	81fb      	strh	r3, [r7, #14]
     }
     // ตอนนี้ diff อยู่ในช่วง [-512, +511]
     return diff;
- 80020f8:	f9b7 300e 	ldrsh.w	r3, [r7, #14]
+ 80020d4:	f9b7 300e 	ldrsh.w	r3, [r7, #14]
 }
- 80020fc:	4618      	mov	r0, r3
- 80020fe:	3714      	adds	r7, #20
- 8002100:	46bd      	mov	sp, r7
- 8002102:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8002106:	4770      	bx	lr
+ 80020d8:	4618      	mov	r0, r3
+ 80020da:	3714      	adds	r7, #20
+ 80020dc:	46bd      	mov	sp, r7
+ 80020de:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80020e2:	4770      	bx	lr
 
-08002108 <DriveEnc_InitAll>:
+080020e4 <DriveEnc_InitAll>:
     { &htim4, "DRV_RL", WHEEL_COUNTS_PER_REV, -1, 0, 0 },  // Rear  Left   drive
     { &htim8, "DRV_FL", WHEEL_COUNTS_PER_REV, -1, 0, 0 },  // Front Left  drive
 };
 
 void DriveEnc_InitAll(void)
 {
- 8002108:	b580      	push	{r7, lr}
- 800210a:	b082      	sub	sp, #8
- 800210c:	af00      	add	r7, sp, #0
+ 80020e4:	b580      	push	{r7, lr}
+ 80020e6:	b082      	sub	sp, #8
+ 80020e8:	af00      	add	r7, sp, #0
     for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
- 800210e:	2300      	movs	r3, #0
- 8002110:	607b      	str	r3, [r7, #4]
- 8002112:	e01e      	b.n	8002152 <DriveEnc_InitAll+0x4a>
+ 80020ea:	2300      	movs	r3, #0
+ 80020ec:	607b      	str	r3, [r7, #4]
+ 80020ee:	e01e      	b.n	800212e <DriveEnc_InitAll+0x4a>
     	DriveEnc_t *w = &drive_enc[i];
- 8002114:	687a      	ldr	r2, [r7, #4]
- 8002116:	4613      	mov	r3, r2
- 8002118:	009b      	lsls	r3, r3, #2
- 800211a:	4413      	add	r3, r2
- 800211c:	009b      	lsls	r3, r3, #2
- 800211e:	4a11      	ldr	r2, [pc, #68]	@ (8002164 <DriveEnc_InitAll+0x5c>)
- 8002120:	4413      	add	r3, r2
- 8002122:	603b      	str	r3, [r7, #0]
+ 80020f0:	687a      	ldr	r2, [r7, #4]
+ 80020f2:	4613      	mov	r3, r2
+ 80020f4:	009b      	lsls	r3, r3, #2
+ 80020f6:	4413      	add	r3, r2
+ 80020f8:	009b      	lsls	r3, r3, #2
+ 80020fa:	4a11      	ldr	r2, [pc, #68]	@ (8002140 <DriveEnc_InitAll+0x5c>)
+ 80020fc:	4413      	add	r3, r2
+ 80020fe:	603b      	str	r3, [r7, #0]
 
         // start encoder mode ทุกช่องของ timer
         HAL_TIM_Encoder_Start(w->htim, TIM_CHANNEL_ALL);
- 8002124:	683b      	ldr	r3, [r7, #0]
- 8002126:	681b      	ldr	r3, [r3, #0]
- 8002128:	213c      	movs	r1, #60	@ 0x3c
- 800212a:	4618      	mov	r0, r3
- 800212c:	f006 fa72 	bl	8008614 <HAL_TIM_Encoder_Start>
+ 8002100:	683b      	ldr	r3, [r7, #0]
+ 8002102:	681b      	ldr	r3, [r3, #0]
+ 8002104:	213c      	movs	r1, #60	@ 0x3c
+ 8002106:	4618      	mov	r0, r3
+ 8002108:	f006 fa84 	bl	8008614 <HAL_TIM_Encoder_Start>
         __HAL_TIM_SET_COUNTER(w->htim, 0);
- 8002130:	683b      	ldr	r3, [r7, #0]
- 8002132:	681b      	ldr	r3, [r3, #0]
- 8002134:	681b      	ldr	r3, [r3, #0]
- 8002136:	2200      	movs	r2, #0
- 8002138:	625a      	str	r2, [r3, #36]	@ 0x24
+ 800210c:	683b      	ldr	r3, [r7, #0]
+ 800210e:	681b      	ldr	r3, [r3, #0]
+ 8002110:	681b      	ldr	r3, [r3, #0]
+ 8002112:	2200      	movs	r2, #0
+ 8002114:	625a      	str	r2, [r3, #36]	@ 0x24
 
         w->last_raw    = 0;
- 800213a:	683b      	ldr	r3, [r7, #0]
- 800213c:	2200      	movs	r2, #0
- 800213e:	81da      	strh	r2, [r3, #14]
+ 8002116:	683b      	ldr	r3, [r7, #0]
+ 8002118:	2200      	movs	r2, #0
+ 800211a:	81da      	strh	r2, [r3, #14]
         w->multi_ticks = 0;
- 8002140:	683b      	ldr	r3, [r7, #0]
- 8002142:	2200      	movs	r2, #0
- 8002144:	611a      	str	r2, [r3, #16]
+ 800211c:	683b      	ldr	r3, [r7, #0]
+ 800211e:	2200      	movs	r2, #0
+ 8002120:	611a      	str	r2, [r3, #16]
 
         HAL_Delay(5);
- 8002146:	2005      	movs	r0, #5
- 8002148:	f002 f9ee 	bl	8004528 <HAL_Delay>
+ 8002122:	2005      	movs	r0, #5
+ 8002124:	f002 fa00 	bl	8004528 <HAL_Delay>
     for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
- 800214c:	687b      	ldr	r3, [r7, #4]
- 800214e:	3301      	adds	r3, #1
- 8002150:	607b      	str	r3, [r7, #4]
- 8002152:	687b      	ldr	r3, [r7, #4]
- 8002154:	2b03      	cmp	r3, #3
- 8002156:	d9dd      	bls.n	8002114 <DriveEnc_InitAll+0xc>
+ 8002128:	687b      	ldr	r3, [r7, #4]
+ 800212a:	3301      	adds	r3, #1
+ 800212c:	607b      	str	r3, [r7, #4]
+ 800212e:	687b      	ldr	r3, [r7, #4]
+ 8002130:	2b03      	cmp	r3, #3
+ 8002132:	d9dd      	bls.n	80020f0 <DriveEnc_InitAll+0xc>
     }
 }
- 8002158:	bf00      	nop
- 800215a:	bf00      	nop
- 800215c:	3708      	adds	r7, #8
- 800215e:	46bd      	mov	sp, r7
- 8002160:	bd80      	pop	{r7, pc}
- 8002162:	bf00      	nop
- 8002164:	200001dc 	.word	0x200001dc
+ 8002134:	bf00      	nop
+ 8002136:	bf00      	nop
+ 8002138:	3708      	adds	r7, #8
+ 800213a:	46bd      	mov	sp, r7
+ 800213c:	bd80      	pop	{r7, pc}
+ 800213e:	bf00      	nop
+ 8002140:	200001dc 	.word	0x200001dc
 
-08002168 <DriveEnc_UpdateAll>:
+08002144 <DriveEnc_UpdateAll>:
 
 void DriveEnc_UpdateAll(void)
 {
- 8002168:	b480      	push	{r7}
- 800216a:	b085      	sub	sp, #20
- 800216c:	af00      	add	r7, sp, #0
+ 8002144:	b480      	push	{r7}
+ 8002146:	b085      	sub	sp, #20
+ 8002148:	af00      	add	r7, sp, #0
     for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
- 800216e:	2300      	movs	r3, #0
- 8002170:	60fb      	str	r3, [r7, #12]
- 8002172:	e024      	b.n	80021be <DriveEnc_UpdateAll+0x56>
+ 800214a:	2300      	movs	r3, #0
+ 800214c:	60fb      	str	r3, [r7, #12]
+ 800214e:	e024      	b.n	800219a <DriveEnc_UpdateAll+0x56>
     	DriveEnc_t *w = &drive_enc[i];
- 8002174:	68fa      	ldr	r2, [r7, #12]
- 8002176:	4613      	mov	r3, r2
- 8002178:	009b      	lsls	r3, r3, #2
- 800217a:	4413      	add	r3, r2
- 800217c:	009b      	lsls	r3, r3, #2
- 800217e:	4a15      	ldr	r2, [pc, #84]	@ (80021d4 <DriveEnc_UpdateAll+0x6c>)
- 8002180:	4413      	add	r3, r2
- 8002182:	60bb      	str	r3, [r7, #8]
+ 8002150:	68fa      	ldr	r2, [r7, #12]
+ 8002152:	4613      	mov	r3, r2
+ 8002154:	009b      	lsls	r3, r3, #2
+ 8002156:	4413      	add	r3, r2
+ 8002158:	009b      	lsls	r3, r3, #2
+ 800215a:	4a15      	ldr	r2, [pc, #84]	@ (80021b0 <DriveEnc_UpdateAll+0x6c>)
+ 800215c:	4413      	add	r3, r2
+ 800215e:	60bb      	str	r3, [r7, #8]
 
         uint16_t now = (uint16_t)__HAL_TIM_GET_COUNTER(w->htim);
- 8002184:	68bb      	ldr	r3, [r7, #8]
- 8002186:	681b      	ldr	r3, [r3, #0]
- 8002188:	681b      	ldr	r3, [r3, #0]
- 800218a:	6a5b      	ldr	r3, [r3, #36]	@ 0x24
- 800218c:	80fb      	strh	r3, [r7, #6]
+ 8002160:	68bb      	ldr	r3, [r7, #8]
+ 8002162:	681b      	ldr	r3, [r3, #0]
+ 8002164:	681b      	ldr	r3, [r3, #0]
+ 8002166:	6a5b      	ldr	r3, [r3, #36]	@ 0x24
+ 8002168:	80fb      	strh	r3, [r7, #6]
 
         // ใช้ int16_t เพื่อ handle wrap-around 0..65535
         int16_t diff = (int16_t)(now - w->last_raw);
- 800218e:	68bb      	ldr	r3, [r7, #8]
- 8002190:	89db      	ldrh	r3, [r3, #14]
- 8002192:	88fa      	ldrh	r2, [r7, #6]
- 8002194:	1ad3      	subs	r3, r2, r3
- 8002196:	b29b      	uxth	r3, r3
- 8002198:	80bb      	strh	r3, [r7, #4]
+ 800216a:	68bb      	ldr	r3, [r7, #8]
+ 800216c:	89db      	ldrh	r3, [r3, #14]
+ 800216e:	88fa      	ldrh	r2, [r7, #6]
+ 8002170:	1ad3      	subs	r3, r2, r3
+ 8002172:	b29b      	uxth	r3, r3
+ 8002174:	80bb      	strh	r3, [r7, #4]
         w->last_raw = now;
- 800219a:	68bb      	ldr	r3, [r7, #8]
- 800219c:	88fa      	ldrh	r2, [r7, #6]
- 800219e:	81da      	strh	r2, [r3, #14]
+ 8002176:	68bb      	ldr	r3, [r7, #8]
+ 8002178:	88fa      	ldrh	r2, [r7, #6]
+ 800217a:	81da      	strh	r2, [r3, #14]
 
         // คูณ sign เพื่อให้ทิศทางตรงตาม convention ล้อ
         w->multi_ticks += (int32_t)diff * (int32_t)w->sign;
- 80021a0:	68bb      	ldr	r3, [r7, #8]
- 80021a2:	691a      	ldr	r2, [r3, #16]
- 80021a4:	f9b7 3004 	ldrsh.w	r3, [r7, #4]
- 80021a8:	68b9      	ldr	r1, [r7, #8]
- 80021aa:	f991 100c 	ldrsb.w	r1, [r1, #12]
- 80021ae:	fb01 f303 	mul.w	r3, r1, r3
- 80021b2:	441a      	add	r2, r3
- 80021b4:	68bb      	ldr	r3, [r7, #8]
- 80021b6:	611a      	str	r2, [r3, #16]
+ 800217c:	68bb      	ldr	r3, [r7, #8]
+ 800217e:	691a      	ldr	r2, [r3, #16]
+ 8002180:	f9b7 3004 	ldrsh.w	r3, [r7, #4]
+ 8002184:	68b9      	ldr	r1, [r7, #8]
+ 8002186:	f991 100c 	ldrsb.w	r1, [r1, #12]
+ 800218a:	fb01 f303 	mul.w	r3, r1, r3
+ 800218e:	441a      	add	r2, r3
+ 8002190:	68bb      	ldr	r3, [r7, #8]
+ 8002192:	611a      	str	r2, [r3, #16]
     for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
- 80021b8:	68fb      	ldr	r3, [r7, #12]
- 80021ba:	3301      	adds	r3, #1
- 80021bc:	60fb      	str	r3, [r7, #12]
- 80021be:	68fb      	ldr	r3, [r7, #12]
- 80021c0:	2b03      	cmp	r3, #3
- 80021c2:	d9d7      	bls.n	8002174 <DriveEnc_UpdateAll+0xc>
+ 8002194:	68fb      	ldr	r3, [r7, #12]
+ 8002196:	3301      	adds	r3, #1
+ 8002198:	60fb      	str	r3, [r7, #12]
+ 800219a:	68fb      	ldr	r3, [r7, #12]
+ 800219c:	2b03      	cmp	r3, #3
+ 800219e:	d9d7      	bls.n	8002150 <DriveEnc_UpdateAll+0xc>
     }
 }
- 80021c4:	bf00      	nop
- 80021c6:	bf00      	nop
- 80021c8:	3714      	adds	r7, #20
- 80021ca:	46bd      	mov	sp, r7
- 80021cc:	f85d 7b04 	ldr.w	r7, [sp], #4
- 80021d0:	4770      	bx	lr
- 80021d2:	bf00      	nop
- 80021d4:	200001dc 	.word	0x200001dc
+ 80021a0:	bf00      	nop
+ 80021a2:	bf00      	nop
+ 80021a4:	3714      	adds	r7, #20
+ 80021a6:	46bd      	mov	sp, r7
+ 80021a8:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80021ac:	4770      	bx	lr
+ 80021ae:	bf00      	nop
+ 80021b0:	200001dc 	.word	0x200001dc
 
-080021d8 <Motor_PWM_StartALL>:
+080021b4 <Motor_PWM_StartALL>:
     { &htim9, TIM_CHANNEL_2, MOTOR7_R_GPIO_Port, MOTOR7_R_Pin, MOTOR7_L_GPIO_Port, MOTOR7_L_Pin },	// Motor 7  PE6 	TIM9_CH2, 	R=PG3, 	L=PG2
     { &htim10,TIM_CHANNEL_1, MOTOR8_R_GPIO_Port, MOTOR8_R_Pin, MOTOR8_L_GPIO_Port, MOTOR8_L_Pin },	// Motor 8  PF6 	TIM10_CH1, 	R=PD2, 	L=PC12
 };
 
 void Motor_PWM_StartALL(void)
 {
- 80021d8:	b580      	push	{r7, lr}
- 80021da:	af00      	add	r7, sp, #0
+ 80021b4:	b580      	push	{r7, lr}
+ 80021b6:	af00      	add	r7, sp, #0
     HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
- 80021dc:	2100      	movs	r1, #0
- 80021de:	4810      	ldr	r0, [pc, #64]	@ (8002220 <Motor_PWM_StartALL+0x48>)
- 80021e0:	f006 f878 	bl	80082d4 <HAL_TIM_PWM_Start>
+ 80021b8:	2100      	movs	r1, #0
+ 80021ba:	4810      	ldr	r0, [pc, #64]	@ (80021fc <Motor_PWM_StartALL+0x48>)
+ 80021bc:	f006 f88a 	bl	80082d4 <HAL_TIM_PWM_Start>
     HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
- 80021e4:	2108      	movs	r1, #8
- 80021e6:	480e      	ldr	r0, [pc, #56]	@ (8002220 <Motor_PWM_StartALL+0x48>)
- 80021e8:	f006 f874 	bl	80082d4 <HAL_TIM_PWM_Start>
+ 80021c0:	2108      	movs	r1, #8
+ 80021c2:	480e      	ldr	r0, [pc, #56]	@ (80021fc <Motor_PWM_StartALL+0x48>)
+ 80021c4:	f006 f886 	bl	80082d4 <HAL_TIM_PWM_Start>
     HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
- 80021ec:	210c      	movs	r1, #12
- 80021ee:	480c      	ldr	r0, [pc, #48]	@ (8002220 <Motor_PWM_StartALL+0x48>)
- 80021f0:	f006 f870 	bl	80082d4 <HAL_TIM_PWM_Start>
+ 80021c8:	210c      	movs	r1, #12
+ 80021ca:	480c      	ldr	r0, [pc, #48]	@ (80021fc <Motor_PWM_StartALL+0x48>)
+ 80021cc:	f006 f882 	bl	80082d4 <HAL_TIM_PWM_Start>
     HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);
- 80021f4:	2100      	movs	r1, #0
- 80021f6:	480b      	ldr	r0, [pc, #44]	@ (8002224 <Motor_PWM_StartALL+0x4c>)
- 80021f8:	f006 f86c 	bl	80082d4 <HAL_TIM_PWM_Start>
+ 80021d0:	2100      	movs	r1, #0
+ 80021d2:	480b      	ldr	r0, [pc, #44]	@ (8002200 <Motor_PWM_StartALL+0x4c>)
+ 80021d4:	f006 f87e 	bl	80082d4 <HAL_TIM_PWM_Start>
     HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_4);
- 80021fc:	210c      	movs	r1, #12
- 80021fe:	4809      	ldr	r0, [pc, #36]	@ (8002224 <Motor_PWM_StartALL+0x4c>)
- 8002200:	f006 f868 	bl	80082d4 <HAL_TIM_PWM_Start>
+ 80021d8:	210c      	movs	r1, #12
+ 80021da:	4809      	ldr	r0, [pc, #36]	@ (8002200 <Motor_PWM_StartALL+0x4c>)
+ 80021dc:	f006 f87a 	bl	80082d4 <HAL_TIM_PWM_Start>
     HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1);
- 8002204:	2100      	movs	r1, #0
- 8002206:	4808      	ldr	r0, [pc, #32]	@ (8002228 <Motor_PWM_StartALL+0x50>)
- 8002208:	f006 f864 	bl	80082d4 <HAL_TIM_PWM_Start>
+ 80021e0:	2100      	movs	r1, #0
+ 80021e2:	4808      	ldr	r0, [pc, #32]	@ (8002204 <Motor_PWM_StartALL+0x50>)
+ 80021e4:	f006 f876 	bl	80082d4 <HAL_TIM_PWM_Start>
     HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_2);
- 800220c:	2104      	movs	r1, #4
- 800220e:	4806      	ldr	r0, [pc, #24]	@ (8002228 <Motor_PWM_StartALL+0x50>)
- 8002210:	f006 f860 	bl	80082d4 <HAL_TIM_PWM_Start>
+ 80021e8:	2104      	movs	r1, #4
+ 80021ea:	4806      	ldr	r0, [pc, #24]	@ (8002204 <Motor_PWM_StartALL+0x50>)
+ 80021ec:	f006 f872 	bl	80082d4 <HAL_TIM_PWM_Start>
     HAL_TIM_PWM_Start(&htim10,TIM_CHANNEL_1);
- 8002214:	2100      	movs	r1, #0
- 8002216:	4805      	ldr	r0, [pc, #20]	@ (800222c <Motor_PWM_StartALL+0x54>)
- 8002218:	f006 f85c 	bl	80082d4 <HAL_TIM_PWM_Start>
+ 80021f0:	2100      	movs	r1, #0
+ 80021f2:	4805      	ldr	r0, [pc, #20]	@ (8002208 <Motor_PWM_StartALL+0x54>)
+ 80021f4:	f006 f86e 	bl	80082d4 <HAL_TIM_PWM_Start>
 }
- 800221c:	bf00      	nop
- 800221e:	bd80      	pop	{r7, pc}
- 8002220:	2000088c 	.word	0x2000088c
- 8002224:	20000970 	.word	0x20000970
- 8002228:	20000a08 	.word	0x20000a08
- 800222c:	20000a54 	.word	0x20000a54
+ 80021f8:	bf00      	nop
+ 80021fa:	bd80      	pop	{r7, pc}
+ 80021fc:	2000088c 	.word	0x2000088c
+ 8002200:	20000970 	.word	0x20000970
+ 8002204:	20000a08 	.word	0x20000a08
+ 8002208:	20000a54 	.word	0x20000a54
 
-08002230 <Motor_set>:
+0800220c <Motor_set>:
 
 // idx = 1-8, dir = BRAKE/FWD/REV, duty = 0.0 - 1.0
 void Motor_set(uint8_t idx, MotorDir_t dir, float duty)
 {
- 8002230:	b580      	push	{r7, lr}
- 8002232:	b086      	sub	sp, #24
- 8002234:	af00      	add	r7, sp, #0
- 8002236:	4603      	mov	r3, r0
- 8002238:	460a      	mov	r2, r1
- 800223a:	ed87 0a00 	vstr	s0, [r7]
- 800223e:	71fb      	strb	r3, [r7, #7]
- 8002240:	4613      	mov	r3, r2
- 8002242:	71bb      	strb	r3, [r7, #6]
+ 800220c:	b580      	push	{r7, lr}
+ 800220e:	b086      	sub	sp, #24
+ 8002210:	af00      	add	r7, sp, #0
+ 8002212:	4603      	mov	r3, r0
+ 8002214:	460a      	mov	r2, r1
+ 8002216:	ed87 0a00 	vstr	s0, [r7]
+ 800221a:	71fb      	strb	r3, [r7, #7]
+ 800221c:	4613      	mov	r3, r2
+ 800221e:	71bb      	strb	r3, [r7, #6]
     if (idx < 1 || idx > 8) return;
- 8002244:	79fb      	ldrb	r3, [r7, #7]
- 8002246:	2b00      	cmp	r3, #0
- 8002248:	f000 80b5 	beq.w	80023b6 <Motor_set+0x186>
- 800224c:	79fb      	ldrb	r3, [r7, #7]
- 800224e:	2b08      	cmp	r3, #8
- 8002250:	f200 80b1 	bhi.w	80023b6 <Motor_set+0x186>
+ 8002220:	79fb      	ldrb	r3, [r7, #7]
+ 8002222:	2b00      	cmp	r3, #0
+ 8002224:	f000 80b5 	beq.w	8002392 <Motor_set+0x186>
+ 8002228:	79fb      	ldrb	r3, [r7, #7]
+ 800222a:	2b08      	cmp	r3, #8
+ 800222c:	f200 80b1 	bhi.w	8002392 <Motor_set+0x186>
 
     Motor_t *m = &motors[idx-1];
- 8002254:	79fb      	ldrb	r3, [r7, #7]
- 8002256:	1e5a      	subs	r2, r3, #1
- 8002258:	4613      	mov	r3, r2
- 800225a:	005b      	lsls	r3, r3, #1
- 800225c:	4413      	add	r3, r2
- 800225e:	00db      	lsls	r3, r3, #3
- 8002260:	4a57      	ldr	r2, [pc, #348]	@ (80023c0 <Motor_set+0x190>)
- 8002262:	4413      	add	r3, r2
- 8002264:	60fb      	str	r3, [r7, #12]
+ 8002230:	79fb      	ldrb	r3, [r7, #7]
+ 8002232:	1e5a      	subs	r2, r3, #1
+ 8002234:	4613      	mov	r3, r2
+ 8002236:	005b      	lsls	r3, r3, #1
+ 8002238:	4413      	add	r3, r2
+ 800223a:	00db      	lsls	r3, r3, #3
+ 800223c:	4a57      	ldr	r2, [pc, #348]	@ (800239c <Motor_set+0x190>)
+ 800223e:	4413      	add	r3, r2
+ 8002240:	60fb      	str	r3, [r7, #12]
 
     if (duty < 0.0f) duty = 0.0f;
- 8002266:	edd7 7a00 	vldr	s15, [r7]
- 800226a:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 800226e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002272:	d502      	bpl.n	800227a <Motor_set+0x4a>
- 8002274:	f04f 0300 	mov.w	r3, #0
- 8002278:	603b      	str	r3, [r7, #0]
+ 8002242:	edd7 7a00 	vldr	s15, [r7]
+ 8002246:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 800224a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800224e:	d502      	bpl.n	8002256 <Motor_set+0x4a>
+ 8002250:	f04f 0300 	mov.w	r3, #0
+ 8002254:	603b      	str	r3, [r7, #0]
     if (duty > 1.0f) duty = 1.0f;
- 800227a:	edd7 7a00 	vldr	s15, [r7]
- 800227e:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
- 8002282:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8002286:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 800228a:	dd02      	ble.n	8002292 <Motor_set+0x62>
- 800228c:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
- 8002290:	603b      	str	r3, [r7, #0]
+ 8002256:	edd7 7a00 	vldr	s15, [r7]
+ 800225a:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
+ 800225e:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8002262:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8002266:	dd02      	ble.n	800226e <Motor_set+0x62>
+ 8002268:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
+ 800226c:	603b      	str	r3, [r7, #0]
 
     uint32_t period = __HAL_TIM_GET_AUTORELOAD(m->htim);
- 8002292:	68fb      	ldr	r3, [r7, #12]
- 8002294:	681b      	ldr	r3, [r3, #0]
- 8002296:	681b      	ldr	r3, [r3, #0]
- 8002298:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
- 800229a:	617b      	str	r3, [r7, #20]
+ 800226e:	68fb      	ldr	r3, [r7, #12]
+ 8002270:	681b      	ldr	r3, [r3, #0]
+ 8002272:	681b      	ldr	r3, [r3, #0]
+ 8002274:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
+ 8002276:	617b      	str	r3, [r7, #20]
     if (period == 0) period = 1;
- 800229c:	697b      	ldr	r3, [r7, #20]
- 800229e:	2b00      	cmp	r3, #0
- 80022a0:	d101      	bne.n	80022a6 <Motor_set+0x76>
- 80022a2:	2301      	movs	r3, #1
- 80022a4:	617b      	str	r3, [r7, #20]
+ 8002278:	697b      	ldr	r3, [r7, #20]
+ 800227a:	2b00      	cmp	r3, #0
+ 800227c:	d101      	bne.n	8002282 <Motor_set+0x76>
+ 800227e:	2301      	movs	r3, #1
+ 8002280:	617b      	str	r3, [r7, #20]
 
     uint32_t duty_ticks = (uint32_t)(duty * (period + 1));
- 80022a6:	697b      	ldr	r3, [r7, #20]
- 80022a8:	3301      	adds	r3, #1
- 80022aa:	ee07 3a90 	vmov	s15, r3
- 80022ae:	eeb8 7a67 	vcvt.f32.u32	s14, s15
- 80022b2:	edd7 7a00 	vldr	s15, [r7]
- 80022b6:	ee67 7a27 	vmul.f32	s15, s14, s15
- 80022ba:	eefc 7ae7 	vcvt.u32.f32	s15, s15
- 80022be:	ee17 3a90 	vmov	r3, s15
- 80022c2:	613b      	str	r3, [r7, #16]
+ 8002282:	697b      	ldr	r3, [r7, #20]
+ 8002284:	3301      	adds	r3, #1
+ 8002286:	ee07 3a90 	vmov	s15, r3
+ 800228a:	eeb8 7a67 	vcvt.f32.u32	s14, s15
+ 800228e:	edd7 7a00 	vldr	s15, [r7]
+ 8002292:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 8002296:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 800229a:	ee17 3a90 	vmov	r3, s15
+ 800229e:	613b      	str	r3, [r7, #16]
     if (duty_ticks > period) duty_ticks = period;
- 80022c4:	693a      	ldr	r2, [r7, #16]
- 80022c6:	697b      	ldr	r3, [r7, #20]
- 80022c8:	429a      	cmp	r2, r3
- 80022ca:	d901      	bls.n	80022d0 <Motor_set+0xa0>
- 80022cc:	697b      	ldr	r3, [r7, #20]
- 80022ce:	613b      	str	r3, [r7, #16]
+ 80022a0:	693a      	ldr	r2, [r7, #16]
+ 80022a2:	697b      	ldr	r3, [r7, #20]
+ 80022a4:	429a      	cmp	r2, r3
+ 80022a6:	d901      	bls.n	80022ac <Motor_set+0xa0>
+ 80022a8:	697b      	ldr	r3, [r7, #20]
+ 80022aa:	613b      	str	r3, [r7, #16]
 
     __HAL_TIM_SET_COMPARE(m->htim, m->channel, duty_ticks);
- 80022d0:	68fb      	ldr	r3, [r7, #12]
- 80022d2:	685b      	ldr	r3, [r3, #4]
- 80022d4:	2b00      	cmp	r3, #0
- 80022d6:	d105      	bne.n	80022e4 <Motor_set+0xb4>
- 80022d8:	68fb      	ldr	r3, [r7, #12]
- 80022da:	681b      	ldr	r3, [r3, #0]
- 80022dc:	681b      	ldr	r3, [r3, #0]
- 80022de:	693a      	ldr	r2, [r7, #16]
- 80022e0:	635a      	str	r2, [r3, #52]	@ 0x34
- 80022e2:	e02c      	b.n	800233e <Motor_set+0x10e>
- 80022e4:	68fb      	ldr	r3, [r7, #12]
- 80022e6:	685b      	ldr	r3, [r3, #4]
- 80022e8:	2b04      	cmp	r3, #4
- 80022ea:	d105      	bne.n	80022f8 <Motor_set+0xc8>
- 80022ec:	68fb      	ldr	r3, [r7, #12]
- 80022ee:	681b      	ldr	r3, [r3, #0]
- 80022f0:	681a      	ldr	r2, [r3, #0]
- 80022f2:	693b      	ldr	r3, [r7, #16]
- 80022f4:	6393      	str	r3, [r2, #56]	@ 0x38
- 80022f6:	e022      	b.n	800233e <Motor_set+0x10e>
- 80022f8:	68fb      	ldr	r3, [r7, #12]
- 80022fa:	685b      	ldr	r3, [r3, #4]
- 80022fc:	2b08      	cmp	r3, #8
- 80022fe:	d105      	bne.n	800230c <Motor_set+0xdc>
- 8002300:	68fb      	ldr	r3, [r7, #12]
- 8002302:	681b      	ldr	r3, [r3, #0]
- 8002304:	681a      	ldr	r2, [r3, #0]
- 8002306:	693b      	ldr	r3, [r7, #16]
- 8002308:	63d3      	str	r3, [r2, #60]	@ 0x3c
- 800230a:	e018      	b.n	800233e <Motor_set+0x10e>
- 800230c:	68fb      	ldr	r3, [r7, #12]
- 800230e:	685b      	ldr	r3, [r3, #4]
- 8002310:	2b0c      	cmp	r3, #12
- 8002312:	d105      	bne.n	8002320 <Motor_set+0xf0>
- 8002314:	68fb      	ldr	r3, [r7, #12]
- 8002316:	681b      	ldr	r3, [r3, #0]
- 8002318:	681a      	ldr	r2, [r3, #0]
- 800231a:	693b      	ldr	r3, [r7, #16]
- 800231c:	6413      	str	r3, [r2, #64]	@ 0x40
- 800231e:	e00e      	b.n	800233e <Motor_set+0x10e>
- 8002320:	68fb      	ldr	r3, [r7, #12]
- 8002322:	685b      	ldr	r3, [r3, #4]
- 8002324:	2b10      	cmp	r3, #16
- 8002326:	d105      	bne.n	8002334 <Motor_set+0x104>
- 8002328:	68fb      	ldr	r3, [r7, #12]
- 800232a:	681b      	ldr	r3, [r3, #0]
- 800232c:	681a      	ldr	r2, [r3, #0]
- 800232e:	693b      	ldr	r3, [r7, #16]
- 8002330:	6593      	str	r3, [r2, #88]	@ 0x58
- 8002332:	e004      	b.n	800233e <Motor_set+0x10e>
- 8002334:	68fb      	ldr	r3, [r7, #12]
- 8002336:	681b      	ldr	r3, [r3, #0]
- 8002338:	681a      	ldr	r2, [r3, #0]
- 800233a:	693b      	ldr	r3, [r7, #16]
- 800233c:	65d3      	str	r3, [r2, #92]	@ 0x5c
+ 80022ac:	68fb      	ldr	r3, [r7, #12]
+ 80022ae:	685b      	ldr	r3, [r3, #4]
+ 80022b0:	2b00      	cmp	r3, #0
+ 80022b2:	d105      	bne.n	80022c0 <Motor_set+0xb4>
+ 80022b4:	68fb      	ldr	r3, [r7, #12]
+ 80022b6:	681b      	ldr	r3, [r3, #0]
+ 80022b8:	681b      	ldr	r3, [r3, #0]
+ 80022ba:	693a      	ldr	r2, [r7, #16]
+ 80022bc:	635a      	str	r2, [r3, #52]	@ 0x34
+ 80022be:	e02c      	b.n	800231a <Motor_set+0x10e>
+ 80022c0:	68fb      	ldr	r3, [r7, #12]
+ 80022c2:	685b      	ldr	r3, [r3, #4]
+ 80022c4:	2b04      	cmp	r3, #4
+ 80022c6:	d105      	bne.n	80022d4 <Motor_set+0xc8>
+ 80022c8:	68fb      	ldr	r3, [r7, #12]
+ 80022ca:	681b      	ldr	r3, [r3, #0]
+ 80022cc:	681a      	ldr	r2, [r3, #0]
+ 80022ce:	693b      	ldr	r3, [r7, #16]
+ 80022d0:	6393      	str	r3, [r2, #56]	@ 0x38
+ 80022d2:	e022      	b.n	800231a <Motor_set+0x10e>
+ 80022d4:	68fb      	ldr	r3, [r7, #12]
+ 80022d6:	685b      	ldr	r3, [r3, #4]
+ 80022d8:	2b08      	cmp	r3, #8
+ 80022da:	d105      	bne.n	80022e8 <Motor_set+0xdc>
+ 80022dc:	68fb      	ldr	r3, [r7, #12]
+ 80022de:	681b      	ldr	r3, [r3, #0]
+ 80022e0:	681a      	ldr	r2, [r3, #0]
+ 80022e2:	693b      	ldr	r3, [r7, #16]
+ 80022e4:	63d3      	str	r3, [r2, #60]	@ 0x3c
+ 80022e6:	e018      	b.n	800231a <Motor_set+0x10e>
+ 80022e8:	68fb      	ldr	r3, [r7, #12]
+ 80022ea:	685b      	ldr	r3, [r3, #4]
+ 80022ec:	2b0c      	cmp	r3, #12
+ 80022ee:	d105      	bne.n	80022fc <Motor_set+0xf0>
+ 80022f0:	68fb      	ldr	r3, [r7, #12]
+ 80022f2:	681b      	ldr	r3, [r3, #0]
+ 80022f4:	681a      	ldr	r2, [r3, #0]
+ 80022f6:	693b      	ldr	r3, [r7, #16]
+ 80022f8:	6413      	str	r3, [r2, #64]	@ 0x40
+ 80022fa:	e00e      	b.n	800231a <Motor_set+0x10e>
+ 80022fc:	68fb      	ldr	r3, [r7, #12]
+ 80022fe:	685b      	ldr	r3, [r3, #4]
+ 8002300:	2b10      	cmp	r3, #16
+ 8002302:	d105      	bne.n	8002310 <Motor_set+0x104>
+ 8002304:	68fb      	ldr	r3, [r7, #12]
+ 8002306:	681b      	ldr	r3, [r3, #0]
+ 8002308:	681a      	ldr	r2, [r3, #0]
+ 800230a:	693b      	ldr	r3, [r7, #16]
+ 800230c:	6593      	str	r3, [r2, #88]	@ 0x58
+ 800230e:	e004      	b.n	800231a <Motor_set+0x10e>
+ 8002310:	68fb      	ldr	r3, [r7, #12]
+ 8002312:	681b      	ldr	r3, [r3, #0]
+ 8002314:	681a      	ldr	r2, [r3, #0]
+ 8002316:	693b      	ldr	r3, [r7, #16]
+ 8002318:	65d3      	str	r3, [r2, #92]	@ 0x5c
 
 //    printf("Motor_set idx=%d, dir=%d, duty=%.2f, ticks=%lu\r\n", idx, (int)dir, duty, duty_ticks);
 
     if (dir == MOTOR_DIR_FWD) {
- 800233e:	f997 3006 	ldrsb.w	r3, [r7, #6]
- 8002342:	2b01      	cmp	r3, #1
- 8002344:	d110      	bne.n	8002368 <Motor_set+0x138>
+ 800231a:	f997 3006 	ldrsb.w	r3, [r7, #6]
+ 800231e:	2b01      	cmp	r3, #1
+ 8002320:	d110      	bne.n	8002344 <Motor_set+0x138>
         HAL_GPIO_WritePin(m->portR, m->pinR, GPIO_PIN_SET);
- 8002346:	68fb      	ldr	r3, [r7, #12]
- 8002348:	6898      	ldr	r0, [r3, #8]
- 800234a:	68fb      	ldr	r3, [r7, #12]
- 800234c:	899b      	ldrh	r3, [r3, #12]
- 800234e:	2201      	movs	r2, #1
- 8002350:	4619      	mov	r1, r3
- 8002352:	f003 fcfd 	bl	8005d50 <HAL_GPIO_WritePin>
+ 8002322:	68fb      	ldr	r3, [r7, #12]
+ 8002324:	6898      	ldr	r0, [r3, #8]
+ 8002326:	68fb      	ldr	r3, [r7, #12]
+ 8002328:	899b      	ldrh	r3, [r3, #12]
+ 800232a:	2201      	movs	r2, #1
+ 800232c:	4619      	mov	r1, r3
+ 800232e:	f003 fd0f 	bl	8005d50 <HAL_GPIO_WritePin>
         HAL_GPIO_WritePin(m->portL, m->pinL, GPIO_PIN_RESET);
- 8002356:	68fb      	ldr	r3, [r7, #12]
- 8002358:	6918      	ldr	r0, [r3, #16]
- 800235a:	68fb      	ldr	r3, [r7, #12]
- 800235c:	8a9b      	ldrh	r3, [r3, #20]
- 800235e:	2200      	movs	r2, #0
- 8002360:	4619      	mov	r1, r3
- 8002362:	f003 fcf5 	bl	8005d50 <HAL_GPIO_WritePin>
- 8002366:	e027      	b.n	80023b8 <Motor_set+0x188>
+ 8002332:	68fb      	ldr	r3, [r7, #12]
+ 8002334:	6918      	ldr	r0, [r3, #16]
+ 8002336:	68fb      	ldr	r3, [r7, #12]
+ 8002338:	8a9b      	ldrh	r3, [r3, #20]
+ 800233a:	2200      	movs	r2, #0
+ 800233c:	4619      	mov	r1, r3
+ 800233e:	f003 fd07 	bl	8005d50 <HAL_GPIO_WritePin>
+ 8002342:	e027      	b.n	8002394 <Motor_set+0x188>
     } else if (dir == MOTOR_DIR_REV) {
- 8002368:	f997 3006 	ldrsb.w	r3, [r7, #6]
- 800236c:	f1b3 3fff 	cmp.w	r3, #4294967295	@ 0xffffffff
- 8002370:	d110      	bne.n	8002394 <Motor_set+0x164>
+ 8002344:	f997 3006 	ldrsb.w	r3, [r7, #6]
+ 8002348:	f1b3 3fff 	cmp.w	r3, #4294967295	@ 0xffffffff
+ 800234c:	d110      	bne.n	8002370 <Motor_set+0x164>
         HAL_GPIO_WritePin(m->portR, m->pinR, GPIO_PIN_RESET);
- 8002372:	68fb      	ldr	r3, [r7, #12]
- 8002374:	6898      	ldr	r0, [r3, #8]
- 8002376:	68fb      	ldr	r3, [r7, #12]
- 8002378:	899b      	ldrh	r3, [r3, #12]
- 800237a:	2200      	movs	r2, #0
- 800237c:	4619      	mov	r1, r3
- 800237e:	f003 fce7 	bl	8005d50 <HAL_GPIO_WritePin>
+ 800234e:	68fb      	ldr	r3, [r7, #12]
+ 8002350:	6898      	ldr	r0, [r3, #8]
+ 8002352:	68fb      	ldr	r3, [r7, #12]
+ 8002354:	899b      	ldrh	r3, [r3, #12]
+ 8002356:	2200      	movs	r2, #0
+ 8002358:	4619      	mov	r1, r3
+ 800235a:	f003 fcf9 	bl	8005d50 <HAL_GPIO_WritePin>
         HAL_GPIO_WritePin(m->portL, m->pinL, GPIO_PIN_SET);
- 8002382:	68fb      	ldr	r3, [r7, #12]
- 8002384:	6918      	ldr	r0, [r3, #16]
- 8002386:	68fb      	ldr	r3, [r7, #12]
- 8002388:	8a9b      	ldrh	r3, [r3, #20]
- 800238a:	2201      	movs	r2, #1
- 800238c:	4619      	mov	r1, r3
- 800238e:	f003 fcdf 	bl	8005d50 <HAL_GPIO_WritePin>
- 8002392:	e011      	b.n	80023b8 <Motor_set+0x188>
+ 800235e:	68fb      	ldr	r3, [r7, #12]
+ 8002360:	6918      	ldr	r0, [r3, #16]
+ 8002362:	68fb      	ldr	r3, [r7, #12]
+ 8002364:	8a9b      	ldrh	r3, [r3, #20]
+ 8002366:	2201      	movs	r2, #1
+ 8002368:	4619      	mov	r1, r3
+ 800236a:	f003 fcf1 	bl	8005d50 <HAL_GPIO_WritePin>
+ 800236e:	e011      	b.n	8002394 <Motor_set+0x188>
     } else {
         HAL_GPIO_WritePin(m->portR, m->pinR, GPIO_PIN_RESET);
- 8002394:	68fb      	ldr	r3, [r7, #12]
- 8002396:	6898      	ldr	r0, [r3, #8]
- 8002398:	68fb      	ldr	r3, [r7, #12]
- 800239a:	899b      	ldrh	r3, [r3, #12]
- 800239c:	2200      	movs	r2, #0
- 800239e:	4619      	mov	r1, r3
- 80023a0:	f003 fcd6 	bl	8005d50 <HAL_GPIO_WritePin>
+ 8002370:	68fb      	ldr	r3, [r7, #12]
+ 8002372:	6898      	ldr	r0, [r3, #8]
+ 8002374:	68fb      	ldr	r3, [r7, #12]
+ 8002376:	899b      	ldrh	r3, [r3, #12]
+ 8002378:	2200      	movs	r2, #0
+ 800237a:	4619      	mov	r1, r3
+ 800237c:	f003 fce8 	bl	8005d50 <HAL_GPIO_WritePin>
         HAL_GPIO_WritePin(m->portL, m->pinL, GPIO_PIN_RESET);
- 80023a4:	68fb      	ldr	r3, [r7, #12]
- 80023a6:	6918      	ldr	r0, [r3, #16]
- 80023a8:	68fb      	ldr	r3, [r7, #12]
- 80023aa:	8a9b      	ldrh	r3, [r3, #20]
- 80023ac:	2200      	movs	r2, #0
- 80023ae:	4619      	mov	r1, r3
- 80023b0:	f003 fcce 	bl	8005d50 <HAL_GPIO_WritePin>
- 80023b4:	e000      	b.n	80023b8 <Motor_set+0x188>
+ 8002380:	68fb      	ldr	r3, [r7, #12]
+ 8002382:	6918      	ldr	r0, [r3, #16]
+ 8002384:	68fb      	ldr	r3, [r7, #12]
+ 8002386:	8a9b      	ldrh	r3, [r3, #20]
+ 8002388:	2200      	movs	r2, #0
+ 800238a:	4619      	mov	r1, r3
+ 800238c:	f003 fce0 	bl	8005d50 <HAL_GPIO_WritePin>
+ 8002390:	e000      	b.n	8002394 <Motor_set+0x188>
     if (idx < 1 || idx > 8) return;
- 80023b6:	bf00      	nop
+ 8002392:	bf00      	nop
     }
 }
- 80023b8:	3718      	adds	r7, #24
- 80023ba:	46bd      	mov	sp, r7
- 80023bc:	bd80      	pop	{r7, pc}
- 80023be:	bf00      	nop
- 80023c0:	2000022c 	.word	0x2000022c
+ 8002394:	3718      	adds	r7, #24
+ 8002396:	46bd      	mov	sp, r7
+ 8002398:	bd80      	pop	{r7, pc}
+ 800239a:	bf00      	nop
+ 800239c:	2000022c 	.word	0x2000022c
 
-080023c4 <Robot_ApplyTwist>:
+080023a0 <Robot_ApplyTwist>:
     }
 }
 
 // /cmd_vel -> linear_x [m/s], angular_z [rad/s] -> g_cmd_target_tps + Steer_SetCmdTargetDeg()
 void Robot_ApplyTwist(float linear_x, float angular_z)
 {
- 80023c4:	b580      	push	{r7, lr}
- 80023c6:	b088      	sub	sp, #32
- 80023c8:	af00      	add	r7, sp, #0
- 80023ca:	ed87 0a01 	vstr	s0, [r7, #4]
- 80023ce:	edc7 0a00 	vstr	s1, [r7]
+ 80023a0:	b580      	push	{r7, lr}
+ 80023a2:	b088      	sub	sp, #32
+ 80023a4:	af00      	add	r7, sp, #0
+ 80023a6:	ed87 0a01 	vstr	s0, [r7, #4]
+ 80023aa:	edc7 0a00 	vstr	s1, [r7]
     // จำเวลาคำสั่งล่าสุด
     g_last_cmd_ms = HAL_GetTick();
- 80023d2:	f002 f89d 	bl	8004510 <HAL_GetTick>
- 80023d6:	4603      	mov	r3, r0
- 80023d8:	4a55      	ldr	r2, [pc, #340]	@ (8002530 <Robot_ApplyTwist+0x16c>)
- 80023da:	6013      	str	r3, [r2, #0]
+ 80023ae:	f002 f8af 	bl	8004510 <HAL_GetTick>
+ 80023b2:	4603      	mov	r3, r0
+ 80023b4:	4a5d      	ldr	r2, [pc, #372]	@ (800252c <Robot_ApplyTwist+0x18c>)
+ 80023b6:	6013      	str	r3, [r2, #0]
 
     // --- จำกัด linear_x ไม่ให้เกิน MAX_CMD_LINEAR ---
     if (linear_x >  MAX_CMD_LINEAR) linear_x =  MAX_CMD_LINEAR;
- 80023dc:	edd7 7a01 	vldr	s15, [r7, #4]
- 80023e0:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
- 80023e4:	eef4 7ac7 	vcmpe.f32	s15, s14
- 80023e8:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80023ec:	dd02      	ble.n	80023f4 <Robot_ApplyTwist+0x30>
- 80023ee:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
- 80023f2:	607b      	str	r3, [r7, #4]
+ 80023b8:	edd7 7a01 	vldr	s15, [r7, #4]
+ 80023bc:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
+ 80023c0:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 80023c4:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80023c8:	dd02      	ble.n	80023d0 <Robot_ApplyTwist+0x30>
+ 80023ca:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
+ 80023ce:	607b      	str	r3, [r7, #4]
     if (linear_x < -MAX_CMD_LINEAR) linear_x = -MAX_CMD_LINEAR;
- 80023f4:	edd7 7a01 	vldr	s15, [r7, #4]
- 80023f8:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
- 80023fc:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8002400:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002404:	d501      	bpl.n	800240a <Robot_ApplyTwist+0x46>
- 8002406:	4b4b      	ldr	r3, [pc, #300]	@ (8002534 <Robot_ApplyTwist+0x170>)
- 8002408:	607b      	str	r3, [r7, #4]
+ 80023d0:	edd7 7a01 	vldr	s15, [r7, #4]
+ 80023d4:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
+ 80023d8:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 80023dc:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80023e0:	d501      	bpl.n	80023e6 <Robot_ApplyTwist+0x46>
+ 80023e2:	4b53      	ldr	r3, [pc, #332]	@ (8002530 <Robot_ApplyTwist+0x190>)
+ 80023e4:	607b      	str	r3, [r7, #4]
 
     // ใช้ lin_norm เพื่อ deadzone
     float lin_norm = linear_x / MAX_CMD_LINEAR;   // -1..+1
- 800240a:	687b      	ldr	r3, [r7, #4]
- 800240c:	61fb      	str	r3, [r7, #28]
+ 80023e6:	687b      	ldr	r3, [r7, #4]
+ 80023e8:	61fb      	str	r3, [r7, #28]
     if (lin_norm >  1.0f) lin_norm =  1.0f;
- 800240e:	edd7 7a07 	vldr	s15, [r7, #28]
- 8002412:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
- 8002416:	eef4 7ac7 	vcmpe.f32	s15, s14
- 800241a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 800241e:	dd02      	ble.n	8002426 <Robot_ApplyTwist+0x62>
- 8002420:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
- 8002424:	61fb      	str	r3, [r7, #28]
+ 80023ea:	edd7 7a07 	vldr	s15, [r7, #28]
+ 80023ee:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
+ 80023f2:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 80023f6:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80023fa:	dd02      	ble.n	8002402 <Robot_ApplyTwist+0x62>
+ 80023fc:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
+ 8002400:	61fb      	str	r3, [r7, #28]
     if (lin_norm < -1.0f) lin_norm = -1.0f;
- 8002426:	edd7 7a07 	vldr	s15, [r7, #28]
- 800242a:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
- 800242e:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8002432:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002436:	d501      	bpl.n	800243c <Robot_ApplyTwist+0x78>
- 8002438:	4b3e      	ldr	r3, [pc, #248]	@ (8002534 <Robot_ApplyTwist+0x170>)
- 800243a:	61fb      	str	r3, [r7, #28]
+ 8002402:	edd7 7a07 	vldr	s15, [r7, #28]
+ 8002406:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
+ 800240a:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 800240e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8002412:	d501      	bpl.n	8002418 <Robot_ApplyTwist+0x78>
+ 8002414:	4b46      	ldr	r3, [pc, #280]	@ (8002530 <Robot_ApplyTwist+0x190>)
+ 8002416:	61fb      	str	r3, [r7, #28]
 
     if (fabsf(lin_norm) < LIN_DEADZONE) {
- 800243c:	edd7 7a07 	vldr	s15, [r7, #28]
- 8002440:	eef0 7ae7 	vabs.f32	s15, s15
- 8002444:	ed9f 7a3c 	vldr	s14, [pc, #240]	@ 8002538 <Robot_ApplyTwist+0x174>
- 8002448:	eef4 7ac7 	vcmpe.f32	s15, s14
- 800244c:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002450:	d502      	bpl.n	8002458 <Robot_ApplyTwist+0x94>
+ 8002418:	edd7 7a07 	vldr	s15, [r7, #28]
+ 800241c:	eef0 7ae7 	vabs.f32	s15, s15
+ 8002420:	ed9f 7a44 	vldr	s14, [pc, #272]	@ 8002534 <Robot_ApplyTwist+0x194>
+ 8002424:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8002428:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800242c:	d502      	bpl.n	8002434 <Robot_ApplyTwist+0x94>
         lin_norm = 0.0f;
- 8002452:	f04f 0300 	mov.w	r3, #0
- 8002456:	61fb      	str	r3, [r7, #28]
+ 800242e:	f04f 0300 	mov.w	r3, #0
+ 8002432:	61fb      	str	r3, [r7, #28]
     }
 
     // linear_x_cmd หลัง deadzone แล้ว (m/s)
     float linear_x_cmd = lin_norm * MAX_CMD_LINEAR;
- 8002458:	69fb      	ldr	r3, [r7, #28]
- 800245a:	617b      	str	r3, [r7, #20]
+ 8002434:	69fb      	ldr	r3, [r7, #28]
+ 8002436:	613b      	str	r3, [r7, #16]
 
     // --- map เป็น target_tps_common ด้วย geometry ---
     float target_tps_cmd = linear_x_cmd * TICKS_PER_METER;
- 800245c:	edd7 7a05 	vldr	s15, [r7, #20]
- 8002460:	ed9f 7a36 	vldr	s14, [pc, #216]	@ 800253c <Robot_ApplyTwist+0x178>
- 8002464:	ee67 7a87 	vmul.f32	s15, s15, s14
- 8002468:	edc7 7a04 	vstr	s15, [r7, #16]
+ 8002438:	edd7 7a04 	vldr	s15, [r7, #16]
+ 800243c:	ed9f 7a3e 	vldr	s14, [pc, #248]	@ 8002538 <Robot_ApplyTwist+0x198>
+ 8002440:	ee67 7a87 	vmul.f32	s15, s15, s14
+ 8002444:	edc7 7a03 	vstr	s15, [r7, #12]
 
     // เก็บเป็นคำสั่งหลักในหน่วย tps
     g_cmd_target_tps = target_tps_cmd;
- 800246c:	4a34      	ldr	r2, [pc, #208]	@ (8002540 <Robot_ApplyTwist+0x17c>)
- 800246e:	693b      	ldr	r3, [r7, #16]
- 8002470:	6013      	str	r3, [r2, #0]
+ 8002448:	4a3c      	ldr	r2, [pc, #240]	@ (800253c <Robot_ApplyTwist+0x19c>)
+ 800244a:	68fb      	ldr	r3, [r7, #12]
+ 800244c:	6013      	str	r3, [r2, #0]
 
     // เก็บ dir + speed_norm ไว้ debug
     if (lin_norm > 0.0f)      g_cmd_dir_sign = +1.0f;
- 8002472:	edd7 7a07 	vldr	s15, [r7, #28]
- 8002476:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 800247a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 800247e:	dd04      	ble.n	800248a <Robot_ApplyTwist+0xc6>
- 8002480:	4b30      	ldr	r3, [pc, #192]	@ (8002544 <Robot_ApplyTwist+0x180>)
- 8002482:	f04f 527e 	mov.w	r2, #1065353216	@ 0x3f800000
- 8002486:	601a      	str	r2, [r3, #0]
- 8002488:	e00e      	b.n	80024a8 <Robot_ApplyTwist+0xe4>
+ 800244e:	edd7 7a07 	vldr	s15, [r7, #28]
+ 8002452:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 8002456:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800245a:	dd04      	ble.n	8002466 <Robot_ApplyTwist+0xc6>
+ 800245c:	4b38      	ldr	r3, [pc, #224]	@ (8002540 <Robot_ApplyTwist+0x1a0>)
+ 800245e:	f04f 527e 	mov.w	r2, #1065353216	@ 0x3f800000
+ 8002462:	601a      	str	r2, [r3, #0]
+ 8002464:	e00e      	b.n	8002484 <Robot_ApplyTwist+0xe4>
     else if (lin_norm < 0.0f) g_cmd_dir_sign = -1.0f;
- 800248a:	edd7 7a07 	vldr	s15, [r7, #28]
- 800248e:	eef5 7ac0 	vcmpe.f32	s15, #0.0
- 8002492:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002496:	d503      	bpl.n	80024a0 <Robot_ApplyTwist+0xdc>
- 8002498:	4b2a      	ldr	r3, [pc, #168]	@ (8002544 <Robot_ApplyTwist+0x180>)
- 800249a:	4a26      	ldr	r2, [pc, #152]	@ (8002534 <Robot_ApplyTwist+0x170>)
- 800249c:	601a      	str	r2, [r3, #0]
- 800249e:	e003      	b.n	80024a8 <Robot_ApplyTwist+0xe4>
+ 8002466:	edd7 7a07 	vldr	s15, [r7, #28]
+ 800246a:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 800246e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8002472:	d503      	bpl.n	800247c <Robot_ApplyTwist+0xdc>
+ 8002474:	4b32      	ldr	r3, [pc, #200]	@ (8002540 <Robot_ApplyTwist+0x1a0>)
+ 8002476:	4a2e      	ldr	r2, [pc, #184]	@ (8002530 <Robot_ApplyTwist+0x190>)
+ 8002478:	601a      	str	r2, [r3, #0]
+ 800247a:	e003      	b.n	8002484 <Robot_ApplyTwist+0xe4>
     else                      g_cmd_dir_sign = 0.0f;
- 80024a0:	4b28      	ldr	r3, [pc, #160]	@ (8002544 <Robot_ApplyTwist+0x180>)
- 80024a2:	f04f 0200 	mov.w	r2, #0
- 80024a6:	601a      	str	r2, [r3, #0]
+ 800247c:	4b30      	ldr	r3, [pc, #192]	@ (8002540 <Robot_ApplyTwist+0x1a0>)
+ 800247e:	f04f 0200 	mov.w	r2, #0
+ 8002482:	601a      	str	r2, [r3, #0]
 
     g_cmd_speed_norm = fabsf(lin_norm);   // 0..1
- 80024a8:	edd7 7a07 	vldr	s15, [r7, #28]
- 80024ac:	eef0 7ae7 	vabs.f32	s15, s15
- 80024b0:	4b25      	ldr	r3, [pc, #148]	@ (8002548 <Robot_ApplyTwist+0x184>)
- 80024b2:	edc3 7a00 	vstr	s15, [r3]
+ 8002484:	edd7 7a07 	vldr	s15, [r7, #28]
+ 8002488:	eef0 7ae7 	vabs.f32	s15, s15
+ 800248c:	4b2d      	ldr	r3, [pc, #180]	@ (8002544 <Robot_ApplyTwist+0x1a4>)
+ 800248e:	edc3 7a00 	vstr	s15, [r3]
 
     // --- มุมเลี้ยวจาก angular_z ---
     float ang_norm = angular_z / MAX_CMD_ANGULAR;  // -1..+1
- 80024b6:	ed97 7a00 	vldr	s14, [r7]
- 80024ba:	eef6 6a00 	vmov.f32	s13, #96	@ 0x3f000000  0.5
- 80024be:	eec7 7a26 	vdiv.f32	s15, s14, s13
- 80024c2:	edc7 7a06 	vstr	s15, [r7, #24]
+ 8002492:	ed97 7a00 	vldr	s14, [r7]
+ 8002496:	eef6 6a00 	vmov.f32	s13, #96	@ 0x3f000000  0.5
+ 800249a:	eec7 7a26 	vdiv.f32	s15, s14, s13
+ 800249e:	edc7 7a06 	vstr	s15, [r7, #24]
     if (ang_norm >  1.0f) ang_norm =  1.0f;
- 80024c6:	edd7 7a06 	vldr	s15, [r7, #24]
- 80024ca:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
- 80024ce:	eef4 7ac7 	vcmpe.f32	s15, s14
- 80024d2:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80024d6:	dd02      	ble.n	80024de <Robot_ApplyTwist+0x11a>
- 80024d8:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
- 80024dc:	61bb      	str	r3, [r7, #24]
+ 80024a2:	edd7 7a06 	vldr	s15, [r7, #24]
+ 80024a6:	eeb7 7a00 	vmov.f32	s14, #112	@ 0x3f800000  1.0
+ 80024aa:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 80024ae:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80024b2:	dd02      	ble.n	80024ba <Robot_ApplyTwist+0x11a>
+ 80024b4:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
+ 80024b8:	61bb      	str	r3, [r7, #24]
     if (ang_norm < -1.0f) ang_norm = -1.0f;
- 80024de:	edd7 7a06 	vldr	s15, [r7, #24]
- 80024e2:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
- 80024e6:	eef4 7ac7 	vcmpe.f32	s15, s14
- 80024ea:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 80024ee:	d501      	bpl.n	80024f4 <Robot_ApplyTwist+0x130>
- 80024f0:	4b10      	ldr	r3, [pc, #64]	@ (8002534 <Robot_ApplyTwist+0x170>)
- 80024f2:	61bb      	str	r3, [r7, #24]
+ 80024ba:	edd7 7a06 	vldr	s15, [r7, #24]
+ 80024be:	eebf 7a00 	vmov.f32	s14, #240	@ 0xbf800000 -1.0
+ 80024c2:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 80024c6:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80024ca:	d501      	bpl.n	80024d0 <Robot_ApplyTwist+0x130>
+ 80024cc:	4b18      	ldr	r3, [pc, #96]	@ (8002530 <Robot_ApplyTwist+0x190>)
+ 80024ce:	61bb      	str	r3, [r7, #24]
     if (fabsf(ang_norm) < ANG_DEADZONE) ang_norm = 0.0f;
- 80024f4:	edd7 7a06 	vldr	s15, [r7, #24]
- 80024f8:	eef0 7ae7 	vabs.f32	s15, s15
- 80024fc:	ed9f 7a0e 	vldr	s14, [pc, #56]	@ 8002538 <Robot_ApplyTwist+0x174>
- 8002500:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8002504:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8002508:	d502      	bpl.n	8002510 <Robot_ApplyTwist+0x14c>
- 800250a:	f04f 0300 	mov.w	r3, #0
- 800250e:	61bb      	str	r3, [r7, #24]
+ 80024d0:	edd7 7a06 	vldr	s15, [r7, #24]
+ 80024d4:	eef0 7ae7 	vabs.f32	s15, s15
+ 80024d8:	ed9f 7a16 	vldr	s14, [pc, #88]	@ 8002534 <Robot_ApplyTwist+0x194>
+ 80024dc:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 80024e0:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80024e4:	d502      	bpl.n	80024ec <Robot_ApplyTwist+0x14c>
+ 80024e6:	f04f 0300 	mov.w	r3, #0
+ 80024ea:	61bb      	str	r3, [r7, #24]
 
     // map -> มุมเลี้ยว +-STEER_MAX_DEG
     float target_deg = ang_norm * STEER_MAX_DEG;
- 8002510:	edd7 7a06 	vldr	s15, [r7, #24]
- 8002514:	eeb3 7a0c 	vmov.f32	s14, #60	@ 0x41e00000  28.0
- 8002518:	ee67 7a87 	vmul.f32	s15, s15, s14
- 800251c:	edc7 7a03 	vstr	s15, [r7, #12]
+ 80024ec:	edd7 7a06 	vldr	s15, [r7, #24]
+ 80024f0:	eeb3 7a0c 	vmov.f32	s14, #60	@ 0x41e00000  28.0
+ 80024f4:	ee67 7a87 	vmul.f32	s15, s15, s14
+ 80024f8:	edc7 7a05 	vstr	s15, [r7, #20]
+
+    if (linear_x_cmd < -0.00001f) 
+ 80024fc:	edd7 7a04 	vldr	s15, [r7, #16]
+ 8002500:	ed9f 7a11 	vldr	s14, [pc, #68]	@ 8002548 <Robot_ApplyTwist+0x1a8>
+ 8002504:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8002508:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 800250c:	d505      	bpl.n	800251a <Robot_ApplyTwist+0x17a>
+    {
+        target_deg = -target_deg;
+ 800250e:	edd7 7a05 	vldr	s15, [r7, #20]
+ 8002512:	eef1 7a67 	vneg.f32	s15, s15
+ 8002516:	edc7 7a05 	vstr	s15, [r7, #20]
+    }
 
     // ส่งเป้ามุมไปให้ steer module จัดการ ramp เอง
     Steer_SetCmdTargetDeg(target_deg);
- 8002520:	ed97 0a03 	vldr	s0, [r7, #12]
- 8002524:	f7ff f982 	bl	800182c <Steer_SetCmdTargetDeg>
+ 800251a:	ed97 0a05 	vldr	s0, [r7, #20]
+ 800251e:	f7ff f973 	bl	8001808 <Steer_SetCmdTargetDeg>
 
 //    printf("Twist: lin=%.2f m/s (tgt=%.0f tps), ang=%.2f rad/s -> dir=%.0f, speed_norm=%.2f, deg=%.1f\r\n",
 //           linear_x_cmd, target_tps_cmd, angular_z,
 //           g_cmd_dir_sign, g_cmd_speed_norm, target_deg);
 }
- 8002528:	bf00      	nop
- 800252a:	3720      	adds	r7, #32
- 800252c:	46bd      	mov	sp, r7
- 800252e:	bd80      	pop	{r7, pc}
- 8002530:	2000101c 	.word	0x2000101c
- 8002534:	bf800000 	.word	0xbf800000
- 8002538:	3ca3d70a 	.word	0x3ca3d70a
- 800253c:	449ada7c 	.word	0x449ada7c
- 8002540:	20001014 	.word	0x20001014
- 8002544:	20001008 	.word	0x20001008
- 8002548:	2000100c 	.word	0x2000100c
+ 8002522:	bf00      	nop
+ 8002524:	3720      	adds	r7, #32
+ 8002526:	46bd      	mov	sp, r7
+ 8002528:	bd80      	pop	{r7, pc}
+ 800252a:	bf00      	nop
+ 800252c:	2000101c 	.word	0x2000101c
+ 8002530:	bf800000 	.word	0xbf800000
+ 8002534:	3ca3d70a 	.word	0x3ca3d70a
+ 8002538:	449ada7c 	.word	0x449ada7c
+ 800253c:	20001014 	.word	0x20001014
+ 8002540:	20001008 	.word	0x20001008
+ 8002544:	2000100c 	.word	0x2000100c
+ 8002548:	b727c5ac 	.word	0xb727c5ac
 
 0800254c <_write>:
 
@@ -4163,7 +4165,7 @@ static void Udp_TwistHandler(float linear_x, float angular_z)
     Robot_ApplyTwist(linear_x, angular_z);
  8002586:	edd7 0a00 	vldr	s1, [r7]
  800258a:	ed97 0a01 	vldr	s0, [r7, #4]
- 800258e:	f7ff ff19 	bl	80023c4 <Robot_ApplyTwist>
+ 800258e:	f7ff ff07 	bl	80023a0 <Robot_ApplyTwist>
 }
  8002592:	bf00      	nop
  8002594:	3708      	adds	r7, #8
@@ -4227,7 +4229,7 @@ void Drive_Control_And_Test(uint32_t now_ms)
 
     // อ่าน encoder ทุกล้อ
     DriveEnc_UpdateAll();
- 80025fc:	f7ff fdb4 	bl	8002168 <DriveEnc_UpdateAll>
+ 80025fc:	f7ff fda2 	bl	8002144 <DriveEnc_UpdateAll>
 
     if (g_drive_mode == RUN_MODE_DRIVE_PID) {
  8002600:	4b8f      	ldr	r3, [pc, #572]	@ (8002840 <Drive_Control_And_Test+0x2a4>)
@@ -4242,7 +4244,7 @@ void Drive_Control_And_Test(uint32_t now_ms)
  8002610:	f7fe fd4a 	bl	80010a8 <Drive_UpdateTargetsWithRamp>
         Drive_UpdateAll(dt_s);              	  // ใช้ target_tps ต่อล้อ + duty_base + PID
  8002614:	ed97 0a13 	vldr	s0, [r7, #76]	@ 0x4c
- 8002618:	f7fe fe1a 	bl	8001250 <Drive_UpdateAll>
+ 8002618:	f7fe fe08 	bl	800122c <Drive_UpdateAll>
 
         // เฉพาะตอน RUN_MODE_STEER_PID เท่านั้นที่ให้ PID ทำงาน เผื่อใช้โหมด CALIB
         if (g_steer_mode == RUN_MODE_STEER_PID) {
@@ -4252,10 +4254,10 @@ void Drive_Control_And_Test(uint32_t now_ms)
  8002622:	d107      	bne.n	8002634 <Drive_Control_And_Test+0x98>
             Steer_UpdateTargetWithRamp(dt_s);   // ramp angle
  8002624:	ed97 0a13 	vldr	s0, [r7, #76]	@ 0x4c
- 8002628:	f7ff f940 	bl	80018ac <Steer_UpdateTargetWithRamp>
+ 8002628:	f7ff f92e 	bl	8001888 <Steer_UpdateTargetWithRamp>
             Steer_UpdateAll(dt_s);              // PID ตาม target_ticks
  800262c:	ed97 0a13 	vldr	s0, [r7, #76]	@ 0x4c
- 8002630:	f7ff f9b4 	bl	800199c <Steer_UpdateAll>
+ 8002630:	f7ff f9a2 	bl	8001978 <Steer_UpdateAll>
 //                g_last_cmd_ms = 0U;
 //                // printf("[TIMEOUT] stop & steer zero\n");
 //            }
@@ -4296,7 +4298,7 @@ void Drive_Control_And_Test(uint32_t now_ms)
  8002668:	f04f 0200 	mov.w	r2, #0
  800266c:	601a      	str	r2, [r3, #0]
                 Steer_InitTargetsToZero();
- 800266e:	f7ff f907 	bl	8001880 <Steer_InitTargetsToZero>
+ 800266e:	f7ff f8f5 	bl	800185c <Steer_InitTargetsToZero>
                 g_last_cmd_ms = 0U;
  8002672:	4b77      	ldr	r3, [pc, #476]	@ (8002850 <Drive_Control_And_Test+0x2b4>)
  8002674:	2200      	movs	r2, #0
@@ -4365,7 +4367,7 @@ void Drive_Control_And_Test(uint32_t now_ms)
  80026e8:	eeb0 0a67 	vmov.f32	s0, s15
  80026ec:	4611      	mov	r1, r2
  80026ee:	4618      	mov	r0, r3
- 80026f0:	f7ff fd9e 	bl	8002230 <Motor_set>
+ 80026f0:	f7ff fd8c 	bl	800220c <Motor_set>
             if (selected && g_test_duty > 0.0f) {
  80026f4:	e007      	b.n	8002706 <Drive_Control_And_Test+0x16a>
             } else {
@@ -4375,7 +4377,7 @@ void Drive_Control_And_Test(uint32_t now_ms)
  80026fa:	ed9f 0a5d 	vldr	s0, [pc, #372]	@ 8002870 <Drive_Control_And_Test+0x2d4>
  80026fe:	2100      	movs	r1, #0
  8002700:	4618      	mov	r0, r3
- 8002702:	f7ff fd95 	bl	8002230 <Motor_set>
+ 8002702:	f7ff fd83 	bl	800220c <Motor_set>
         for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
  8002706:	6cbb      	ldr	r3, [r7, #72]	@ 0x48
  8002708:	3301      	adds	r3, #1
@@ -4686,15 +4688,15 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   Motor_PWM_StartALL();
- 8002962:	f7ff fc39 	bl	80021d8 <Motor_PWM_StartALL>
+ 8002962:	f7ff fc27 	bl	80021b4 <Motor_PWM_StartALL>
   ENC_StartALL();
- 8002966:	f7ff faff 	bl	8001f68 <ENC_StartALL>
+ 8002966:	f7ff faed 	bl	8001f44 <ENC_StartALL>
   DriveEnc_InitAll();
- 800296a:	f7ff fbcd 	bl	8002108 <DriveEnc_InitAll>
+ 800296a:	f7ff fbbb 	bl	80020e4 <DriveEnc_InitAll>
   Drive_InitAll();
  800296e:	f7fe fb6f 	bl	8001050 <Drive_InitAll>
   Steer_InitTargetsToZero();
- 8002972:	f7fe ff85 	bl	8001880 <Steer_InitTargetsToZero>
+ 8002972:	f7fe ff73 	bl	800185c <Steer_InitTargetsToZero>
 
   if (UDP_Ctrl_Init(6000, Udp_TwistHandler) != 0) {
  8002976:	4914      	ldr	r1, [pc, #80]	@ (80029c8 <main+0xb8>)
@@ -4724,7 +4726,7 @@ int main(void)
  800299e:	4b0e      	ldr	r3, [pc, #56]	@ (80029d8 <main+0xc8>)
  80029a0:	781b      	ldrb	r3, [r3, #0]
  80029a2:	4618      	mov	r0, r3
- 80029a4:	f7ff f908 	bl	8001bb8 <Steer_PrintModeHelp>
+ 80029a4:	f7ff f8f6 	bl	8001b94 <Steer_PrintModeHelp>
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -4749,7 +4751,7 @@ int main(void)
  80029be:	d1f3      	bne.n	80029a8 <main+0x98>
 	  {
 	      Steer_JogCalib_HandleUart();
- 80029c0:	f7ff f94e 	bl	8001c60 <Steer_JogCalib_HandleUart>
+ 80029c0:	f7ff f93c 	bl	8001c3c <Steer_JogCalib_HandleUart>
   {
  80029c4:	e7f0      	b.n	80029a8 <main+0x98>
  80029c6:	bf00      	nop

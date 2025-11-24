@@ -10,7 +10,7 @@
 #include <stdio.h>
 
 // ramp ของเป้าความเร็วในหน่วย tps
-#define DRIVE_TPS_RAMP_UP_PER_SEC    	2000.0f   // เพิ่มเป้า tps ต่อวินาที
+#define DRIVE_TPS_RAMP_UP_PER_SEC    	1000.0f   // เพิ่มเป้า tps ต่อวินาที
 #define DRIVE_TPS_RAMP_DOWN_PER_SEC  	1000.0f   // ลดเป้า tps ต่อวินาที
 #define DRIVE_DEADBAND_TPS        		20.0f     // ใกล้ 0 แค่ไหนถือว่า "หยุด"
 
@@ -110,10 +110,10 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
 
     g_current_target_tps += delta;
 
-    // deadzone รอบ ๆ 0 กันแกว่ง
-    if (fabsf(g_current_target_tps) < DRIVE_DEADBAND_TPS) {
-        g_current_target_tps = 0.0f;
-    }
+    // deadzone รอบ ๆ 0 กันแกว่ง หุ่นกระตุก
+//    if (fabsf(g_current_target_tps) < DRIVE_DEADBAND_TPS) {
+//        g_current_target_tps = 0.0f;
+//    }
 
     // ---- set target_tps ให้ทุกล้อ = ค่าเดียวกัน (target_tps_common) ----
     for (uint32_t i = 0; i < DRIVE_NUM; ++i) {

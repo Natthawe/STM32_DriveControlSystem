@@ -165,6 +165,11 @@ void Robot_ApplyTwist(float linear_x, float angular_z)
     // map -> มุมเลี้ยว +-STEER_MAX_DEG
     float target_deg = ang_norm * STEER_MAX_DEG;
 
+    if (linear_x_cmd < -0.000001f) 
+    {
+        target_deg = -target_deg;
+    }
+
     // ส่งเป้ามุมไปให้ steer module จัดการ ramp เอง
     Steer_SetCmdTargetDeg(target_deg);
 

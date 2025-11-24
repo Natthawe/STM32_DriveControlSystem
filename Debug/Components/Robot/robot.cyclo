@@ -1,3 +1,3 @@
 ../Components/Robot/robot.c:37:6:Robot_ApplyCommand_WithDuty	13
 ../Components/Robot/robot.c:97:12:Robot_CmdFromChar	15
-../Components/Robot/robot.c:125:6:Robot_ApplyTwist	11
+../Components/Robot/robot.c:125:6:Robot_ApplyTwist	12
