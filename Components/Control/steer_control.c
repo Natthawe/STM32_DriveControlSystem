@@ -25,7 +25,7 @@
 #define STEER_TICKS_MAX      	1024U
 #define ENC_TICKS_PER_REV    	1024.0f
 #define ENC_TICKS_PER_DEG    	(ENC_TICKS_PER_REV / 360.0f)  // ≈ 2.8444 tick/deg
-#define STEER_RAMP_DEG_PER_SEC  40.0f    // deg/s
+#define STEER_RAMP_DEG_PER_SEC  60.0f    // deg/s เปลี่ยนให้เร็วขึ้น เพราะถ้าช้าล้อมันจะสั่น
 
 RunMode_t g_steer_mode = RUN_MODE_STEER_PID;
 
@@ -62,6 +62,15 @@ SteerAxis_t steer_axes[] = {
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC5 -> Motor8 (front-left steer)
 };
 
+// +1 = เวลาสั่งเลี้ยวมุม +deg ให้หมุนไปทางเดียวกับ angle_deg
+// -1 = เวลาสั่งเลี้ยวมุม +deg ให้หมุนไปทางตรงข้าม (สำหรับล้อหลังใน all-wheel-steer)
+const int8_t steer_turn_sign[STEER_NUM] = {
+    +1,  // 0: STEER_FR (front-right)
+    -1,  // 1: STEER_RR (rear-right)
+    -1,  // 2: STEER_RL (rear-left)
+    +1   // 3: STEER_FL (front-left)
+};
+
 uint16_t wrap_ticks(int32_t t)
 {
     while (t < 0)                 			t += STEER_TICKS_MAX;
@@ -69,8 +78,8 @@ uint16_t wrap_ticks(int32_t t)
     return (uint16_t)t;
 }
 
-// คำนวณ target_ticks ของทุกล้อตามมุม angle_deg (ใช้ zero_offset ของแต่ละล้อ) (+ ซ้าย, - ขวา)
-void Steer_SetTargetAngleDeg(float angle_deg)
+// คำนวณ target_ticks ของทุกล้อตามมุม angle_deg (ใช้ zero_offset ของแต่ละล้อ) (+ ซ้าย, - ขวา) หมุนเหมือนกันทุกล้อ
+void Steer_SetTargetAngleDeg2(float angle_deg)
 {
     // clamp มุมไม่เกิน ±40°
     if (angle_deg >  STEER_MAX_DEG) angle_deg =  STEER_MAX_DEG;
@@ -80,7 +89,27 @@ void Steer_SetTargetAngleDeg(float angle_deg)
 
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
         int32_t base  = (int32_t)steer_axes[i].zero_offset;
-        int32_t delta = (int32_t)lrintf(delta_ticks_f);   // ปัดเป็น int
+        int32_t delta = (int32_t)lrintf(delta_ticks_f);
+        steer_axes[i].target_ticks = wrap_ticks(base + delta);
+    }
+}
+
+// คำนวณ target_ticks ของทุกล้อตามมุม angle_deg (ใช้ zero_offset ของแต่ละล้อ) (AWS: ล้อหน้า+, ล้อหลัง-)
+void Steer_SetTargetAngleDeg(float angle_deg)
+{
+    // clamp มุมไม่เกิน ±STEER_MAX_DEG
+    if (angle_deg >  STEER_MAX_DEG) angle_deg =  STEER_MAX_DEG;
+    if (angle_deg < -STEER_MAX_DEG) angle_deg = -STEER_MAX_DEG;
+
+    for (uint32_t i = 0; i < STEER_NUM; ++i) {
+        // AWS:
+        //  - ล้อหน้า: steer_turn_sign = +1  -> ได้มุม +angle_deg
+        //  - ล้อหลัง: steer_turn_sign = -1  -> ได้มุม -angle_deg
+        float delta_ticks_f = angle_deg * (float)steer_turn_sign[i] * ENC_TICKS_PER_DEG;
+
+        int32_t base  = (int32_t)steer_axes[i].zero_offset;
+        int32_t delta = (int32_t)lrintf(delta_ticks_f);
+
         steer_axes[i].target_ticks = wrap_ticks(base + delta);
     }
 }
@@ -243,6 +272,27 @@ void Steer_UpdateAll(float dt_s)
         float duty = duty_raw;
         if (duty < ax->duty_base) duty = ax->duty_base;
         if (duty > 1.0f)          duty = 1.0f;
+
+//        float abs_err = fabsf(err_f);
+//        float duty    = duty_raw;
+//
+//        if (steering_ramping || (abs_err > (2.0f * STEER_DEADBAND_TICKS))) {
+//            // ยังหมุนไปเป้าหมายอยู่ หรือ error ยังห่างมาก
+//            // → ใช้ base duty ช่วยให้หมุนแน่นอน
+//            if (duty < ax->duty_base) {
+//                duty = ax->duty_base;
+//            }
+//        } else {
+//            // เข้าใกล้เป้าหมายแล้ว (error ไม่ใหญ่มาก)
+//            // → ยอมให้ duty เล็ก ๆ ได้ เพื่อลดอาการสั่น
+//            if (duty < 0.0f) {
+//                duty = 0.0f;   // จริง ๆ duty_raw เป็นบวกอยู่แล้ว แต่กันเผื่อ
+//            }
+//        }
+//
+//        if (duty > 1.0f) {
+//            duty = 1.0f;
+//        }
 
         ax->last_duty = duty;
         Motor_set(ax->motor_idx, dir, duty);

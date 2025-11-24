@@ -22,7 +22,7 @@
 
 // ====== map จาก linear.x / angular.z ======
 #define MAX_CMD_LINEAR   1.0f   // [m/s] linear.x สูงสุดที่คาดว่าจะส่งมา
-#define MAX_CMD_ANGULAR  0.7f   // [rad/s] angular.z สูงสุดที่คาดว่าจะส่งมา
+#define MAX_CMD_ANGULAR  0.5f   // [rad/s] angular.z สูงสุดที่คาดว่าจะส่งมา
 #define LIN_DEADZONE     0.02f  // deadzone สำหรับ linear (normalized)
 #define ANG_DEADZONE     0.02f  // deadzone สำหรับ angular (normalized)
 

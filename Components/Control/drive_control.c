@@ -11,7 +11,7 @@
 
 // ramp ของเป้าความเร็วในหน่วย tps
 #define DRIVE_TPS_RAMP_UP_PER_SEC    	2000.0f   // เพิ่มเป้า tps ต่อวินาที
-#define DRIVE_TPS_RAMP_DOWN_PER_SEC  	4000.0f   // ลดเป้า tps ต่อวินาที
+#define DRIVE_TPS_RAMP_DOWN_PER_SEC  	1000.0f   // ลดเป้า tps ต่อวินาที
 #define DRIVE_DEADBAND_TPS        		20.0f     // ใกล้ 0 แค่ไหนถือว่า "หยุด"
 
 // map: drive_enc[0..3] -> motor 1,3,5,7

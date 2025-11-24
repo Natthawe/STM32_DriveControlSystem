@@ -173,24 +173,43 @@ void Drive_Control_And_Test(uint32_t now_ms)
         }
 
         // เช็ค timeout จาก UDP/serial
+        // เผื่อทำเป็น EMER
+//        if (g_last_cmd_ms != 0U)
+//        {
+//            uint32_t dt_cmd = now_ms - g_last_cmd_ms;
+//            if (dt_cmd > CMD_TIMEOUT_MS) {
+//                // reset คำสั่งความเร็วในหน่วย tps
+//                g_cmd_target_tps     = 0.0f;
+//                g_current_target_tps = 0.0f;
+//
+//                // reset ตัวแปร
+//                g_cmd_dir_sign       = 0.0f;
+//                g_cmd_speed_norm     = 0.0f;
+//                g_current_speed_norm = 0.0f;
+//
+//                Drive_StopAll();
+//                Steer_InitTargetsToZero();
+//                g_last_cmd_ms = 0U;
+//                // printf("[TIMEOUT] stop & steer zero\n");
+//            }
+//        }
+
         if (g_last_cmd_ms != 0U) {
             uint32_t dt_cmd = now_ms - g_last_cmd_ms;
             if (dt_cmd > CMD_TIMEOUT_MS) {
-                // reset คำสั่งความเร็วในหน่วย tps
-                g_cmd_target_tps     = 0.0f;
-                g_current_target_tps = 0.0f;
+                // ----- SOFT STOP -----
+                g_cmd_target_tps = 0.0f;
 
-                // reset ตัวแปร
+                // reset state
                 g_cmd_dir_sign       = 0.0f;
                 g_cmd_speed_norm     = 0.0f;
                 g_current_speed_norm = 0.0f;
-
-                Drive_StopAll();
                 Steer_InitTargetsToZero();
                 g_last_cmd_ms = 0U;
-                // printf("[TIMEOUT] stop & steer zero\n");
+                // printf("[TIMEOUT] soft stop (ramp down)\n");
             }
         }
+
 
     } else {
         // ===== โหมด TEST: ขับทีละล้อหรือทุกล้อแบบ open-loop =====
