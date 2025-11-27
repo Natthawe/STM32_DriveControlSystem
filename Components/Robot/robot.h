@@ -36,4 +36,8 @@ RobotCmd_t Robot_CmdFromChar(uint8_t c);
 /** ถูกเรียกใช้ตอนมี /cmd_vel (linear_x, angular_z) เข้ามาผ่าน (UDP/Serial) */
 void Robot_ApplyTwist(float linear_x, float angular_z);
 
+/** เช็ค timeout ของคำสั่งขับเคลื่อน (หยุดหุ่นถ้าไม่ได้ cmd ใหม่เกินเวลาที่กำหนด) */
+void Robot_CommandTimeoutCheck(void);
+
+
 #endif /* ROBOT_ROBOT_H_ */

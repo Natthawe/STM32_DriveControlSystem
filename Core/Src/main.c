@@ -337,6 +337,8 @@ int main(void)
   {
 	  MX_LWIP_Process();
 
+	  Robot_CommandTimeoutCheck();
+
 	  uint32_t now_ms = HAL_GetTick();
 
 	  // ควบคุมล้อทั้งหมด (PID / CALIB ขึ้นกับ g_drive_mode และ g_steer_mode)

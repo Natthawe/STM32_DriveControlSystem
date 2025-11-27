@@ -38,7 +38,9 @@ Components/Robot/robot.o: ../Components/Robot/robot.c \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_ll_usb.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd_ex.h \
  /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/steer_control.h \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/pid_ctrl.h
+ /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/pid_ctrl.h \
+ /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/drive_control.h \
+ /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_inc.h
 /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Robot/robot.h:
 /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Motors/motor.h:
 ../Core/Inc/main.h:
@@ -80,3 +82,5 @@ Components/Robot/robot.o: ../Components/Robot/robot.c \
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd_ex.h:
 /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/steer_control.h:
 /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/pid_ctrl.h:
+/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/drive_control.h:
+/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_inc.h:

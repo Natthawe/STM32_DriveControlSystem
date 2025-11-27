@@ -8,6 +8,7 @@
 #include "Robot/robot.h"
 #include "Motors/motor.h"
 #include "Control/steer_control.h"
+#include "Control/drive_control.h"
 #include "main.h"
 #include <math.h>
 #include <stdio.h>
@@ -30,6 +31,8 @@ extern float g_cmd_dir_sign;     // -1,0,+1 จากคำสั่งล่า
 extern float g_cmd_speed_norm;   // 0..1 จาก drive_pct
 extern float g_cmd_target_tps;   // target_tps_common จากคำสั่ง (ticks/sec)
 extern uint32_t g_last_cmd_ms;   // timestamp คำสั่งล่าสุด (ms)
+
+static bool g_cmd_active = false;  // ยังไม่เคยได้ cmd_vel -> false
 
 // ====== Robot state ======
 RobotCmd_t g_robot_cmd = ROBOT_CMD_STOP;
@@ -127,6 +130,8 @@ void Robot_ApplyTwist(float linear_x, float angular_z)
     // จำเวลาคำสั่งล่าสุด
     g_last_cmd_ms = HAL_GetTick();
 
+    g_cmd_active  = true;
+
     // --- จำกัด linear_x ไม่ให้เกิน MAX_CMD_LINEAR ---
     if (linear_x >  MAX_CMD_LINEAR) linear_x =  MAX_CMD_LINEAR;
     if (linear_x < -MAX_CMD_LINEAR) linear_x = -MAX_CMD_LINEAR;
@@ -173,7 +178,39 @@ void Robot_ApplyTwist(float linear_x, float angular_z)
     // ส่งเป้ามุมไปให้ steer module จัดการ ramp เอง
     Steer_SetCmdTargetDeg(target_deg);
 
+    g_cmd_active = true;   // เคยได้รับคำสั่งแล้ว
+
 //    printf("Twist: lin=%.2f m/s (tgt=%.0f tps), ang=%.2f rad/s -> dir=%.0f, speed_norm=%.2f, deg=%.1f\r\n",
 //           linear_x_cmd, target_tps_cmd, angular_z,
 //           g_cmd_dir_sign, g_cmd_speed_norm, target_deg);
 }
+
+void Robot_CommandTimeoutCheck(void)
+{
+    // ถ้ายังไม่เคยได้รับ cmd เลย ก็ไม่ต้องทำอะไร
+    if (!g_cmd_active) {
+        return;
+    }
+
+    const uint32_t CMD_TIMEOUT_MS = 500;  // ไม่มี cmd ใหม่เกิน 300ms -> STOP
+
+    uint32_t now = HAL_GetTick();
+    uint32_t dt  = now - g_last_cmd_ms;
+
+    if (dt > CMD_TIMEOUT_MS) {
+        // --- ไม่มีคำสั่งใหม่มานานเกิน timeout -> สั่งหยุดปลอดภัย ---
+
+        g_cmd_target_tps = 0.0f;
+        g_cmd_speed_norm = 0.0f;
+        g_cmd_dir_sign   = 0.0f;
+
+        // reset flag เพื่อไม่ให้พิมพ์ซ้ำ/สั่ง stop ซ้ำไปเรื่อย ๆ
+        g_cmd_active = false;
+
+        // สั่ง drive หยุด และ reset PID ภายใน Drive_StopAll()
+        Drive_StopAll();
+
+        printf("Robot: CMD TIMEOUT (%lu ms) -> STOP ALL\r\n", (unsigned long)dt);
+    }
+}
+

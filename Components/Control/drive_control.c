@@ -14,8 +14,8 @@
 #define DRIVE_TPS_RAMP_DOWN_PER_SEC  	2000.0f   	// target_tps (tick/sec) -> decel
 #define DRIVE_DEADBAND_TPS        		300.0f     	// ใกล้ 0 แค่ไหนถือว่า "หยุด"
 
-#define DRIVE_HILL_KI_GAIN        		35.0f   	// คูณ Ki ตอนอยู่บนเนิน
-#define DRIVE_HILL_DUTY_MAX       		0.7f    	// duty สูงสุดที่ยอมให้ค้ำเนิน
+#define DRIVE_HILL_KI_GAIN        		22.0f   	// คูณ Ki ตอนอยู่บนเนิน
+#define DRIVE_HILL_DUTY_MAX       		0.65f    	// duty สูงสุดที่ยอมให้ค้ำเนิน
 #define DRIVE_HILL_MIN_SPEED_TPS  		1.0f    	// ความเร็วที่ถือว่า "แทบจะหยุด" ใช้ตัด noise
 #define DRIVE_HILL_BRAKE_TPS      		500.0f   	// tps เหนือกว่านี้ถือว่า "ยังวิ่งเร็ว" → โซนเบรก
 #define DRIVE_HILL_HOLD_TPS       		330.0f   	// tps ต่ำกว่านี้ถือว่า "เกือบหยุด" → โซน hold
