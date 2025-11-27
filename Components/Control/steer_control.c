@@ -25,7 +25,7 @@
 #define STEER_TICKS_MAX      	1024U
 #define ENC_TICKS_PER_REV    	1024.0f
 #define ENC_TICKS_PER_DEG    	(ENC_TICKS_PER_REV / 360.0f)  // ≈ 2.8444 tick/deg
-#define STEER_RAMP_DEG_PER_SEC  60.0f    // deg/s เปลี่ยนให้เร็วขึ้น เพราะถ้าช้าล้อมันจะสั่น
+#define STEER_RAMP_DEG_PER_SEC  90.0f    // deg/s เปลี่ยนให้เร็วขึ้น เพราะถ้าช้าล้อมันจะสั่น
 
 RunMode_t g_steer_mode = RUN_MODE_STEER_PID;
 
@@ -43,15 +43,15 @@ SteerAxis_t steer_axes[] = {
 		.integrator=0, .prev_error=0,
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC2 -> Motor2 (front-right steer)
 
-	{ "STEER_RR", 1, 641, 4, -1, 641,  0.64f,
+	{ "STEER_RR", 1, 641, 4, -1, 641,  0.66f,
 //	  { .kp=0.006f, .ki=0.011f, .kd=0.0f,
 	  { .kp=0.006f, .ki=0.0f, .kd=0.0f,
 		.integrator=0, .prev_error=0,
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC3 -> Motor4 (rear-right steer)
 
-	{ "STEER_RL", 2,  33, 6, -1,  33,  0.64f,
+	{ "STEER_RL", 2,  33, 6, -1,  33,  0.65f,
 //	  { .kp=0.006f, .ki=0.01f, .kd=0.0f,
-	  { .kp=0.006f, .ki=0.0f, .kd=0.0f,
+	  { .kp=0.0055f, .ki=0.0f, .kd=0.0f,
 		.integrator=0, .prev_error=0,
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC4 -> Motor6 (rear-left steer)
 
