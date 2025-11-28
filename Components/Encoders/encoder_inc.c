@@ -13,10 +13,10 @@
 
 // map: wheel_enc[0..3] -> TIM1,3,4,8
 DriveEnc_t drive_enc[DRIVE_NUM] = {
-    { &htim1, "DRV_FR", WHEEL_COUNTS_PER_REV, +1, 0, 0 },  // Front Right  drive
-    { &htim3, "DRV_RR", WHEEL_COUNTS_PER_REV, +1, 0, 0 },  // Rear  Right  drive
-    { &htim4, "DRV_RL", WHEEL_COUNTS_PER_REV, -1, 0, 0 },  // Rear  Left   drive
-    { &htim8, "DRV_FL", WHEEL_COUNTS_PER_REV, -1, 0, 0 },  // Front Left  drive
+    { &htim1, "DRV_FR", WHEEL_COUNTS_PER_REV, +1, 0, 0 },  // FR    PE9(A)     TIM1_CH1    PE11(B)    TIM1_CH2
+    { &htim3, "DRV_RR", WHEEL_COUNTS_PER_REV, +1, 0, 0 },  // RR    PA6(A)     TIM3_CH1    PB5(B)     TIM3_CH2
+    { &htim4, "DRV_RL", WHEEL_COUNTS_PER_REV, -1, 0, 0 },  // RL    PD12(A)    TIM4_CH1    PD13(B)    TIM4_CH2
+    { &htim8, "DRV_FL", WHEEL_COUNTS_PER_REV, -1, 0, 0 },  // FL    PC6(A)     TIM8_CH1    PC7(B)     TIM8_CH2
 };
 
 void DriveEnc_InitAll(void)

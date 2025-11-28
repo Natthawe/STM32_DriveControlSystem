@@ -27,10 +27,10 @@
 
 // ตาราง mapping encoder -> SPI / CS
 static const SteerEnc_t enc_if[ABS_ENCODER_COUNT] = {
-    { &hspi2, ENC2_CS_GPIO_Port, ENC2_CS_Pin, "ENC2/SPI2" },
-    { &hspi3, ENC3_CS_GPIO_Port, ENC3_CS_Pin, "ENC3/SPI3" },
-    { &hspi4, ENC4_CS_GPIO_Port, ENC4_CS_Pin, "ENC4/SPI4" },
-    { &hspi5, ENC5_CS_GPIO_Port, ENC5_CS_Pin, "ENC5/SPI5" },
+    { &hspi2, ENC2_CS_GPIO_Port, ENC2_CS_Pin, "ENC2/SPI2" },    //FR    PD3=SCK,     PC2=MISO,   PB4=CS
+    { &hspi3, ENC3_CS_GPIO_Port, ENC3_CS_Pin, "ENC3/SPI3" },    //RR    PC10=SCK,    PC11=MISO,  PA4=CS
+    { &hspi4, ENC4_CS_GPIO_Port, ENC4_CS_Pin, "ENC4/SPI4" },    //RL    PE2=SCK,     PE13=MISO,  PE4=CS
+    { &hspi5, ENC5_CS_GPIO_Port, ENC5_CS_Pin, "ENC5/SPI5" },    //FL    PF7=SCK,     PF8=MISO,   PF9=CS
 };
 
 void ENC_StartALL(void)

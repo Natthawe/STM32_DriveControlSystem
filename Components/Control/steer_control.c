@@ -51,7 +51,7 @@ SteerAxis_t steer_axes[] = {
 
 	{ "STEER_RL", 2,  33, 6, -1,  33,  0.65f,
 //	  { .kp=0.006f, .ki=0.01f, .kd=0.0f,
-	  { .kp=0.0055f, .ki=0.0f, .kd=0.0f,
+	  { .kp=0.0055f, .ki=0.001f, .kd=0.0f,
 		.integrator=0, .prev_error=0,
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC4 -> Motor6 (rear-left steer)
 
