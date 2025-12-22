@@ -161,6 +161,9 @@ void Drive_Control_And_Test(uint32_t now_ms)
     // อ่าน encoder ทุกล้อ
     DriveEnc_UpdateAll();
 
+    // คำนวณ odometry จาก encoder drive + steer
+    Robot_UpdateKinematics(dt_s);
+
     if (g_drive_mode == RUN_MODE_DRIVE_PID) {
         // ===== โหมดปกติ: ใช้ PID ตาม target_tps (common) =====
     	Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
@@ -348,6 +351,15 @@ int main(void)
 	  {
 	      Steer_JogCalib_HandleUart();
 	  }
+
+      // static uint32_t last_dbg = 0;
+      // if (now_ms - last_dbg > 100) {
+      //     last_dbg = now_ms;
+      //     const RobotState_t* st = Robot_GetState();
+      //     printf("[ODOM] x=%.3f y=%.3f th=%.3f | vx=%.3f vy=%.3f wz=%.3f\r\n",
+      //            st->pose.x, st->pose.y, st->pose.theta,
+      //            st->twist.vx, st->twist.vy, st->twist.wz);
+      // }
 
 //	  --------- Jog ---------
 //	  Steer_JogCalib_HandleUart();

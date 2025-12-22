@@ -90,10 +90,10 @@ void Drive_UpdateTargetsWithRamp(float dt_s,
 {
     if (dt_s <= 0.0f) dt_s = 0.001f;
 
-    // 1) กรณีผู้ใช้ "ปล่อยคันเร่ง" -> คำสั่งใกล้ 0
+    // 1) ปล่อย joy -> คำสั่งใกล้ 0
     if (fabsf(*cmd_target_tps) < DRIVE_DEADBAND_TPS)
     {
-        // ตีความว่า: อยากหยุดเลย
+        // อยากหยุดเลย -> สั่ง clear
         *cmd_target_tps     = 0.0f;
         *current_target_tps = 0.0f;
 
@@ -102,8 +102,7 @@ void Drive_UpdateTargetsWithRamp(float dt_s,
             drive_axes[i].target_tps = 0.0f;
         }
 
-        // จากนี้ไปให้ Drive_UpdateAll() ใช้ PID คุมให้ความเร็ว -> 0
-        // (hill-hold / active braking)
+        // ให้ Drive_UpdateAll() ใช้ PID คุมให้ความเร็ว -> 0 (hill-hold / active braking)
         return;
     }
 
@@ -245,18 +244,18 @@ void Drive_UpdateAll(float dt_s)
         Motor_set(d->motor_idx, dir, duty);
 
 //        /*
-        if (debug_cnt % 20 == 0) {
-            printf("[%s] tgt=%.0f, meas=%.0f, err=%.0f, duty=%.2f, "
-                   "near0=%d, brake=%d, hold=%d\r\n",
-                   d->name,
-                   d->target_tps,
-                   d->meas_tps,
-                   error,
-                   d->last_duty,
-                   (int)near_zero_target,
-                   (int)is_braking,
-                   (int)is_hill_hold);
-        }
+        // if (debug_cnt % 20 == 0) {
+        //     printf("[%s] tgt=%.0f, meas=%.0f, err=%.0f, duty=%.2f, "
+        //            "near0=%d, brake=%d, hold=%d\r\n",
+        //            d->name,
+        //            d->target_tps,
+        //            d->meas_tps,
+        //            error,
+        //            d->last_duty,
+        //            (int)near_zero_target,
+        //            (int)is_braking,
+        //            (int)is_hill_hold);
+        // }
 //        */
     }
 }

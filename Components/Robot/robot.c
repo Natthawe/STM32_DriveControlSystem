@@ -9,17 +9,27 @@
 #include "Motors/motor.h"
 #include "Control/steer_control.h"
 #include "Control/drive_control.h"
+//#include "Encoders/encoder_abs.h"
+#include "Encoders/encoder_inc.h"
 #include "main.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
 
-// ==== Geometry ล้อ ====
-#define WHEEL_DIAMETER_M       0.37f
-#define WHEEL_COUNTS_PER_REV_F 1440.0f
-#define WHEEL_CIRCUM_M         (3.1415926f * WHEEL_DIAMETER_M)
-#define TICKS_PER_METER        (WHEEL_COUNTS_PER_REV_F / WHEEL_CIRCUM_M)
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
+
+// ==== Geometry wheels ====
+#define WHEEL_DIAMETER_M       	0.37f
+#define WHEEL_COUNTS_PER_REV_F 	1440.0f
+#define WHEEL_CIRCUM_M         	(3.1415926f * WHEEL_DIAMETER_M)
+#define TICKS_PER_METER        	(WHEEL_COUNTS_PER_REV_F / WHEEL_CIRCUM_M)
 // ~ 1440 / (pi*0.37) ≈ 1239 ticks/m
+
+// === Geometry robot ===
+#define ROBOT_TRACK_M     		0.48f   // ระยะซ้าย-ขวา [m]
+#define ROBOT_WHEELBASE_M 		0.51f   // ระยะหน้า-หลัง [m]
 
 // ====== map จาก linear.x / angular.z ======
 #define MAX_CMD_LINEAR   1.0f   // [m/s] linear.x สูงสุดที่คาดว่าจะส่งมา
@@ -34,8 +44,57 @@ extern uint32_t g_last_cmd_ms;   // timestamp คำสั่งล่าสุ�
 
 static bool g_cmd_active = false;  // ยังไม่เคยได้ cmd_vel -> false
 
+// พิกัดล้อใน base_link (ใช้ enum WHEEL_FL..RR)
+static const WheelPos_t g_wheel_pos[WHEEL_COUNT] = {
+    [WHEEL_FL] = { +ROBOT_WHEELBASE_M * 0.5f, +ROBOT_TRACK_M * 0.5f }, // FL
+    [WHEEL_FR] = { +ROBOT_WHEELBASE_M * 0.5f, -ROBOT_TRACK_M * 0.5f }, // FR
+    [WHEEL_RL] = { -ROBOT_WHEELBASE_M * 0.5f, +ROBOT_TRACK_M * 0.5f }, // RL
+    [WHEEL_RR] = { -ROBOT_WHEELBASE_M * 0.5f, -ROBOT_TRACK_M * 0.5f }, // RR
+};
+
+// map WHEEL_* -> index ของ encoder drive/abs จริง ๆ
+static const uint8_t k_drive_index[WHEEL_COUNT] = { 3, 0, 2, 1 }; //FL, FR, RL, RR
+//static const uint8_t k_abs_index[WHEEL_COUNT]   = { 3, 0, 2, 1 };
+
 // ====== Robot state ======
 RobotCmd_t g_robot_cmd = ROBOT_CMD_STOP;
+
+// ====== Robot state (odometry) ======
+static RobotState_t g_robot_state;
+
+// --- helper: แก้สมการ 3x3: M * x = b ---
+static int solve_3x3(const float M[3][3], const float b[3], float x[3])
+{
+    float det =
+        M[0][0]*(M[1][1]*M[2][2] - M[1][2]*M[2][1]) -
+        M[0][1]*(M[1][0]*M[2][2] - M[1][2]*M[2][0]) +
+        M[0][2]*(M[1][0]*M[2][1] - M[1][1]*M[2][0]);
+
+    if (fabsf(det) < 1e-6f) {
+        return 0;
+    }
+
+    float inv_det = 1.0f / det;
+    float inv[3][3];
+
+    inv[0][0] =  (M[1][1]*M[2][2] - M[1][2]*M[2][1]) * inv_det;
+    inv[0][1] = -(M[0][1]*M[2][2] - M[0][2]*M[2][1]) * inv_det;
+    inv[0][2] =  (M[0][1]*M[1][2] - M[0][2]*M[1][1]) * inv_det;
+
+    inv[1][0] = -(M[1][0]*M[2][2] - M[1][2]*M[2][0]) * inv_det;
+    inv[1][1] =  (M[0][0]*M[2][2] - M[0][2]*M[2][0]) * inv_det;
+    inv[1][2] = -(M[0][0]*M[1][2] - M[0][2]*M[1][0]) * inv_det;
+
+    inv[2][0] =  (M[1][0]*M[2][1] - M[1][1]*M[2][0]) * inv_det;
+    inv[2][1] = -(M[0][0]*M[2][1] - M[0][1]*M[2][0]) * inv_det;
+    inv[2][2] =  (M[0][0]*M[1][1] - M[0][1]*M[1][0]) * inv_det;
+
+    for (int i = 0; i < 3; ++i) {
+        x[i] = inv[i][0]*b[0] + inv[i][1]*b[1] + inv[i][2]*b[2];
+    }
+
+    return 1;
+}
 
 void Robot_ApplyCommand_WithDuty(RobotCmd_t cmd, float drive_duty, float steer_duty)
 {
@@ -180,6 +239,8 @@ void Robot_ApplyTwist(float linear_x, float angular_z)
 
     g_cmd_active = true;   // เคยได้รับคำสั่งแล้ว
 
+//    printf("Twist: lin=%.2f, ang=%.2f\r\n", linear_x, angular_z);
+
 //    printf("Twist: lin=%.2f m/s (tgt=%.0f tps), ang=%.2f rad/s -> dir=%.0f, speed_norm=%.2f, deg=%.1f\r\n",
 //           linear_x_cmd, target_tps_cmd, angular_z,
 //           g_cmd_dir_sign, g_cmd_speed_norm, target_deg);
@@ -192,7 +253,7 @@ void Robot_CommandTimeoutCheck(void)
         return;
     }
 
-    const uint32_t CMD_TIMEOUT_MS = 500;  // ไม่มี cmd ใหม่เกิน 300ms -> STOP
+    const uint32_t CMD_TIMEOUT_MS = 500;  // ไม่มี cmd ใหม่เกิน 500ms -> STOP
 
     uint32_t now = HAL_GetTick();
     uint32_t dt  = now - g_last_cmd_ms;
@@ -213,4 +274,117 @@ void Robot_CommandTimeoutCheck(void)
         printf("Robot: CMD TIMEOUT (%lu ms) -> STOP ALL\r\n", (unsigned long)dt);
     }
 }
+
+void Robot_UpdateKinematics(float dt_s)
+{
+    if (dt_s <= 0.0f) return;
+    if (dt_s > 0.2f)  dt_s = 0.2f;
+
+    static int32_t prev_ticks[WHEEL_COUNT];
+    static bool initialized = false;
+
+    // ----- init ครั้งแรก -----
+    if (!initialized) {
+        for (int i = 0; i < WHEEL_COUNT; ++i) {
+            uint8_t di = k_drive_index[i];
+            prev_ticks[i] = drive_enc[di].multi_ticks;
+            g_robot_state.wheels[i].speed_mps = 0.0f;
+            g_robot_state.wheels[i].steer_rad = 0.0f;
+        }
+        g_robot_state.pose.x = 0.0f;
+        g_robot_state.pose.y = 0.0f;
+        g_robot_state.pose.theta = 0.0f;
+        g_robot_state.seq = 0;
+        initialized = true;
+        return;
+    }
+
+    // ----- 1) แปลง encoder drive -> speed ล้อ [m/s] + มุมจาก encoder จริง -----
+    for (int i = 0; i < WHEEL_COUNT; ++i) {
+        uint8_t di = k_drive_index[i];
+
+        int32_t now_ticks  = drive_enc[di].multi_ticks;
+        int32_t diff_ticks = now_ticks - prev_ticks[i];
+        prev_ticks[i]      = now_ticks;
+
+        float tps = diff_ticks / dt_s;       // ticks/sec
+        float mps = tps / TICKS_PER_METER;   // m/s
+        g_robot_state.wheels[i].speed_mps = mps;
+
+        // มุมล้อจาก encoder จริง (deg -> rad)
+        float deg = Steer_GetWheelAngleDeg((WheelIndex_t)i);
+        g_robot_state.wheels[i].steer_rad = deg * (float)M_PI / 180.0f;
+    }
+
+    // ----- 2) สร้างสมการ A*q = s แล้วแก้หา q = [vx, vy, wz] -----
+    float AtA[3][3] = {0};
+    float AtS[3]    = {0};
+
+    for (int i = 0; i < WHEEL_COUNT; ++i) {
+        float s_i = g_robot_state.wheels[i].speed_mps;
+        float a_i = g_robot_state.wheels[i].steer_rad;
+        float ca  = cosf(a_i);
+        float sa  = sinf(a_i);
+
+        float x = g_wheel_pos[i].x;
+        float y = g_wheel_pos[i].y;
+
+        float term_w = -y * ca + x * sa;  // ค่าสำหรับ wz
+
+        float Ai[3] = { ca, sa, term_w };
+
+        // AtA += Ai^T * Ai
+        AtA[0][0] += Ai[0]*Ai[0];
+        AtA[0][1] += Ai[0]*Ai[1];
+        AtA[0][2] += Ai[0]*Ai[2];
+        AtA[1][0] += Ai[1]*Ai[0];
+        AtA[1][1] += Ai[1]*Ai[1];
+        AtA[1][2] += Ai[1]*Ai[2];
+        AtA[2][0] += Ai[2]*Ai[0];
+        AtA[2][1] += Ai[2]*Ai[1];
+        AtA[2][2] += Ai[2]*Ai[2];
+
+        // AtS += Ai^T * s_i
+        AtS[0] += Ai[0] * s_i;
+        AtS[1] += Ai[1] * s_i;
+        AtS[2] += Ai[2] * s_i;
+    }
+
+    float q[3];
+    if (!solve_3x3(AtA, AtS, q)) {
+        q[0] = q[1] = q[2] = 0.0f;
+    }
+
+    g_robot_state.twist.vx = q[0];
+    g_robot_state.twist.vy = q[1];
+    g_robot_state.twist.wz = q[2];
+
+    // ----- 3) integrate pose ใน odom frame -----
+    float vx = g_robot_state.twist.vx;
+    float vy = g_robot_state.twist.vy;
+    float wz = g_robot_state.twist.wz;
+
+    float th = g_robot_state.pose.theta;
+    float cos_th = cosf(th);
+    float sin_th = sinf(th);
+
+    float vel_x_odom = vx * cos_th - vy * sin_th;
+    float vel_y_odom = vx * sin_th + vy * cos_th;
+
+    g_robot_state.pose.x     += vel_x_odom * dt_s;
+    g_robot_state.pose.y     += vel_y_odom * dt_s;
+    g_robot_state.pose.theta += wz * dt_s;
+
+    // normalize theta
+    g_robot_state.pose.theta = atan2f(sinf(g_robot_state.pose.theta),
+                                      cosf(g_robot_state.pose.theta));
+
+    g_robot_state.seq++;
+}
+
+const RobotState_t* Robot_GetState(void)
+{
+    return &g_robot_state;
+}
+
 

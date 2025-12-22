@@ -74,11 +74,11 @@ void DriveEnc_Debug_Print_One(uint8_t idx)
 
     DriveEnc_t *w = &drive_enc[idx];
 
-    printf("DRV[%d] %s : ticks=%ld, rev=%.4f\r\n",
-           idx,
-           w->name,
-           (long)w->multi_ticks,
-           (float)w->multi_ticks / (float)w->counts_per_rev);
+	 printf("DRV[%d] %s : ticks=%ld, rev=%.4f\r\n",
+			idx,
+			w->name,
+			(long)w->multi_ticks,
+			(float)w->multi_ticks / (float)w->counts_per_rev);
 }
 
 void DriveEnc_Debug_Print_All(void)

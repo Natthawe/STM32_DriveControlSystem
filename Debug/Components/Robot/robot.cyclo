@@ -1,4 +1,7 @@
-../Components/Robot/robot.c:40:6:Robot_ApplyCommand_WithDuty	13
-../Components/Robot/robot.c:100:12:Robot_CmdFromChar	15
-../Components/Robot/robot.c:128:6:Robot_ApplyTwist	12
-../Components/Robot/robot.c:188:6:Robot_CommandTimeoutCheck	3
+../Components/Robot/robot.c:66:12:solve_3x3	3
+../Components/Robot/robot.c:99:6:Robot_ApplyCommand_WithDuty	13
+../Components/Robot/robot.c:159:12:Robot_CmdFromChar	15
+../Components/Robot/robot.c:187:6:Robot_ApplyTwist	12
+../Components/Robot/robot.c:249:6:Robot_CommandTimeoutCheck	3
+../Components/Robot/robot.c:278:6:Robot_UpdateKinematics	8
+../Components/Robot/robot.c:385:21:Robot_GetState	1

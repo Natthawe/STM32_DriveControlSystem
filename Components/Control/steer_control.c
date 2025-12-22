@@ -9,6 +9,7 @@
 #include "Motors/motor.h"
 #include "Encoders/encoder_abs.h"
 #include "Control/pid_ctrl.h"
+#include "Robot/robot.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -297,7 +298,7 @@ void Steer_UpdateAll(float dt_s)
         ax->last_duty = duty;
         Motor_set(ax->motor_idx, dir, duty);
 
-        // debug ถ้าอยากดู
+        // debug
         /*
         if (dbg_cnt % 20 == 0) {
             float err_deg = err_f * 360.0f / 1024.0f;
@@ -429,3 +430,49 @@ void Steer_JogCalib_HandleUart(void)
         break;
     }
 }
+
+// อ่านมุมล้อจาก encoder จริงแบบ absolute
+// + = เลี้ยวซ้าย, - = เลี้ยวขวา (ใน frame base_link)
+float Steer_GetWheelAngleDeg(WheelIndex_t wheel)
+{
+    int axis_idx = -1;
+
+    // mapping WHEEL_* -> index ใน steer_axes[]
+    // steer_axes[] = { FR(0), RR(1), RL(2), FL(3) }
+    switch (wheel) {
+    case WHEEL_FL: axis_idx = 3; break;  // FL -> STEER_FL
+    case WHEEL_FR: axis_idx = 0; break;  // FR -> STEER_FR
+    case WHEEL_RL: axis_idx = 2; break;  // RL -> STEER_RL
+    case WHEEL_RR: axis_idx = 1; break;  // RR -> STEER_RR
+    default:
+        return 0.0f;
+    }
+
+    const SteerAxis_t *ax = &steer_axes[axis_idx];
+
+    // อ่านค่า tick encoder จริง
+    uint16_t ticks = ENC_ReadRaw_ByIndex(ax->enc_index);
+    if (ticks == 0xFFFF) {
+        // อ่านไม่ได้ -> คืน 0 ไปก่อน
+        return 0.0f;
+    }
+
+    // diff = current - zero_offset (แบบ wrap 10 บิต)
+    // zero_offset = tick เมื่อล้อตรง
+    int16_t diff = ENC10_Diff(ax->zero_offset, ticks);
+
+    // แปลง tick -> degree
+    float deg = (float)diff / ENC_TICKS_PER_DEG;   // ENC_TICKS_PER_DEG = tick/deg
+
+    // ตอนนี้:
+    //  - ถ้าคุณตั้ง zero_offset ตอนล้อตรง
+    //  - และใช้ Steer_SetTargetAngleDeg(angle_deg) ในการสั่งมุม
+    // เมื่อล้อเข้าเป้า diff จะ ~ steer_turn_sign[i] * angle_deg
+    // => ล้อหน้าได้มุมตาม cmd, ล้อหลังได้ -cmd (AWS)
+    //
+    // ถ้าอยาก fine-tune ทิศทาง เพิ่ม sign พิเศษต่อล้อได้ภายหลัง เช่น:
+    //   deg *= some_sign[axis_idx];
+
+    return deg;   // ช่วงประมาณ [-STEER_MAX_DEG, +STEER_MAX_DEG]
+}
+

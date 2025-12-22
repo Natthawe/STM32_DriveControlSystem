@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "Control/pid_ctrl.h"
+#include "Robot/robot.h"
 
 #define STEER_MAX_DEG  28.0f   // มุมเลี้ยวสูงสุด (+/- 40°) ที่ต้องเปลี่ยนมุมเลี้ยวเพราะล้อชนกัน
 
@@ -51,5 +52,10 @@ void Steer_PrintModeHelp(RunMode_t mode);
 
 /** ตั้งมุมคำสั่งจาก robot (เช่นจาก Robot_ApplyTwist), หน่วย degree */
 void Steer_SetCmdTargetDeg(float target_deg);
+
+/** อ่านมุมล้อจาก encoder จริง (deg) ใน frame base_link
+ *  + = เลี้ยวซ้าย, - = เลี้ยวขวา
+ */
+float Steer_GetWheelAngleDeg(WheelIndex_t wheel);
 
 #endif /* CONTROL_STEER_CONTROL_H_ */
