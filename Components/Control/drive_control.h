@@ -55,6 +55,12 @@ void Drive_InitAll(void);
 /* reset PID และเบรคทุกล้อ (ใช้ตอน STOP / timeout) */
 void Drive_StopAll(void);
 
+/* reset PID ของล้อขับทุกล้อ */
+void Drive_ResetPIDAll(void);
+
+/* สั่งเบรคมอเตอร์ drive ทุกล้อ */
+void Drive_BrakeAll(void);
+
 /* อัปเดต target_tps ของทุกล้อด้วย ramp */
 void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *current_target_tps);
 

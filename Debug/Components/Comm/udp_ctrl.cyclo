@@ -1,3 +1,6 @@
-../Components/Comm/udp_ctrl.c:21:13:udp_ctrl_recv	4
-../Components/Comm/udp_ctrl.c:47:5:UDP_Ctrl_Init	4
-../Components/Comm/udp_ctrl.c:78:5:UDP_Ctrl_IsReady	1
+../Components/Comm/udp_ctrl.c:28:13:udp_ctrl_recv	4
+../Components/Comm/udp_ctrl.c:55:13:udp_spin_recv	4
+../Components/Comm/udp_ctrl.c:76:5:UDP_Ctrl_Init	4
+../Components/Comm/udp_ctrl.c:107:5:UDP_Ctrl_IsReady	1
+../Components/Comm/udp_ctrl.c:113:5:UDP_Spin_Init	4
+../Components/Comm/udp_ctrl.c:144:5:UDP_Spin_IsReady	1

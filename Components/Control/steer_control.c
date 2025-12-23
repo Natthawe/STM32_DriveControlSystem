@@ -88,7 +88,7 @@ uint16_t wrap_ticks(int32_t t)
 // คำนวณ target_ticks ของทุกล้อตามมุม angle_deg (ใช้ zero_offset ของแต่ละล้อ) (+ ซ้าย, - ขวา) หมุนเหมือนกันทุกล้อ
 void Steer_SetTargetAngleDeg2(float angle_deg)
 {
-    // clamp มุมไม่เกิน ±40°
+    // clamp มุมไม่เกิน ± x degs
     if (angle_deg >  STEER_MAX_DEG) angle_deg =  STEER_MAX_DEG;
     if (angle_deg < -STEER_MAX_DEG) angle_deg = -STEER_MAX_DEG;
 
@@ -124,9 +124,12 @@ void Steer_SetTargetAngleDeg(float angle_deg)
 // ตั้งมุมเลี้ยวแบบ SPIN-IN-PLACE ตามแพทเทิร์นด้านบน
 void Steer_SetSpinAngleDeg(float angle_deg)
 {
-    // clamp มุมไม่เกิน ±STEER_MAX_DEG
-    if (angle_deg >  STEER_MAX_DEG) angle_deg =  STEER_MAX_DEG;
-    if (angle_deg < -STEER_MAX_DEG) angle_deg = -STEER_MAX_DEG;
+    // เก็บค่า request ไว้ debug
+    float angle_req = angle_deg;
+
+    // clamp มุมไม่เกิน ±STEER_SPIN_MAX_DEG
+    if (angle_deg >  STEER_SPIN_MAX_DEG) angle_deg =  STEER_SPIN_MAX_DEG;
+    if (angle_deg < -STEER_SPIN_MAX_DEG) angle_deg = -STEER_SPIN_MAX_DEG;
 
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
         float delta_ticks_f = angle_deg * (float)steer_spin_sign[i] * ENC_TICKS_PER_DEG;
@@ -136,6 +139,10 @@ void Steer_SetSpinAngleDeg(float angle_deg)
 
         steer_axes[i].target_ticks = wrap_ticks(base + delta);
     }
+
+    // DEBUG
+    printf("[SPIN] Steer_SetSpinAngleDeg req=%.2f, clamped=%.2f (max=%.2f)\r\n",
+           angle_req, angle_deg, (float)STEER_SPIN_MAX_DEG);
 }
 
 // ใช้สำหรับโหมด SPIN: เช็คว่าล้อเลี้ยวทุกล้อเข้าใกล้มุมเป้าหมายแล้วหรือยัง
@@ -168,6 +175,50 @@ bool Steer_IsAtSpinTarget(void)
     // ทุกล้ออยู่ในเกณฑ์แล้ว
     return true;
 }
+
+// ใช้สำหรับโหมด SPIN แบบ "ต้องถึง ~45° ก่อนค่อยให้ล้อขับหมุน"
+bool Steer_IsAtSpinAngle45(void)
+{
+    // 1) error ต่อ target ต้องเล็ก (มอเตอร์เลี้ยวเข้าเป้าแล้ว)
+    const float READY_DEG      = 1.0f;
+    const float READY_TICKS    = READY_DEG * ENC_TICKS_PER_DEG;
+
+    // 2) มุม REL เทียบ zero ต้องมากพอ (อย่างน้อย ~43°)
+    const float MIN_SPIN_DEG   = 45.0f - READY_DEG;   // = 43°
+
+    for (uint32_t i = 0; i < STEER_NUM; ++i) {
+        SteerAxis_t *ax = &steer_axes[i];
+
+        uint16_t ticks = ENC_ReadRaw_ByIndex(ax->enc_index);
+        if (ticks == 0xFFFF) {
+            // อ่าน encoder ไม่ได้ -> ยังไม่พร้อม
+            return false;
+        }
+
+        // ----- เช็คว่าเข้าเป้า target แล้วหรือยัง -----
+        int16_t err_ticks = ENC10_Diff(ticks, ax->target_ticks);
+        err_ticks = (int16_t)(err_ticks * ax->enc_dir);
+        float err_f = (float)err_ticks;
+
+        if (fabsf(err_f) > READY_TICKS) {
+            // ยังห่าง target อยู่
+            return false;
+        }
+
+        // ----- เช็คมุมจริงเทียบ zero (REL DEG) -----
+        int16_t rel_ticks = ENC10_Diff(ticks, ax->zero_offset);
+        float   rel_deg   = (float)rel_ticks / ENC_TICKS_PER_DEG;
+
+        if (fabsf(rel_deg) < MIN_SPIN_DEG) {
+            // มุมจริงยังไม่ถึง ~43° เลย → ยังไม่ถือว่า spin พร้อม
+            return false;
+        }
+    }
+
+    // ทุกล้อเข้าเป้า + มุมถึงระดับ spin แล้ว
+    return true;
+}
+
 
 
 void SteerMotor_Jog(uint8_t axis, MotorDir_t dir, float duty)
@@ -329,31 +380,10 @@ void Steer_UpdateAll(float dt_s)
         if (duty < ax->duty_base) duty = ax->duty_base;
         if (duty > 1.0f)          duty = 1.0f;
 
-//        float abs_err = fabsf(err_f);
-//        float duty    = duty_raw;
-//
-//        if (steering_ramping || (abs_err > (2.0f * STEER_DEADBAND_TICKS))) {
-//            // ยังหมุนไปเป้าหมายอยู่ หรือ error ยังห่างมาก
-//            // → ใช้ base duty ช่วยให้หมุนแน่นอน
-//            if (duty < ax->duty_base) {
-//                duty = ax->duty_base;
-//            }
-//        } else {
-//            // เข้าใกล้เป้าหมายแล้ว (error ไม่ใหญ่มาก)
-//            // → ยอมให้ duty เล็ก ๆ ได้ เพื่อลดอาการสั่น
-//            if (duty < 0.0f) {
-//                duty = 0.0f;   // จริง ๆ duty_raw เป็นบวกอยู่แล้ว แต่กันเผื่อ
-//            }
-//        }
-//
-//        if (duty > 1.0f) {
-//            duty = 1.0f;
-//        }
-
         ax->last_duty = duty;
         Motor_set(ax->motor_idx, dir, duty);
 
-        // debug ถ้าอยากดู
+        // debug
         /*
         if (dbg_cnt % 20 == 0) {
             float err_deg = err_f * 360.0f / 1024.0f;
@@ -369,6 +399,43 @@ void Steer_UpdateAll(float dt_s)
         */
     }
 }
+
+void Steer_DebugPrintAngles(void)
+{
+    printf("\r\n===== STEER ANGLES DEBUG =====\r\n");
+
+    for (uint32_t i = 0; i < STEER_NUM; ++i) {
+        SteerAxis_t *ax = &steer_axes[i];
+
+        // อ่าน encoder
+        uint16_t t = ENC_ReadRaw_ByIndex(ax->enc_index);
+        if (t == 0xFFFF) {
+            printf("[%s] ENC ERROR\r\n", ax->name);
+            continue;
+        }
+
+        // องศา absolute (0..360 จากฟังก์ชัน ENC_TicksToDeg)
+        float abs_deg = ENC_TicksToDeg(t);
+
+        // องศา relative เทียบกับ zero_offset ของล้อนั้น (มุมจริงที่เราสนใจ)
+        int16_t diff_zero = ENC10_Diff(t, ax->zero_offset);
+        float rel_deg = (float)diff_zero / ENC_TICKS_PER_DEG;
+
+        // องศา target ของล้อเทียบกับ zero_offset เช่น เป้า 45° / -45°
+        int16_t diff_target = ENC10_Diff(ax->target_ticks, ax->zero_offset);
+        float target_deg = (float)diff_target / ENC_TICKS_PER_DEG;
+
+        printf("[%s] enc=%4u | abs=%.2f deg | rel=%.2f deg | target=%.2f deg\r\n",
+               ax->name,
+               (unsigned)t,
+               abs_deg,
+               rel_deg,
+               target_deg);
+    }
+
+    printf("================================\r\n");
+}
+
 
 void Steer_PrintModeHelp(RunMode_t mode)
 {

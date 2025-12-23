@@ -111,8 +111,8 @@ static void MX_TIM10_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#define DRIVE_DUTY  		      0.7f
-#define STEER_DUTY  		      0.6f
+#define DRIVE_DUTY  		          0.7f
+#define STEER_DUTY  		          0.6f
 #define WHEEL_COUNTS_PER_REV      1440U
 
 // ====== Drive PID (MOTOR 1,3,5,7) ======
@@ -125,9 +125,9 @@ float g_cmd_speed_norm          = 0.0f;     // 0..1 จาก drive_pct
 float g_current_speed_norm      = 0.0f;     // 0..1 ที่ถูก ramp แล้ว
 
 // เป้า "ความเร็วล้อ" รวมทุกล้อ (ticks/sec) จากคำสั่ง (ROS/serial)
-float g_cmd_target_tps     = 0.0f;          // target_tps_common จากคำสั่ง
-float g_current_target_tps = 0.0f;          // ค่าที่ ramp แล้ว ใช้จริงใน PID
-uint32_t g_last_cmd_ms = 0;                 // timestamp คำสั่งล่าสุด (ms)
+float g_cmd_target_tps     		  = 0.0f;     // target_tps_common จากคำสั่ง
+float g_current_target_tps 		  = 0.0f;     // ค่าที่ ramp แล้ว ใช้จริงใน PID
+uint32_t g_last_cmd_ms 			    = 0;        // timestamp คำสั่งล่าสุด (ms)
 
 // กำหนดอัตราเร่ง/อัตราหน่วง (หน่วย: สัดส่วนต่อวินาที)
 // เช่น จาก 0 -> 100% ใช้เวลาประมาณ 1 วินาที
@@ -137,7 +137,22 @@ uint32_t g_last_cmd_ms = 0;                 // timestamp คำสั่งล�
 
 static void Udp_TwistHandler(float linear_x, float angular_z)
 {
+    SpinMode_t sm = Robot_GetSpinMode();
+
+    if (sm != SPIN_MODE_OFF) {
+        // อยู่ในโหมด SPIN -> ใช้ linear.x เป็นตัวบังคับความเร็วหมุน
+        Robot_UpdateSpinSpeedFromLinear(linear_x);
+        return;
+    }
+
+    // โหมดปกติ  -> ใใช้ cmd_vel ปกติ
     Robot_ApplyTwist(linear_x, angular_z);
+}
+
+// handler สำหรับ spin_cmd (Int8)
+static void Udp_SpinHandler(int8_t cmd)
+{
+    Robot_HandleSpinCommand(cmd);
 }
 
 #define CTRL_PERIOD_MS   10U   // control loop ทุก 10 ms (100 Hz)
@@ -147,6 +162,7 @@ void Drive_Control_And_Test(uint32_t now_ms)
     static uint32_t last_ctrl_ms  = 0;
     static uint32_t last_debug_ms = 0;
     static int32_t  prev_ticks[DRIVE_NUM] = {0};
+    static uint32_t spin_dbg_cnt = 0;
 
     uint32_t diff_ms = now_ms - last_ctrl_ms;
     if (diff_ms < CTRL_PERIOD_MS) {
@@ -161,81 +177,84 @@ void Drive_Control_And_Test(uint32_t now_ms)
     // อ่าน encoder ทุกล้อ
     DriveEnc_UpdateAll();
 
-//    if (g_drive_mode == RUN_MODE_DRIVE_PID) {
-//        // ===== โหมดปกติ: ใช้ PID ตาม target_tps (common) =====
-//    	Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
-//        Drive_UpdateAll(dt_s);              	  // ใช้ target_tps ต่อล้อ + duty_base + PID
-//
-//        // เฉพาะตอน RUN_MODE_STEER_PID เท่านั้นที่ให้ PID ทำงาน เผื่อใช้โหมด CALIB
-//        if (g_steer_mode == RUN_MODE_STEER_PID) {
-//            Steer_UpdateTargetWithRamp(dt_s);   // ramp angle
-//            Steer_UpdateAll(dt_s);              // PID ตาม target_ticks
-//        }
-//
-//        // เช็ค timeout จาก UDP/serial
-//        // เผื่อทำเป็น EMER
-////        if (g_last_cmd_ms != 0U)
-////        {
-////            uint32_t dt_cmd = now_ms - g_last_cmd_ms;
-////            if (dt_cmd > CMD_TIMEOUT_MS) {
-////                // reset คำสั่งความเร็วในหน่วย tps
-////                g_cmd_target_tps     = 0.0f;
-////                g_current_target_tps = 0.0f;
-////
-////                // reset ตัวแปร
-////                g_cmd_dir_sign       = 0.0f;
-////                g_cmd_speed_norm     = 0.0f;
-////                g_current_speed_norm = 0.0f;
-////
-////                Drive_StopAll();
-////                Steer_InitTargetsToZero();
-////                g_last_cmd_ms = 0U;
-////                // printf("[TIMEOUT] stop & steer zero\n");
-////            }
-////        }
-//
-//        if (g_last_cmd_ms != 0U) {
-//            uint32_t dt_cmd = now_ms - g_last_cmd_ms;
-//            if (dt_cmd > CMD_TIMEOUT_MS) {
-//                // ----- SOFT STOP -----
-//                g_cmd_target_tps = 0.0f;
-//
-//                // reset state
-//                g_cmd_dir_sign       = 0.0f;
-//                g_cmd_speed_norm     = 0.0f;
-//                g_current_speed_norm = 0.0f;
-//                Steer_InitTargetsToZero();
-//                g_last_cmd_ms = 0U;
-//                // printf("[TIMEOUT] soft stop (ramp down)\n");
-//            }
-//        }
-//
-//
-//    }
-
     if (g_drive_mode == RUN_MODE_DRIVE_PID) {
 
-        if (Robot_IsSpinMode()) {
-            // ===== โหมด SPIN-IN-PLACE =====
-            float spin_base_tps, spin_dir;
-            Robot_GetSpinParams(&spin_base_tps, &spin_dir);
+        // ===== เช็คโหมด SPIN จาก Int8 =====
+        SpinMode_t spin_mode = Robot_GetSpinMode();
 
-            // 1) ให้ล้อเลี้ยวหมุนเข้ามุมก่อน (ทุกรอบ control)
+        if (spin_mode != SPIN_MODE_OFF) {
+            // ===== โหมด SPIN =====
+
+            float spin_base_tps, spin_dir;
+            Robot_GetSpinDriveParams(&spin_base_tps, &spin_dir);
+
+            // 1) ตั้งมุมล้อเลี้ยวให้เป็น pattern SPIN (±45°)
             if (g_steer_mode == RUN_MODE_STEER_PID) {
+                Steer_SetSpinAngleDeg(Robot_GetSpinCmdDeg());
                 Steer_UpdateAll(dt_s);
             }
 
-            // 2) เช็คว่าล้อเลี้ยวทุกล้อ “เข้าใกล้มุมเป้าหมายแล้วหรือยัง”
-            if (Steer_IsAtSpinTarget()) {
-                // ---- พร้อมแล้ว -> ให้ล้อขับหมุนตามเป้า ----
-                Drive_SetSpinTargets(spin_base_tps, spin_dir);
-            } else {
-                // ---- ยังไม่พร้อม -> ไม่ให้ล้อขับหมุน ----
-                // ตั้งเป้า tps = 0 ทุกล้อ (ให้ PID เบรก/ถือเฉย ๆ)
-                Drive_SetSpinTargets(0.0f, 0.0f);
+            // debug มุมล้อ
+            spin_dbg_cnt++;
+            if ((spin_dbg_cnt % 20) == 0) {
+                float spin_cmd_deg = Robot_GetSpinCmdDeg();
+                printf("[SPIN] mode=%d, base_tps=%.0f, dir=%.1f, cmd_deg=%.2f\r\n",
+                       (int)spin_mode, spin_base_tps, spin_dir, spin_cmd_deg);
+                Steer_DebugPrintAngles();
             }
 
-            // 3) อัปเดต PID ของล้อขับ
+            // เช็คว่าล้อเลี้ยวเข้าเป้าแล้วหรือยัง
+            bool steer_ready = Steer_IsAtSpinTarget();
+
+            switch (spin_mode) {
+
+            case SPIN_MODE_ALIGN:
+                // หักล้อเข้าเป้า 45° ->  ล้อขับต้องหยุด
+                if (steer_ready) {
+                    Robot_SetSpinMode(SPIN_MODE_READY);
+                }
+                Drive_ResetPIDAll();
+                Drive_BrakeAll();
+                break;
+
+            case SPIN_MODE_READY:
+                // ล้อเข้าเป้าแล้วและยังไม่สั่งให้หมุนล้อขับ
+                Drive_ResetPIDAll();
+                Drive_BrakeAll();
+                break;
+
+            case SPIN_MODE_DRIVE:
+                // ล้อเข้าเป้าแล้ว และสั่งให้หมุนล้อขับ
+                if (steer_ready && (spin_base_tps > 0.0f)) {
+                    Drive_SetSpinTargets(spin_base_tps, spin_dir);
+                    Drive_UpdateAll(dt_s);
+                } else {
+                    // ถ้ามุมหลุด ก็หยุดล้อขับและกลับไป ALIGN ใหม่
+                    Drive_ResetPIDAll();
+                    Drive_BrakeAll();
+                    if (!steer_ready) {
+                        Robot_SetSpinMode(SPIN_MODE_ALIGN);
+                    }
+                }
+                break;
+
+            default:
+                // safety: mode แปลก ๆ -> หยุดไว้ก่อน
+                Drive_ResetPIDAll();
+                Drive_BrakeAll();
+                break;
+            }
+        }
+        else {
+            // ===== โหมดวิ่ง/เลี้ยวปกติ (AWS) =====
+
+            if (g_steer_mode == RUN_MODE_STEER_PID) {
+                // มุมเลี้ยวจาก /cmd_vel (Steer_SetCmdTargetDeg) จะถูก ramp ที่นี่
+                Steer_UpdateTargetWithRamp(dt_s);
+                Steer_UpdateAll(dt_s);
+            }
+
+            Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
             Drive_UpdateAll(dt_s);
 
             // timeout
@@ -250,40 +269,16 @@ void Drive_Control_And_Test(uint32_t now_ms)
                     g_last_cmd_ms = 0U;
                 }
             }
-
-        } else {
-            // ===== โหมดปกติ: วิ่งตรง/โค้งตาม AWS =====
-            Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
-            Drive_UpdateAll(dt_s);
-
-            if (g_steer_mode == RUN_MODE_STEER_PID) {
-                Steer_UpdateTargetWithRamp(dt_s);
-                Steer_UpdateAll(dt_s);
-            }
-
-            if (g_last_cmd_ms != 0U) {
-                uint32_t dt_cmd = now_ms - g_last_cmd_ms;
-                if (dt_cmd > CMD_TIMEOUT_MS) {
-                    g_cmd_target_tps     = 0.0f;
-                    g_cmd_dir_sign       = 0.0f;
-                    g_cmd_speed_norm     = 0.0f;
-                    g_current_speed_norm = 0.0f;
-                    Steer_InitTargetsToZero();
-                    g_last_cmd_ms = 0U;
-                }
-            }
         }
     }
-
-
     else {
         // ===== โหมด TEST: ขับทีละล้อหรือทุกล้อแบบ open-loop =====
         for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
             DriveAxis_t *d = &drive_axes[i];
 
             uint8_t selected =
-                (g_test_drive_idx < 0) ||          // -1 = ALL wheels
-                (i == (uint32_t)g_test_drive_idx); // index ที่เลือก
+                (g_test_drive_idx < 0) ||
+                (i == (uint32_t)g_test_drive_idx);
 
             if (selected && g_test_duty > 0.0f) {
                 MotorDir_t dir = (g_test_dir > 0) ? MOTOR_DIR_FWD : MOTOR_DIR_REV;
@@ -295,39 +290,40 @@ void Drive_Control_And_Test(uint32_t now_ms)
     }
 
     // ===== DEBUG tps ทุก ๆ ~100ms =====
-    uint32_t dbg_diff = now_ms - last_debug_ms;
-    if (dbg_diff >= 100) {
-        last_debug_ms = now_ms;
-
-        float tps[DRIVE_NUM];
-        float dbg_dt_s = dbg_diff / 1000.0f;
-        if (dbg_dt_s <= 0.0f) dbg_dt_s = 0.001f;
-
-        for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
-            int32_t now_ticks  = drive_enc[i].multi_ticks;
-            int32_t diff_ticks = now_ticks - prev_ticks[i];
-            prev_ticks[i]      = now_ticks;
-            tps[i] = diff_ticks / dbg_dt_s;
-        }
-
-        if (g_drive_mode == RUN_MODE_DRIVE_CALIB)
-        {
-            if (g_test_drive_idx < 0)
-            {
-                printf("[TEST] wheel=ALL duty=%.2f dir=%d | tps=[%.0f,%.0f,%.0f,%.0f]\r\n",
-                       g_test_duty,
-                       (int)g_test_dir,
-                       tps[0], tps[1], tps[2], tps[3]);
-            } else {
-                printf("[TEST] wheel=%d duty=%.2f dir=%d | tps=[%.0f,%.0f,%.0f,%.0f]\r\n",
-                       (int)(g_test_drive_idx + 1),
-                       g_test_duty,
-                       (int)g_test_dir,
-                       tps[0], tps[1], tps[2], tps[3]);
-            }
-        }
-    }
+//    uint32_t dbg_diff = now_ms - last_debug_ms;
+//    if (dbg_diff >= 100) {
+//        last_debug_ms = now_ms;
+//
+//        float tps[DRIVE_NUM];
+//        float dbg_dt_s = dbg_diff / 1000.0f;
+//        if (dbg_dt_s <= 0.0f) dbg_dt_s = 0.001f;
+//
+//        for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
+//            int32_t now_ticks  = drive_enc[i].multi_ticks;
+//            int32_t diff_ticks = now_ticks - prev_ticks[i];
+//            prev_ticks[i]      = now_ticks;
+//            tps[i] = diff_ticks / dbg_dt_s;
+//        }
+//
+//        if (g_drive_mode == RUN_MODE_DRIVE_CALIB)
+//        {
+//            if (g_test_drive_idx < 0)
+//            {
+//                printf("[TEST] wheel=ALL duty=%.2f dir=%d | tps=[%.0f,%.0f,%.0f,%.0f]\r\n",
+//                       g_test_duty,
+//                       (int)g_test_dir,
+//                       tps[0], tps[1], tps[2], tps[3]);
+//            } else {
+//                printf("[TEST] wheel=%d duty=%.2f dir=%d | tps=[%.0f,%.0f,%.0f,%.0f]\r\n",
+//                       (int)(g_test_drive_idx + 1),
+//                       g_test_duty,
+//                       (int)g_test_dir,
+//                       tps[0], tps[1], tps[2], tps[3]);
+//            }
+//        }
+//    }
 }
+
 
 /* USER CODE END 0 */
 
@@ -385,7 +381,11 @@ int main(void)
   Steer_InitTargetsToZero();
 
   if (UDP_Ctrl_Init(6000, Udp_TwistHandler) != 0) {
-      printf("UDP_Ctrl_Init failed\r\n");
+      printf("UDP_Ctrl_Init(6000) failed\r\n");
+  }
+
+  if (UDP_Spin_Init(6001, Udp_SpinHandler) != 0) {
+      printf("UDP_Spin_Init(6001) failed\r\n");
   }
 
   printf("\r\n=== Boot OK ===\r\n");

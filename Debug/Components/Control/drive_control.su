@@ -1,6 +1,8 @@
 ../Components/Control/drive_control.c:64:6:Drive_InitAll	16	static
 ../Components/Control/drive_control.c:76:6:Drive_StopAll	16	static
-../Components/Control/drive_control.c:89:6:Drive_SetSpinTargets	16	static
-../Components/Control/drive_control.c:105:6:Drive_UpdateTargetsWithRamp	48	static
-../Components/Control/drive_control.c:154:6:Drive_UpdateAll	144	static
-../Components/Control/drive_control.c:285:6:Process_UART_TestDrive	16	static
+../Components/Control/drive_control.c:88:6:Drive_ResetPIDAll	16	static
+../Components/Control/drive_control.c:98:6:Drive_BrakeAll	16	static
+../Components/Control/drive_control.c:109:6:Drive_SetSpinTargets	16	static
+../Components/Control/drive_control.c:125:6:Drive_UpdateTargetsWithRamp	48	static
+../Components/Control/drive_control.c:174:6:Drive_UpdateAll	72	static
+../Components/Control/drive_control.c:305:6:Process_UART_TestDrive	16	static

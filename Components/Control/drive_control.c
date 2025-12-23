@@ -84,6 +84,26 @@ void Drive_StopAll(void)
     }
 }
 
+// รีเซ็ตสถานะ PID ของล้อขับทุกล้อ (แต่ไม่ไปยุ่ง target_tps)
+void Drive_ResetPIDAll(void)
+{
+    for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
+        DriveAxis_t *d = &drive_axes[i];
+        d->pid.integrator = 0.0f;
+        d->pid.prev_error = 0.0f;
+    }
+}
+
+// สั่งเบรคมอเตอร์ drive ทุกล้อ (ใช้ตอนกำลังเลี้ยว)
+void Drive_BrakeAll(void)
+{
+    for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
+        DriveAxis_t *d = &drive_axes[i];
+        Motor_set(d->motor_idx, MOTOR_DIR_BRAKE, 0.0f);
+        d->last_duty = 0.0f;
+    }
+}
+
 // ตั้ง target_tps สำหรับโหมด SPIN-IN-PLACE
 // spin_dir = +1 หมุนทิศหนึ่ง, -1 หมุนทิศกลับกัน (มาจาก sign ของ angular.z)
 void Drive_SetSpinTargets(float base_tps, float spin_dir)
@@ -108,10 +128,10 @@ void Drive_UpdateTargetsWithRamp(float dt_s,
 {
     if (dt_s <= 0.0f) dt_s = 0.001f;
 
-    // 1) กรณีผู้ใช้ "ปล่อยคันเร่ง" -> คำสั่งใกล้ 0
+    // 1) กรณี "ปล่อยคันเร่ง" -> คำสั่งใกล้ 0
     if (fabsf(*cmd_target_tps) < DRIVE_DEADBAND_TPS)
     {
-        // ตีความว่า: อยากหยุดเลย
+        // สั่งหยุดทันที
         *cmd_target_tps     = 0.0f;
         *current_target_tps = 0.0f;
 
@@ -120,8 +140,6 @@ void Drive_UpdateTargetsWithRamp(float dt_s,
             drive_axes[i].target_tps = 0.0f;
         }
 
-        // จากนี้ไปให้ Drive_UpdateAll() ใช้ PID คุมให้ความเร็ว -> 0
-        // (hill-hold / active braking)
         return;
     }
 
@@ -190,7 +208,7 @@ void Drive_UpdateAll(float dt_s)
             abs_meas = 0.0f;
         }
 
-        // ถ้าเพิ่งปล่อยคันเร่งแล้วยังวิ่งเร็ว → reset integrator กัน windup
+        // ถ้าเพิ่งปล่อยคันเร่งแล้วยังวิ่งเร็ว -> reset integrator
         if (is_braking && abs_meas > DRIVE_HILL_BRAKE_TPS) {
             d->pid.integrator = 0.0f;
             d->pid.prev_error = 0.0f;
@@ -230,7 +248,7 @@ void Drive_UpdateAll(float dt_s)
             // ---------- STOP / BRAKE / HILL-HOLD MODE ----------
             if (is_braking) {
                 // ยังวิ่งเร็ว (abs_meas > DRIVE_HILL_HOLD_TPS)
-                // → ปล่อยให้ PID กำหนดแรงเบรกเอง ไม่บังคับ min duty
+                // -> ปล่อยให้ PID กำหนดแรงเบรกเอง ไม่บังคับ min duty
                 if (duty > DRIVE_HILL_DUTY_MAX) {
                     duty = DRIVE_HILL_DUTY_MAX;   // กันไม่ให้เบรกแรงเกิน
                 }
@@ -238,7 +256,7 @@ void Drive_UpdateAll(float dt_s)
             }
             else if (is_hill_hold) {
                 // ความเร็วต่ำมากแล้ว (abs_meas <= DRIVE_HILL_HOLD_TPS)
-                // → เข้าโหมด hold จริง ๆ
+                // -> เข้าโหมด hold จริง ๆ
 
                 // 1) จำกัด duty สูงสุด
                 if (duty > DRIVE_HILL_DUTY_MAX) {
@@ -252,7 +270,6 @@ void Drive_UpdateAll(float dt_s)
                     duty = DRIVE_HILL_MIN_DUTY;
                 }
             }
-            // ถ้า near_zero_target แต่ abs_meas เล็กมาก (<1 tps) เรา treat เป็นหยุดในบล็อกก่อนหน้าแล้ว
         }
 
         // clamp รวม
@@ -262,7 +279,7 @@ void Drive_UpdateAll(float dt_s)
         d->last_duty = duty;
         Motor_set(d->motor_idx, dir, duty);
 
-//        /*
+        /* //debug
         if (debug_cnt % 20 == 0) {
             printf("[%s] tgt=%.0f, meas=%.0f, err=%.0f, duty=%.2f, "
                    "near0=%d, brake=%d, hold=%d\r\n",
@@ -275,7 +292,7 @@ void Drive_UpdateAll(float dt_s)
                    (int)is_braking,
                    (int)is_hill_hold);
         }
-//        */
+        */
     }
 }
 
