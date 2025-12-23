@@ -73,4 +73,7 @@ void Robot_SetSpinMode(SpinMode_t mode);
 
 void Robot_UpdateSpinSpeedFromLinear(float linear_x);
 
+void Robot_HandleRecordCommand(int8_t cmd);
+
+
 #endif /* ROBOT_ROBOT_H_ */

@@ -38,7 +38,7 @@
 #include "Control/steer_control.h"
 #include "Comm/udp_ctrl.h"
 #include "Robot/robot.h"
-
+#include "Control/recorder.h"
 
 /* USER CODE END Includes */
 
@@ -139,21 +139,44 @@ static void Udp_TwistHandler(float linear_x, float angular_z)
 {
     SpinMode_t sm = Robot_GetSpinMode();
 
+    // ===== กรณีอยู่ในโหมด SPIN =====
     if (sm != SPIN_MODE_OFF) {
-        // อยู่ในโหมด SPIN -> ใช้ linear.x เป็นตัวบังคับความเร็วหมุน
+        // ใช้ linear.x เป็นตัวบังคับความเร็วหมุน (spin speed)
         Robot_UpdateSpinSpeedFromLinear(linear_x);
         return;
     }
 
-    // โหมดปกติ  -> ใใช้ cmd_vel ปกติ
+    // ===== ถ้ากำลัง PLAY อยู่ -> ไม่ให้ /cmd_vel มายุ่ง =====
+    if (Recorder_IsPlaying()) {
+        return;
+    }
+
+    // ===== โหมดปกติ (รวมถึงตอน RECORD) -> ใช้ cmd_vel ตามปกติ =====
     Robot_ApplyTwist(linear_x, angular_z);
 }
 
 // handler สำหรับ spin_cmd (Int8)
 static void Udp_SpinHandler(int8_t cmd)
 {
+//	printf("Udp_SpinHandler: cmd=%d\r\n", (int)cmd);
     Robot_HandleSpinCommand(cmd);
 }
+
+// handler สำหรับ rec_cmd (Int8)
+static void Udp_RecHandler(int8_t cmd)
+{
+//	printf("Udp_RecHandler: cmd=%d\r\n", (int)cmd);
+    Recorder_HandleCmd(cmd);
+}
+
+static void Udp_BlockHandler(int8_t cmd)
+{
+    // 0 = clear, อื่น ๆ = blocked
+    bool blocked = (cmd != 0);
+    Recorder_SetBlocked(blocked);
+    printf("[REC] BLOCK_STATE = %d\r\n", (int)blocked);
+}
+
 
 #define CTRL_PERIOD_MS   10U   // control loop ทุก 10 ms (100 Hz)
 
@@ -177,7 +200,16 @@ void Drive_Control_And_Test(uint32_t now_ms)
     // อ่าน encoder ทุกล้อ
     DriveEnc_UpdateAll();
 
+    // อัปเดต recorder จาก ล้อหน้า-ขวา index 0
+    Recorder_Update(drive_enc[0].multi_ticks);
+
     if (g_drive_mode == RUN_MODE_DRIVE_PID) {
+
+        // ถ้าอยู่ในโหมด PLAY ให้ set Robot_ApplyTwist เอง
+        if (Recorder_IsPlaying()) {
+            Recorder_PlayStep(drive_enc[0].multi_ticks, dt_s);
+            // ไม่ต้อง return; ปล่อยให้ logic AWS เดิมใช้ค่า cmd ที่ Robot_ApplyTwist ตั้งไว้
+        }
 
         // ===== เช็คโหมด SPIN จาก Int8 =====
         SpinMode_t spin_mode = Robot_GetSpinMode();
@@ -257,16 +289,18 @@ void Drive_Control_And_Test(uint32_t now_ms)
             Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
             Drive_UpdateAll(dt_s);
 
-            // timeout
-            if (g_last_cmd_ms != 0U) {
-                uint32_t dt_cmd = now_ms - g_last_cmd_ms;
-                if (dt_cmd > CMD_TIMEOUT_MS) {
-                    g_cmd_target_tps     = 0.0f;
-                    g_cmd_dir_sign       = 0.0f;
-                    g_cmd_speed_norm     = 0.0f;
-                    g_current_speed_norm = 0.0f;
-                    Steer_InitTargetsToZero();
-                    g_last_cmd_ms = 0U;
+            // timeout ของ /cmd_vel ใช้เฉพาะตอน "ไม่ได้ PLAY"
+            if (!Recorder_IsPlaying()) {
+                if (g_last_cmd_ms != 0U) {
+                    uint32_t dt_cmd = now_ms - g_last_cmd_ms;
+                    if (dt_cmd > CMD_TIMEOUT_MS) {
+                        g_cmd_target_tps     = 0.0f;
+                        g_cmd_dir_sign       = 0.0f;
+                        g_cmd_speed_norm     = 0.0f;
+                        g_current_speed_norm = 0.0f;
+                        Steer_InitTargetsToZero();
+                        g_last_cmd_ms = 0U;
+                    }
                 }
             }
         }
@@ -379,6 +413,7 @@ int main(void)
   DriveEnc_InitAll();
   Drive_InitAll();
   Steer_InitTargetsToZero();
+  Recorder_Init();
 
   if (UDP_Ctrl_Init(6000, Udp_TwistHandler) != 0) {
       printf("UDP_Ctrl_Init(6000) failed\r\n");
@@ -388,11 +423,20 @@ int main(void)
       printf("UDP_Spin_Init(6001) failed\r\n");
   }
 
+  if (UDP_Rec_Init(6002, Udp_RecHandler) != 0) {
+      printf("UDP_Rec_Init(6002) failed\r\n");
+  }
+
+  if (UDP_Block_Init(6003, Udp_BlockHandler) != 0) {
+      printf("UDP_Block_Init(6003) failed\r\n");
+  }
+
   printf("\r\n=== Boot OK ===\r\n");
 
   g_drive_mode = RUN_MODE_DRIVE_PID;
   g_steer_mode   = RUN_MODE_STEER_PID;
   Steer_PrintModeHelp(g_steer_mode);
+
 
   /* USER CODE END 2 */
 
@@ -402,7 +446,11 @@ int main(void)
   {
 	  MX_LWIP_Process();
 
-	  Robot_CommandTimeoutCheck();
+	  // --- ถ้ากำลังเล่น RECORDER อยู่ ให้ข้าม timeout ของ Robot ---
+	  if (!Recorder_IsPlaying())
+	  {
+	      Robot_CommandTimeoutCheck();
+	  }
 
 	  uint32_t now_ms = HAL_GetTick();
 

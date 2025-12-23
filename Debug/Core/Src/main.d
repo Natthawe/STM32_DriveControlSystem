@@ -74,7 +74,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  /home/cg/Dev/STM32_DriveControlSystem/Components/Control/drive_control.h \
  /home/cg/Dev/STM32_DriveControlSystem/Components/Control/steer_control.h \
  /home/cg/Dev/STM32_DriveControlSystem/Components/Comm/udp_ctrl.h \
- /home/cg/Dev/STM32_DriveControlSystem/Components/Robot/robot.h
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Robot/robot.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Control/recorder.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h:
 ../Core/Inc/stm32f7xx_hal_conf.h:
@@ -152,3 +153,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 /home/cg/Dev/STM32_DriveControlSystem/Components/Control/steer_control.h:
 /home/cg/Dev/STM32_DriveControlSystem/Components/Comm/udp_ctrl.h:
 /home/cg/Dev/STM32_DriveControlSystem/Components/Robot/robot.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Control/recorder.h:

@@ -1,0 +1,12 @@
+../Components/Control/recorder.c:40:6:Recorder_Init	1
+../Components/Control/recorder.c:51:6:Recorder_IsRecording	1
+../Components/Control/recorder.c:56:6:Recorder_IsPlaying	1
+../Components/Control/recorder.c:62:6:Recorder_StartRecord	1
+../Components/Control/recorder.c:72:6:Recorder_StopRecord	3
+../Components/Control/recorder.c:88:6:Recorder_StartPlay	2
+../Components/Control/recorder.c:100:6:Recorder_StopPlay	2
+../Components/Control/recorder.c:112:6:Recorder_Update	8
+../Components/Control/recorder.c:161:6:Recorder_HandleCmd	9
+../Components/Control/recorder.c:201:6:Recorder_IsBlocked	1
+../Components/Control/recorder.c:206:6:Recorder_SetBlocked	1
+../Components/Control/recorder.c:214:5:Recorder_PlayStep	8

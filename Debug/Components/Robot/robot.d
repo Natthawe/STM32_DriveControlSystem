@@ -40,7 +40,8 @@ Components/Robot/robot.o: ../Components/Robot/robot.c \
  /home/cg/Dev/STM32_DriveControlSystem/Components/Control/steer_control.h \
  /home/cg/Dev/STM32_DriveControlSystem/Components/Control/pid_ctrl.h \
  /home/cg/Dev/STM32_DriveControlSystem/Components/Control/drive_control.h \
- /home/cg/Dev/STM32_DriveControlSystem/Components/Encoders/encoder_inc.h
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Encoders/encoder_inc.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Control/recorder.h
 /home/cg/Dev/STM32_DriveControlSystem/Components/Robot/robot.h:
 /home/cg/Dev/STM32_DriveControlSystem/Components/Motors/motor.h:
 ../Core/Inc/main.h:
@@ -84,3 +85,4 @@ Components/Robot/robot.o: ../Components/Robot/robot.c \
 /home/cg/Dev/STM32_DriveControlSystem/Components/Control/pid_ctrl.h:
 /home/cg/Dev/STM32_DriveControlSystem/Components/Control/drive_control.h:
 /home/cg/Dev/STM32_DriveControlSystem/Components/Encoders/encoder_inc.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Control/recorder.h:

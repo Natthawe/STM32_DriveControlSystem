@@ -9,6 +9,7 @@
 #include "Motors/motor.h"
 #include "Control/steer_control.h"
 #include "Control/drive_control.h"
+#include "Control/recorder.h"
 #include "main.h"
 #include <math.h>
 #include <stdio.h>
@@ -17,7 +18,7 @@
 // === CONFIG สำหรับ SPIN-IN-PLACE ===
 #define ROBOT_SPIN_LIN_EPS        0.02f   // ถ้า |linear| < 2 cm/s ถือว่าเป็น 0 (**not use)
 #define ROBOT_SPIN_ANG_EPS        0.05f   // ถ้า |angular| < 0.05 rad/s (~3 deg/s) ถือว่าไม่หมุน (**not use)
-#define ROBOT_SPIN_STEER_DEG      45.0f   // มุมหักล้อสำหรับ spin (deg)
+#define ROBOT_SPIN_STEER_DEG      42.0f   // มุมหักล้อสำหรับ spin (deg)
 #define ROBOT_SPIN_TPS_PER_RAD    2000.0f // map |angular.z| -> tps (0.7 * 2000 = 1400 tps -> limit ด้วย ROBOT_SPIN_TPS_MAX) (**not use)
 #define ROBOT_SPIN_TPS_MAX        1200.0f // limit tps สำหรับ spin
 
@@ -143,6 +144,8 @@ RobotCmd_t Robot_CmdFromChar(uint8_t c)
 
 void Robot_ApplyTwist(float linear_x, float angular_z)
 {
+//    printf("[Robot_ApplyTwist] v=%.3f, w=%.3f\r\n",
+//           (double)linear_x, (double)angular_z);
     // --- จำเวลาคำสั่งล่าสุด ---
     g_last_cmd_ms = HAL_GetTick();
     g_cmd_active  = true;
@@ -181,7 +184,8 @@ void Robot_ApplyTwist(float linear_x, float angular_z)
     // ====== 2) จัดการ angular.z -> steering angle ======
 
     // ใช้ 0.785 rad (~45°) เป็น input max
-    const float MAX_STEER_RAD = 0.7853982f;   // pi/4
+    const float MAX_STEER_RAD = 0.7330382f;   // pi/4
+    // const float MAX_STEER_RAD = 0.7853982f;   // pi/4
 
     // clamp angular_z ไม่ให้เกิน ±0.785 rad
     if (angular_z >  MAX_STEER_RAD) angular_z =  MAX_STEER_RAD;
@@ -385,6 +389,30 @@ void Robot_UpdateSpinSpeedFromLinear(float linear_x)
 
     g_spin_dir      = dir;
     g_spin_base_tps = tps;
+}
+
+void Robot_HandleRecordCommand(int8_t cmd)
+{
+    switch (cmd) {
+    case 1:  // START RECORD
+        Recorder_StartRecord();
+        break;
+
+    case -1: // STOP RECORD
+        Recorder_StopRecord();
+        break;
+
+    case 2:  // PLAY
+        Recorder_StartPlay();
+        break;
+
+    case -2: // STOP PLAY
+        Recorder_StopPlay();
+        break;
+
+    default:
+        break;
+    }
 }
 
 void Robot_CommandTimeoutCheck(void)

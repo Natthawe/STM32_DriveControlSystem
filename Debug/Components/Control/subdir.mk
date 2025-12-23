@@ -7,16 +7,19 @@
 C_SRCS += \
 ../Components/Control/drive_control.c \
 ../Components/Control/pid_ctrl.c \
+../Components/Control/recorder.c \
 ../Components/Control/steer_control.c 
 
 OBJS += \
 ./Components/Control/drive_control.o \
 ./Components/Control/pid_ctrl.o \
+./Components/Control/recorder.o \
 ./Components/Control/steer_control.o 
 
 C_DEPS += \
 ./Components/Control/drive_control.d \
 ./Components/Control/pid_ctrl.d \
+./Components/Control/recorder.d \
 ./Components/Control/steer_control.d 
 
 
@@ -27,7 +30,7 @@ Components/Control/%.o Components/Control/%.su Components/Control/%.cyclo: ../Co
 clean: clean-Components-2f-Control
 
 clean-Components-2f-Control:
-	-$(RM) ./Components/Control/drive_control.cyclo ./Components/Control/drive_control.d ./Components/Control/drive_control.o ./Components/Control/drive_control.su ./Components/Control/pid_ctrl.cyclo ./Components/Control/pid_ctrl.d ./Components/Control/pid_ctrl.o ./Components/Control/pid_ctrl.su ./Components/Control/steer_control.cyclo ./Components/Control/steer_control.d ./Components/Control/steer_control.o ./Components/Control/steer_control.su
+	-$(RM) ./Components/Control/drive_control.cyclo ./Components/Control/drive_control.d ./Components/Control/drive_control.o ./Components/Control/drive_control.su ./Components/Control/pid_ctrl.cyclo ./Components/Control/pid_ctrl.d ./Components/Control/pid_ctrl.o ./Components/Control/pid_ctrl.su ./Components/Control/recorder.cyclo ./Components/Control/recorder.d ./Components/Control/recorder.o ./Components/Control/recorder.su ./Components/Control/steer_control.cyclo ./Components/Control/steer_control.d ./Components/Control/steer_control.o ./Components/Control/steer_control.su
 
 .PHONY: clean-Components-2f-Control
 

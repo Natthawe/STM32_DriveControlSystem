@@ -184,7 +184,7 @@ bool Steer_IsAtSpinAngle45(void)
     const float READY_TICKS    = READY_DEG * ENC_TICKS_PER_DEG;
 
     // 2) มุม REL เทียบ zero ต้องมากพอ (อย่างน้อย ~43°)
-    const float MIN_SPIN_DEG   = 45.0f - READY_DEG;   // = 43°
+    const float MIN_SPIN_DEG   = 42.0f - READY_DEG;   //
 
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
         SteerAxis_t *ax = &steer_axes[i];

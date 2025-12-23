@@ -1,6 +1,7 @@
 "./Components/Comm/udp_ctrl.o"
 "./Components/Control/drive_control.o"
 "./Components/Control/pid_ctrl.o"
+"./Components/Control/recorder.o"
 "./Components/Control/steer_control.o"
 "./Components/Encoders/encoder_abs.o"
 "./Components/Encoders/encoder_inc.o"
