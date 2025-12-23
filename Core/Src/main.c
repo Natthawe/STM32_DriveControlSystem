@@ -161,57 +161,122 @@ void Drive_Control_And_Test(uint32_t now_ms)
     // อ่าน encoder ทุกล้อ
     DriveEnc_UpdateAll();
 
-    if (g_drive_mode == RUN_MODE_DRIVE_PID) {
-        // ===== โหมดปกติ: ใช้ PID ตาม target_tps (common) =====
-    	Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
-        Drive_UpdateAll(dt_s);              	  // ใช้ target_tps ต่อล้อ + duty_base + PID
-
-        // เฉพาะตอน RUN_MODE_STEER_PID เท่านั้นที่ให้ PID ทำงาน เผื่อใช้โหมด CALIB
-        if (g_steer_mode == RUN_MODE_STEER_PID) {
-            Steer_UpdateTargetWithRamp(dt_s);   // ramp angle
-            Steer_UpdateAll(dt_s);              // PID ตาม target_ticks
-        }
-
-        // เช็ค timeout จาก UDP/serial
-        // เผื่อทำเป็น EMER
-//        if (g_last_cmd_ms != 0U)
-//        {
+//    if (g_drive_mode == RUN_MODE_DRIVE_PID) {
+//        // ===== โหมดปกติ: ใช้ PID ตาม target_tps (common) =====
+//    	Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
+//        Drive_UpdateAll(dt_s);              	  // ใช้ target_tps ต่อล้อ + duty_base + PID
+//
+//        // เฉพาะตอน RUN_MODE_STEER_PID เท่านั้นที่ให้ PID ทำงาน เผื่อใช้โหมด CALIB
+//        if (g_steer_mode == RUN_MODE_STEER_PID) {
+//            Steer_UpdateTargetWithRamp(dt_s);   // ramp angle
+//            Steer_UpdateAll(dt_s);              // PID ตาม target_ticks
+//        }
+//
+//        // เช็ค timeout จาก UDP/serial
+//        // เผื่อทำเป็น EMER
+////        if (g_last_cmd_ms != 0U)
+////        {
+////            uint32_t dt_cmd = now_ms - g_last_cmd_ms;
+////            if (dt_cmd > CMD_TIMEOUT_MS) {
+////                // reset คำสั่งความเร็วในหน่วย tps
+////                g_cmd_target_tps     = 0.0f;
+////                g_current_target_tps = 0.0f;
+////
+////                // reset ตัวแปร
+////                g_cmd_dir_sign       = 0.0f;
+////                g_cmd_speed_norm     = 0.0f;
+////                g_current_speed_norm = 0.0f;
+////
+////                Drive_StopAll();
+////                Steer_InitTargetsToZero();
+////                g_last_cmd_ms = 0U;
+////                // printf("[TIMEOUT] stop & steer zero\n");
+////            }
+////        }
+//
+//        if (g_last_cmd_ms != 0U) {
 //            uint32_t dt_cmd = now_ms - g_last_cmd_ms;
 //            if (dt_cmd > CMD_TIMEOUT_MS) {
-//                // reset คำสั่งความเร็วในหน่วย tps
-//                g_cmd_target_tps     = 0.0f;
-//                g_current_target_tps = 0.0f;
+//                // ----- SOFT STOP -----
+//                g_cmd_target_tps = 0.0f;
 //
-//                // reset ตัวแปร
+//                // reset state
 //                g_cmd_dir_sign       = 0.0f;
 //                g_cmd_speed_norm     = 0.0f;
 //                g_current_speed_norm = 0.0f;
-//
-//                Drive_StopAll();
 //                Steer_InitTargetsToZero();
 //                g_last_cmd_ms = 0U;
-//                // printf("[TIMEOUT] stop & steer zero\n");
+//                // printf("[TIMEOUT] soft stop (ramp down)\n");
 //            }
 //        }
+//
+//
+//    }
 
-        if (g_last_cmd_ms != 0U) {
-            uint32_t dt_cmd = now_ms - g_last_cmd_ms;
-            if (dt_cmd > CMD_TIMEOUT_MS) {
-                // ----- SOFT STOP -----
-                g_cmd_target_tps = 0.0f;
+    if (g_drive_mode == RUN_MODE_DRIVE_PID) {
 
-                // reset state
-                g_cmd_dir_sign       = 0.0f;
-                g_cmd_speed_norm     = 0.0f;
-                g_current_speed_norm = 0.0f;
-                Steer_InitTargetsToZero();
-                g_last_cmd_ms = 0U;
-                // printf("[TIMEOUT] soft stop (ramp down)\n");
+        if (Robot_IsSpinMode()) {
+            // ===== โหมด SPIN-IN-PLACE =====
+            float spin_base_tps, spin_dir;
+            Robot_GetSpinParams(&spin_base_tps, &spin_dir);
+
+            // 1) ให้ล้อเลี้ยวหมุนเข้ามุมก่อน (ทุกรอบ control)
+            if (g_steer_mode == RUN_MODE_STEER_PID) {
+                Steer_UpdateAll(dt_s);
+            }
+
+            // 2) เช็คว่าล้อเลี้ยวทุกล้อ “เข้าใกล้มุมเป้าหมายแล้วหรือยัง”
+            if (Steer_IsAtSpinTarget()) {
+                // ---- พร้อมแล้ว -> ให้ล้อขับหมุนตามเป้า ----
+                Drive_SetSpinTargets(spin_base_tps, spin_dir);
+            } else {
+                // ---- ยังไม่พร้อม -> ไม่ให้ล้อขับหมุน ----
+                // ตั้งเป้า tps = 0 ทุกล้อ (ให้ PID เบรก/ถือเฉย ๆ)
+                Drive_SetSpinTargets(0.0f, 0.0f);
+            }
+
+            // 3) อัปเดต PID ของล้อขับ
+            Drive_UpdateAll(dt_s);
+
+            // timeout
+            if (g_last_cmd_ms != 0U) {
+                uint32_t dt_cmd = now_ms - g_last_cmd_ms;
+                if (dt_cmd > CMD_TIMEOUT_MS) {
+                    g_cmd_target_tps     = 0.0f;
+                    g_cmd_dir_sign       = 0.0f;
+                    g_cmd_speed_norm     = 0.0f;
+                    g_current_speed_norm = 0.0f;
+                    Steer_InitTargetsToZero();
+                    g_last_cmd_ms = 0U;
+                }
+            }
+
+        } else {
+            // ===== โหมดปกติ: วิ่งตรง/โค้งตาม AWS =====
+            Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
+            Drive_UpdateAll(dt_s);
+
+            if (g_steer_mode == RUN_MODE_STEER_PID) {
+                Steer_UpdateTargetWithRamp(dt_s);
+                Steer_UpdateAll(dt_s);
+            }
+
+            if (g_last_cmd_ms != 0U) {
+                uint32_t dt_cmd = now_ms - g_last_cmd_ms;
+                if (dt_cmd > CMD_TIMEOUT_MS) {
+                    g_cmd_target_tps     = 0.0f;
+                    g_cmd_dir_sign       = 0.0f;
+                    g_cmd_speed_norm     = 0.0f;
+                    g_current_speed_norm = 0.0f;
+                    Steer_InitTargetsToZero();
+                    g_last_cmd_ms = 0U;
+                }
             }
         }
+    }
 
 
-    } else {
+    else {
         // ===== โหมด TEST: ขับทีละล้อหรือทุกล้อแบบ open-loop =====
         for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
             DriveAxis_t *d = &drive_axes[i];

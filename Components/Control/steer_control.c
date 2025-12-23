@@ -51,7 +51,7 @@ SteerAxis_t steer_axes[] = {
 
 	{ "STEER_RL", 2,  33, 6, -1,  33,  0.65f,
 //	  { .kp=0.006f, .ki=0.01f, .kd=0.0f,
-	  { .kp=0.0055f, .ki=0.001f, .kd=0.0f,
+	  { .kp=0.006f, .ki=0.001f, .kd=0.0f,
 		.integrator=0, .prev_error=0,
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC4 -> Motor6 (rear-left steer)
 
@@ -69,6 +69,13 @@ const int8_t steer_turn_sign[STEER_NUM] = {
     -1,  // 1: STEER_RR (rear-right)
     -1,  // 2: STEER_RL (rear-left)
     +1   // 3: STEER_FL (front-left)
+};
+
+const int8_t steer_spin_sign[STEER_NUM] = {
+    +1,  // 0: STEER_FR -> ซ้าย
+    -1,  // 1: STEER_RR -> ขวา
+    +1,  // 2: STEER_RL -> ซ้าย
+    -1   // 3: STEER_FL -> ขวา
 };
 
 uint16_t wrap_ticks(int32_t t)
@@ -113,6 +120,55 @@ void Steer_SetTargetAngleDeg(float angle_deg)
         steer_axes[i].target_ticks = wrap_ticks(base + delta);
     }
 }
+
+// ตั้งมุมเลี้ยวแบบ SPIN-IN-PLACE ตามแพทเทิร์นด้านบน
+void Steer_SetSpinAngleDeg(float angle_deg)
+{
+    // clamp มุมไม่เกิน ±STEER_MAX_DEG
+    if (angle_deg >  STEER_MAX_DEG) angle_deg =  STEER_MAX_DEG;
+    if (angle_deg < -STEER_MAX_DEG) angle_deg = -STEER_MAX_DEG;
+
+    for (uint32_t i = 0; i < STEER_NUM; ++i) {
+        float delta_ticks_f = angle_deg * (float)steer_spin_sign[i] * ENC_TICKS_PER_DEG;
+
+        int32_t base  = (int32_t)steer_axes[i].zero_offset;
+        int32_t delta = (int32_t)lrintf(delta_ticks_f);
+
+        steer_axes[i].target_ticks = wrap_ticks(base + delta);
+    }
+}
+
+// ใช้สำหรับโหมด SPIN: เช็คว่าล้อเลี้ยวทุกล้อเข้าใกล้มุมเป้าหมายแล้วหรือยัง
+// ถ้า error ทุกล้อน้อยกว่าเกณฑ์ -> return true
+bool Steer_IsAtSpinTarget(void)
+{
+    // ใช้ threshold ประมาณ 2 องศา
+    const float READY_DEG   = 2.0f;
+    const float READY_TICKS = READY_DEG * ENC_TICKS_PER_DEG;
+
+    for (uint32_t i = 0; i < STEER_NUM; ++i) {
+        SteerAxis_t *ax = &steer_axes[i];
+
+        uint16_t ticks = ENC_ReadRaw_ByIndex(ax->enc_index);
+        if (ticks == 0xFFFF) {
+            // ถ้าอ่าน encoder ไม่ได้ ถือว่ายังไม่ ready
+            return false;
+        }
+
+        int16_t err_ticks = ENC10_Diff(ticks, ax->target_ticks);
+        err_ticks = (int16_t)(err_ticks * ax->enc_dir);
+        float err_f = (float)err_ticks;
+
+        if (fabsf(err_f) > READY_TICKS) {
+            // ล้อนี้ยังห่างจากเป้าหมายมากไป -> ยังไม่พร้อม
+            return false;
+        }
+    }
+
+    // ทุกล้ออยู่ในเกณฑ์แล้ว
+    return true;
+}
+
 
 void SteerMotor_Jog(uint8_t axis, MotorDir_t dir, float duty)
 {

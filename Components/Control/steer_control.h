@@ -34,7 +34,7 @@ typedef struct {
 
 extern RunMode_t g_steer_mode;
 
-/** เรียกตอน init: เซ็ตเป้าหมายทั้ง 4 ล้อให้เป็นศูนย์ (มุม 0°) */
+/** เรียกตอน init: เซ็ตเป้าหมายทั้ง 4 ล้อให้เป็นศูนย์ (มุม 0 องศา) */
 void Steer_InitTargetsToZero(void);
 
 /** อัปเดตมุมเป้าหมายแบบ ramp จาก cmd -> current แล้วเซ็ต target_ticks ของทุกล้อ */
@@ -51,5 +51,10 @@ void Steer_PrintModeHelp(RunMode_t mode);
 
 /** ตั้งมุมคำสั่งจาก robot (เช่นจาก Robot_ApplyTwist), หน่วย degree */
 void Steer_SetCmdTargetDeg(float target_deg);
+
+/** ตั้งมุมเลี้ยวแพทเทิร์น SPIN-IN-PLACE */
+void Steer_SetSpinAngleDeg(float angle_deg);
+
+bool Steer_IsAtSpinTarget(void);
 
 #endif /* CONTROL_STEER_CONTROL_H_ */

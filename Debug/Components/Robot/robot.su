@@ -1,4 +1,6 @@
-../Components/Robot/robot.c:40:6:Robot_ApplyCommand_WithDuty	24	static
-../Components/Robot/robot.c:100:12:Robot_CmdFromChar	16	static
-../Components/Robot/robot.c:128:6:Robot_ApplyTwist	40	static
-../Components/Robot/robot.c:188:6:Robot_CommandTimeoutCheck	24	static
+../Components/Robot/robot.c:52:6:Robot_ApplyCommand_WithDuty	24	static
+../Components/Robot/robot.c:112:12:Robot_CmdFromChar	16	static
+../Components/Robot/robot.c:200:6:Robot_ApplyTwist	56	static
+../Components/Robot/robot.c:283:6:Robot_IsSpinMode	4	static
+../Components/Robot/robot.c:288:6:Robot_GetSpinParams	16	static
+../Components/Robot/robot.c:295:6:Robot_CommandTimeoutCheck	24	static

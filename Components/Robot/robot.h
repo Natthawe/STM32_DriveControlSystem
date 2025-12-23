@@ -9,6 +9,7 @@
 #define ROBOT_ROBOT_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef enum {
     ROBOT_CMD_NONE = 0,
@@ -38,6 +39,9 @@ void Robot_ApplyTwist(float linear_x, float angular_z);
 
 /** เช็ค timeout ของคำสั่งขับเคลื่อน (หยุดหุ่นถ้าไม่ได้ cmd ใหม่เกินเวลาที่กำหนด) */
 void Robot_CommandTimeoutCheck(void);
+
+bool Robot_IsSpinMode(void);
+void Robot_GetSpinParams(float *base_tps, float *dir);
 
 
 #endif /* ROBOT_ROBOT_H_ */

@@ -12,7 +12,7 @@
 // ramp ของเป้าความเร็วในหน่วย tps
 #define DRIVE_TPS_RAMP_UP_PER_SEC    	1000.0f   	// target_tps (tick/sec) -> accel
 #define DRIVE_TPS_RAMP_DOWN_PER_SEC  	2000.0f   	// target_tps (tick/sec) -> decel
-#define DRIVE_DEADBAND_TPS        		300.0f     	// ใกล้ 0 แค่ไหนถือว่า "หยุด"
+#define DRIVE_DEADBAND_TPS        		400.0f     	// ใกล้ 0 แค่ไหนถือว่า "หยุด"
 
 #define DRIVE_HILL_KI_GAIN        		22.0f   	// คูณ Ki ตอนอยู่บนเนิน
 #define DRIVE_HILL_DUTY_MAX       		0.65f    	// duty สูงสุดที่ยอมให้ค้ำเนิน
@@ -83,6 +83,24 @@ void Drive_StopAll(void)
         Motor_set(d->motor_idx, MOTOR_DIR_BRAKE, 0.0f);
     }
 }
+
+// ตั้ง target_tps สำหรับโหมด SPIN-IN-PLACE
+// spin_dir = +1 หมุนทิศหนึ่ง, -1 หมุนทิศกลับกัน (มาจาก sign ของ angular.z)
+void Drive_SetSpinTargets(float base_tps, float spin_dir)
+{
+    // ป้องกัน sign แปลก ๆ
+    if (spin_dir >  1.0f) spin_dir =  1.0f;
+    if (spin_dir < -1.0f) spin_dir = -1.0f;
+
+    // index: 0=FR, 1=RR, 2=RL, 3=FL
+    // เลือก pattern: ขวาเดินหน้า, ซ้ายถอยหลัง (เมื่อ spin_dir = +1)
+    drive_axes[0].target_tps = +base_tps * spin_dir;  // FR
+    drive_axes[1].target_tps = +base_tps * spin_dir;  // RR
+    drive_axes[2].target_tps = -base_tps * spin_dir;  // RL
+    drive_axes[3].target_tps = -base_tps * spin_dir;  // FL
+}
+
+
 
 void Drive_UpdateTargetsWithRamp(float dt_s,
                                  float *cmd_target_tps,

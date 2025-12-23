@@ -1,5 +1,5 @@
 Components/Encoders/encoder_abs.o: ../Components/Encoders/encoder_abs.c \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_abs.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Encoders/encoder_abs.h \
  ../Core/Inc/main.h ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h \
  ../Core/Inc/stm32f7xx_hal_conf.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_rcc.h \
@@ -36,7 +36,7 @@ Components/Encoders/encoder_abs.o: ../Components/Encoders/encoder_abs.c \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_ll_usb.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd_ex.h
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_abs.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Encoders/encoder_abs.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h:
 ../Core/Inc/stm32f7xx_hal_conf.h:

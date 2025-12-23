@@ -75,8 +75,8 @@ all: main-build
 main-build: 8Motors.elf secondary-outputs
 
 # Tool invocations
-8Motors.elf 8Motors.map: $(OBJS) $(USER_OBJS) /home/cg/A_DEV/8Motors22NOV/8Motors/STM32F746ZGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "8Motors.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"/home/cg/A_DEV/8Motors22NOV/8Motors/STM32F746ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="8Motors.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+8Motors.elf 8Motors.map: $(OBJS) $(USER_OBJS) /home/cg/Dev/STM32_DriveControlSystem/STM32F746ZGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "8Motors.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"/home/cg/Dev/STM32_DriveControlSystem/STM32F746ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="8Motors.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

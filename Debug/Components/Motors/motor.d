@@ -1,5 +1,5 @@
 Components/Motors/motor.o: ../Components/Motors/motor.c \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Motors/motor.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Motors/motor.h \
  ../Core/Inc/main.h ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h \
  ../Core/Inc/stm32f7xx_hal_conf.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_rcc.h \
@@ -36,7 +36,7 @@ Components/Motors/motor.o: ../Components/Motors/motor.c \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_ll_usb.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd_ex.h
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Motors/motor.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Motors/motor.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h:
 ../Core/Inc/stm32f7xx_hal_conf.h:

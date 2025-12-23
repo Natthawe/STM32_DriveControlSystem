@@ -14,6 +14,18 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+// === CONFIG สำหรับ SPIN-IN-PLACE ===
+#define ROBOT_SPIN_LIN_EPS        0.02f   // ถ้า |linear| < 2 cm/s ถือว่าเป็น 0
+#define ROBOT_SPIN_ANG_EPS        0.05f   // ถ้า |angular| < 0.05 rad/s (~3 deg/s) ถือว่าไม่หมุน
+#define ROBOT_SPIN_STEER_DEG      45.0f   // มุมหักล้อสำหรับ spin (deg)
+#define ROBOT_SPIN_TPS_PER_RAD    2000.0f // map |angular.z| -> tps (0.7 * 2000 = 1400 tps -> limit ด้วย ROBOT_SPIN_TPS_MAX)
+#define ROBOT_SPIN_TPS_MAX        1200.0f // limit tps สำหรับ spin
+
+// ====== SPIN MODE STATE ======
+static bool  g_spin_mode      = false;
+static float g_spin_base_tps  = 0.0f;
+static float g_spin_dir       = 0.0f;   // +1 หรือ -1
+
 // ==== Geometry ล้อ ====
 #define WHEEL_DIAMETER_M       0.37f
 #define WHEEL_COUNTS_PER_REV_F 1440.0f
@@ -125,19 +137,115 @@ RobotCmd_t Robot_CmdFromChar(uint8_t c)
 }
 
 // /cmd_vel -> linear_x [m/s], angular_z [rad/s] -> g_cmd_target_tps + Steer_SetCmdTargetDeg()
+//void Robot_ApplyTwist(float linear_x, float angular_z)
+//{
+//    // จำเวลาคำสั่งล่าสุด
+//    g_last_cmd_ms = HAL_GetTick();
+//
+//    g_cmd_active  = true;
+//
+//    // --- จำกัด linear_x ไม่ให้เกิน MAX_CMD_LINEAR ---
+//    if (linear_x >  MAX_CMD_LINEAR) linear_x =  MAX_CMD_LINEAR;
+//    if (linear_x < -MAX_CMD_LINEAR) linear_x = -MAX_CMD_LINEAR;
+//
+//    // ใช้ lin_norm เพื่อ deadzone
+//    float lin_norm = linear_x / MAX_CMD_LINEAR;   // -1..+1
+//    if (lin_norm >  1.0f) lin_norm =  1.0f;
+//    if (lin_norm < -1.0f) lin_norm = -1.0f;
+//
+//    if (fabsf(lin_norm) < LIN_DEADZONE) {
+//        lin_norm = 0.0f;
+//    }
+//
+//    // linear_x_cmd หลัง deadzone แล้ว (m/s)
+//    float linear_x_cmd = lin_norm * MAX_CMD_LINEAR;
+//
+//    // --- map เป็น target_tps_common ด้วย geometry ---
+//    float target_tps_cmd = linear_x_cmd * TICKS_PER_METER;
+//
+//    // เก็บเป็นคำสั่งหลักในหน่วย tps
+//    g_cmd_target_tps = target_tps_cmd;
+//
+//    // เก็บ dir + speed_norm ไว้ debug
+//    if (lin_norm > 0.0f)      g_cmd_dir_sign = +1.0f;
+//    else if (lin_norm < 0.0f) g_cmd_dir_sign = -1.0f;
+//    else                      g_cmd_dir_sign = 0.0f;
+//
+//    g_cmd_speed_norm = fabsf(lin_norm);   // 0..1
+//
+//    // --- มุมเลี้ยวจาก angular_z ---
+//    float ang_norm = angular_z / MAX_CMD_ANGULAR;  // -1..+1
+//    if (ang_norm >  1.0f) ang_norm =  1.0f;
+//    if (ang_norm < -1.0f) ang_norm = -1.0f;
+//    if (fabsf(ang_norm) < ANG_DEADZONE) ang_norm = 0.0f;
+//
+//    // map -> มุมเลี้ยว +-STEER_MAX_DEG
+//    float target_deg = ang_norm * STEER_MAX_DEG;
+//
+//    if (linear_x_cmd < -0.000001f)
+//    {
+//        target_deg = -target_deg;
+//    }
+//
+//    // ส่งเป้ามุมไปให้ steer module จัดการ ramp เอง
+//    Steer_SetCmdTargetDeg(target_deg);
+//
+//    g_cmd_active = true;   // เคยได้รับคำสั่งแล้ว
+//
+////    printf("Twist: lin=%.2f m/s (tgt=%.0f tps), ang=%.2f rad/s -> dir=%.0f, speed_norm=%.2f, deg=%.1f\r\n",
+////           linear_x_cmd, target_tps_cmd, angular_z,
+////           g_cmd_dir_sign, g_cmd_speed_norm, target_deg);
+//}
+
 void Robot_ApplyTwist(float linear_x, float angular_z)
 {
     // จำเวลาคำสั่งล่าสุด
     g_last_cmd_ms = HAL_GetTick();
-
     g_cmd_active  = true;
 
-    // --- จำกัด linear_x ไม่ให้เกิน MAX_CMD_LINEAR ---
-    if (linear_x >  MAX_CMD_LINEAR) linear_x =  MAX_CMD_LINEAR;
-    if (linear_x < -MAX_CMD_LINEAR) linear_x = -MAX_CMD_LINEAR;
+    float vx = linear_x;
+    float wz = angular_z;
 
-    // ใช้ lin_norm เพื่อ deadzone
-    float lin_norm = linear_x / MAX_CMD_LINEAR;   // -1..+1
+    float abs_vx = fabsf(vx);
+    float abs_wz = fabsf(wz);
+
+    // ----------- โหมด SPIN จาก /cmd_vel -----------
+    // เงื่อนไข: linear.x ≈ 0 แต่ angular.z มีค่า
+    if (abs_vx < ROBOT_SPIN_LIN_EPS && abs_wz > ROBOT_SPIN_ANG_EPS) {
+
+        // เข้าโหมด spin
+        g_spin_mode = true;
+
+        // ทิศหมุนตาม sign ของ angular.z
+        g_spin_dir = (wz >= 0.0f) ? 1.0f : -1.0f;
+
+        // map |angular.z| -> tps
+        float base_tps = abs_wz * ROBOT_SPIN_TPS_PER_RAD;
+        if (base_tps > ROBOT_SPIN_TPS_MAX) {
+            base_tps = ROBOT_SPIN_TPS_MAX;
+        }
+        g_spin_base_tps = base_tps;
+
+        // ตั้งมุมเลี้ยวเป็นแพทเทิร์น FL ขวา, RL ซ้าย, RR ขวา, FR ซ้าย
+        Steer_SetSpinAngleDeg(ROBOT_SPIN_STEER_DEG);
+
+        // ไม่ใช้ linear common target ในโหมด spin
+        g_cmd_target_tps = 0.0f;
+        g_cmd_dir_sign   = 0.0f;
+        g_cmd_speed_norm = 0.0f;
+
+        // ไม่ต้องตั้งมุมด้วย Steer_SetCmdTargetDeg() เพราะ spin ใช้มุมแพทเทิร์นของตัวเองแล้ว
+        return;
+    }
+
+    // ----------- โหมดปกติ (วิ่งตรง / เลี้ยว AWS) -----------
+    g_spin_mode = false;
+
+    // --- จำกัด linear_x ไม่ให้เกิน MAX_CMD_LINEAR ---
+    if (vx >  MAX_CMD_LINEAR) vx =  MAX_CMD_LINEAR;
+    if (vx < -MAX_CMD_LINEAR) vx = -MAX_CMD_LINEAR;
+
+    float lin_norm = vx / MAX_CMD_LINEAR;   // -1..+1
     if (lin_norm >  1.0f) lin_norm =  1.0f;
     if (lin_norm < -1.0f) lin_norm = -1.0f;
 
@@ -145,21 +253,17 @@ void Robot_ApplyTwist(float linear_x, float angular_z)
         lin_norm = 0.0f;
     }
 
-    // linear_x_cmd หลัง deadzone แล้ว (m/s)
     float linear_x_cmd = lin_norm * MAX_CMD_LINEAR;
 
-    // --- map เป็น target_tps_common ด้วย geometry ---
+    // map -> tps
     float target_tps_cmd = linear_x_cmd * TICKS_PER_METER;
-
-    // เก็บเป็นคำสั่งหลักในหน่วย tps
     g_cmd_target_tps = target_tps_cmd;
 
-    // เก็บ dir + speed_norm ไว้ debug
     if (lin_norm > 0.0f)      g_cmd_dir_sign = +1.0f;
     else if (lin_norm < 0.0f) g_cmd_dir_sign = -1.0f;
     else                      g_cmd_dir_sign = 0.0f;
 
-    g_cmd_speed_norm = fabsf(lin_norm);   // 0..1
+    g_cmd_speed_norm = fabsf(lin_norm);
 
     // --- มุมเลี้ยวจาก angular_z ---
     float ang_norm = angular_z / MAX_CMD_ANGULAR;  // -1..+1
@@ -167,23 +271,26 @@ void Robot_ApplyTwist(float linear_x, float angular_z)
     if (ang_norm < -1.0f) ang_norm = -1.0f;
     if (fabsf(ang_norm) < ANG_DEADZONE) ang_norm = 0.0f;
 
-    // map -> มุมเลี้ยว +-STEER_MAX_DEG
     float target_deg = ang_norm * STEER_MAX_DEG;
 
-    if (linear_x_cmd < -0.000001f) 
-    {
+    if (linear_x_cmd < -0.000001f) {
         target_deg = -target_deg;
     }
 
-    // ส่งเป้ามุมไปให้ steer module จัดการ ramp เอง
     Steer_SetCmdTargetDeg(target_deg);
-
-    g_cmd_active = true;   // เคยได้รับคำสั่งแล้ว
-
-//    printf("Twist: lin=%.2f m/s (tgt=%.0f tps), ang=%.2f rad/s -> dir=%.0f, speed_norm=%.2f, deg=%.1f\r\n",
-//           linear_x_cmd, target_tps_cmd, angular_z,
-//           g_cmd_dir_sign, g_cmd_speed_norm, target_deg);
 }
+
+bool Robot_IsSpinMode(void)
+{
+    return g_spin_mode;
+}
+
+void Robot_GetSpinParams(float *base_tps, float *dir)
+{
+    if (base_tps) *base_tps = g_spin_base_tps;
+    if (dir)      *dir      = g_spin_dir;
+}
+
 
 void Robot_CommandTimeoutCheck(void)
 {

@@ -67,14 +67,14 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/dhcp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/timeouts.h \
  ../LWIP/Target/ethernetif.h \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Motors/motor.h \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_abs.h \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_inc.h \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/pid_ctrl.h \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/drive_control.h \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/steer_control.h \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Comm/udp_ctrl.h \
- /home/cg/A_DEV/8Motors22NOV/8Motors/Components/Robot/robot.h
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Motors/motor.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Encoders/encoder_abs.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Encoders/encoder_inc.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Control/pid_ctrl.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Control/drive_control.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Control/steer_control.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Comm/udp_ctrl.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Robot/robot.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h:
 ../Core/Inc/stm32f7xx_hal_conf.h:
@@ -144,11 +144,11 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Middlewares/Third_Party/LwIP/src/include/lwip/dhcp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/timeouts.h:
 ../LWIP/Target/ethernetif.h:
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Motors/motor.h:
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_abs.h:
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Encoders/encoder_inc.h:
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/pid_ctrl.h:
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/drive_control.h:
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Control/steer_control.h:
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Comm/udp_ctrl.h:
-/home/cg/A_DEV/8Motors22NOV/8Motors/Components/Robot/robot.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Motors/motor.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Encoders/encoder_abs.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Encoders/encoder_inc.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Control/pid_ctrl.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Control/drive_control.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Control/steer_control.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Comm/udp_ctrl.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Robot/robot.h:

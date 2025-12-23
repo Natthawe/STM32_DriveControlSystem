@@ -64,4 +64,7 @@ void Drive_UpdateAll(float dt_s);
 /* handle UART command สำหรับโหมด test drive (กดปุ่มเลือกโหมด/ล้อ/duty) */
 void Process_UART_TestDrive(void);
 
+/* ตั้ง target_tps สำหรับโหมด SPIN-IN-PLACE (FR/RR เดินหน้า, RL/FL ถอยหลัง) */
+void Drive_SetSpinTargets(float base_tps, float spin_dir);
+
 #endif /* CONTROL_DRIVE_CONTROL_H_ */
