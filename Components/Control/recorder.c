@@ -7,7 +7,7 @@
 
 // Control/recorder.c
 #include "Control/recorder.h"
-#include "Robot/robot.h"   // เพื่อเรียก Robot_ApplyTwist()
+#include "Robot/robot.h"   // เรียก Robot_ApplyTwist()
 
 #include <stdio.h>
 
@@ -26,16 +26,23 @@ typedef struct {
     uint8_t play_initialized;
 
     // ===== LOOP =====
-    uint8_t  loop_enabled;   // 0 = ไม่วน, 1 = วน
+    uint8_t  loop_enabled;      // 0 = ไม่วน, 1 = วน
 
     // ===== BLOCK STATE =====
-    uint8_t blocked;   // 0 = clear, 1 = blocked
+    uint8_t blocked;            // 0 = clear, 1 = blocked
+
+    // ===== SEGMENT PAUSE =====
+    uint8_t  seg_waiting;      // 0 = วิ่งตาม segment, 1 = กำลังพักระหว่าง segment
+    float    seg_wait_elapsed; // เวลาที่พักไปแล้ว (วินาที)
 } Recorder_t;
 
 static Recorder_t g_rec;
 
-// ความเร็วตอน replay (m/s) ลอง 0.3 ก่อน ค่อยปรับทีหลังได้
-#define REC_PLAY_V_MPS   0.6f
+// ความเร็วตอน replay (m/s)
+#define REC_PLAY_V_MPS   0.5f
+
+// เวลาพักระหว่าง segment (s)
+#define REC_SEG_PAUSE_SEC    5.0f
 
 void Recorder_Init(void)
 {
@@ -46,6 +53,8 @@ void Recorder_Init(void)
     g_rec.play_idx 			= 0;
     g_rec.loop_enabled    	= 0;
     g_rec.blocked 			= 0;
+    g_rec.seg_waiting      	= 0;
+    g_rec.seg_wait_elapsed 	= 0.0f;
 }
 
 bool Recorder_IsRecording(void)
@@ -64,10 +73,9 @@ void Recorder_StartRecord(void)
     g_rec.state           = REC_STATE_RECORD;
     g_rec.seg_count       = 0;
     g_rec.rec_initialized = 0;   // ให้ไป init ใน Recorder_Update
-    g_rec.loop_enabled    = 0;   // เริ่ม Record ใหม่ => ปิด loop
+    g_rec.loop_enabled    = 0;   // เริ่ม Record ใหม่ -> ปิด loop
     printf("[REC] START RECORD\n");
 }
-
 
 void Recorder_StopRecord(void)
 {
@@ -84,16 +92,17 @@ void Recorder_StopRecord(void)
 }
 
 // ---------- PLAY CONTROL ----------
-
 void Recorder_StartPlay(void)
 {
     if (g_rec.seg_count == 0) {
         printf("[REC] PLAY START FAILED: no segments\n");
         return;
     }
-    g_rec.state           = REC_STATE_PLAY;
-    g_rec.play_idx        = 0;
-    g_rec.play_initialized = 0;  // ให้ไป init ด้วย tick แรก
+    g_rec.state           	= REC_STATE_PLAY;
+    g_rec.play_idx        	= 0;
+    g_rec.play_initialized 	= 0;  // ให้ไป init ด้วย tick แรก
+    g_rec.seg_waiting      	= 0;
+    g_rec.seg_wait_elapsed 	= 0.0f;
     printf("[REC] PLAY START (%u segments)\n", (unsigned)g_rec.seg_count);
 }
 
@@ -101,6 +110,8 @@ void Recorder_StopPlay(void)
 {
     if (g_rec.state == REC_STATE_PLAY) {
         g_rec.state = REC_STATE_IDLE;
+        g_rec.seg_waiting  = 0;
+        g_rec.seg_wait_elapsed = 0.0f;
         // safety: หยุดหุ่นยนต์
         Robot_ApplyTwist(0.0f, 0.0f);
         printf("[REC] PLAY STOP\n");
@@ -108,7 +119,6 @@ void Recorder_StopPlay(void)
 }
 
 // ---------- RECORD UPDATE (เรียกใน loop) ----------
-
 void Recorder_Update(int32_t current_ticks)
 {
     if (g_rec.state != REC_STATE_RECORD) {
@@ -143,10 +153,10 @@ void Recorder_Update(int32_t current_ticks)
     RecSegment_t *cur = &g_rec.segs[g_rec.seg_count - 1];
 
     if (cur->dir == dir) {
-        // ทิศเดิม → รวม tick ต่อไป
+        // ทิศเดิม -> รวม tick ต่อไป
         cur->ticks += step;
     } else {
-        // ทิศเปลี่ยน → สร้าง segment ใหม่
+        // ทิศเปลี่ยน -> สร้าง segment ใหม่
         if (g_rec.seg_count < REC_MAX_SEGMENTS) {
             g_rec.segs[g_rec.seg_count].dir   = dir;
             g_rec.segs[g_rec.seg_count].ticks = step;
@@ -158,20 +168,21 @@ void Recorder_Update(int32_t current_ticks)
     }
 }
 
+// ---------- COMMAND HANDLER ----------
 void Recorder_HandleCmd(int8_t cmd)
 {
     switch (cmd) {
 
     case 1: // toggle record start/stop
         if (Recorder_IsRecording()) {
-            // กำลังอัดอยู่ → หยุดอัด
+            // กำลังอัดอยู่ -> กดอีกรอบหยุดอัด
             Recorder_StopRecord();
         } else {
             // ถ้ากำลังเล่นอยู่ ให้หยุดก่อน
             if (Recorder_IsPlaying()) {
                 Recorder_StopPlay();
             }
-            g_rec.loop_enabled = 0;   // เริ่ม record ใหม่ → ไม่วน
+            g_rec.loop_enabled = 0;   // เริ่ม record ใหม่ -> ไม่วน
             Recorder_StartRecord();
         }
         break;
@@ -185,8 +196,8 @@ void Recorder_HandleCmd(int8_t cmd)
         }
         break;
 
-    case 0:   // stop play
-    case -1:  // อีกค่าเผื่ออนาคต
+    case 0:   // ใส่เผื่ออนาคต
+    case -1:  // stop play
         g_rec.loop_enabled = 0;
         Recorder_StopPlay();
         printf("[REC] cmd=%d -> STOP PLAY & CLEAR LOOP\n", (int)cmd);
@@ -198,6 +209,7 @@ void Recorder_HandleCmd(int8_t cmd)
     }
 }
 
+// ---------- BLOCK FLAG ----------
 bool Recorder_IsBlocked(void)
 {
     return (g_rec.blocked != 0);
@@ -208,14 +220,13 @@ void Recorder_SetBlocked(bool blocked)
     g_rec.blocked = blocked ? 1 : 0;
 }
 
-
 // ---------- PLAY STEP (เรียกใน loop) ----------
-
 int Recorder_PlayStep(int32_t current_ticks, float dt_s)
 {
-    (void)dt_s; // ตอนนี้ยังไม่ใช้ dt_s แต่เผื่อใช้ในอนาคต
+    if (dt_s <= 0.0f) dt_s = 0.001f;
+    if (dt_s > 0.5f)  dt_s = 0.5f;
 
-    // ถ้าโดน block → หยุดนิ่ง รอจนกว่าจะ clear
+    // ถ้าโดน block -> หยุดนิ่ง รอจนกว่าจะ clear (ทั้งระยะ + เวลา pause จะไม่เดิน)
     if (g_rec.blocked) {
         Robot_ApplyTwist(0.0f, 0.0f);   // หยุดล้อไว้
         return 0;                       // ยังไม่จบ play แค่ pause
@@ -225,24 +236,58 @@ int Recorder_PlayStep(int32_t current_ticks, float dt_s)
         return 0;
     }
 
+    // กรณี play_idx หลุดเกิน
     if (g_rec.play_idx >= g_rec.seg_count) {
-        // เล่นจบทุก segment แล้ว
+    	// เล่นจบทุก segment แล้ว
         Robot_ApplyTwist(0.0f, 0.0f);
 
-        if (g_rec.loop_enabled) {
-            // วนลูปใหม่
-            printf("[REC] LOOP RESTART\n");
+        if (g_rec.loop_enabled && g_rec.seg_count > 0) {
+            printf("[REC] LOOP RESTART (play_idx>=seg_count)\n");
             g_rec.play_idx         = 0;
             g_rec.play_initialized = 0;
-            return 0;  // ยังเล่น (แต่เริ่ม loop รอบใหม่)
+            g_rec.seg_waiting      = 0;
+            g_rec.seg_wait_elapsed = 0.0f;
+            return 0;
         } else {
-            // เล่นครั้งเดียว → จบ
+        	// เล่นครั้งเดียว -> จบ
             g_rec.state = REC_STATE_IDLE;
-            printf("[REC] PLAY DONE\n");
+            printf("[REC] PLAY DONE (play_idx>=seg_count)\n");
             return 1;
         }
     }
 
+//    if (g_rec.play_idx >= g_rec.seg_count) {
+//        // เล่นจบทุก segment แล้ว
+//        Robot_ApplyTwist(0.0f, 0.0f);
+//
+//        if (g_rec.loop_enabled) {
+//            // วนลูปใหม่
+//            printf("[REC] LOOP RESTART\n");
+//            g_rec.play_idx         = 0;
+//            g_rec.play_initialized = 0;
+//            return 0;  // ยังเล่น (แต่เริ่ม loop รอบใหม่)
+//        } else {
+//            // เล่นครั้งเดียว -> จบ
+//            g_rec.state = REC_STATE_IDLE;
+//            printf("[REC] PLAY DONE\n");
+//            return 1;
+//        }
+//    }
+
+    // ===== ถ้ากำลัง "พักระหว่าง segment" อยู่ =====
+    if (g_rec.seg_waiting) {
+        g_rec.seg_wait_elapsed += dt_s;
+        Robot_ApplyTwist(0.0f, 0.0f);
+
+        if (g_rec.seg_wait_elapsed >= REC_SEG_PAUSE_SEC) {
+            // พักครบแล้ว -> ไปต่อ segment ถัดไป
+            g_rec.seg_waiting      = 0;
+            g_rec.seg_wait_elapsed = 0.0f;
+            g_rec.play_initialized = 0;  // ให้ init ใหม่
+            printf("[REC] SEG PAUSE DONE, continue.\n");
+        }
+        return 0;
+    }
 
     RecSegment_t *seg = &g_rec.segs[g_rec.play_idx];
 
@@ -263,17 +308,53 @@ int Recorder_PlayStep(int32_t current_ticks, float dt_s)
     float v = (seg->dir > 0) ? REC_PLAY_V_MPS : -REC_PLAY_V_MPS;
     Robot_ApplyTwist(v, 0.0f);   // ให้ Robot_ApplyTwist แปลงเป็น tps ตามระบบเดิม
 
-     // *** DEBUG: ดูว่าขณะ PLAY เราสั่ง v อะไรอยู่ และ encoder วิ่งไปเท่าไหร่แล้ว ***
+     // DEBUG: ดูว่าขณะ PLAY สั่ง v อะไรอยู่ และ encoder วิ่งไปเท่าไหร่แล้ว
      printf("[REC] seg[%u]: traveled=%ld / %ld ticks, v=%.3f m/s\n",
             (unsigned)g_rec.play_idx,
             (long)traveled_abs,
             (long)seg->ticks,
             (double)v);
 
+//    if (traveled_abs >= seg->ticks) {
+//        // segment นี้ครบระยะแล้ว -> ข้ามไปอันถัดไป
+//        g_rec.play_idx++;
+//        g_rec.play_initialized = 0;  // ให้ re-init start_ticks ใน segment ถัดไป
+//    }
+
     if (traveled_abs >= seg->ticks) {
-        // segment นี้ครบระยะแล้ว → ข้ามไปอันถัดไป
-        g_rec.play_idx++;
-        g_rec.play_initialized = 0;  // ให้ re-init start_ticks ใน segment ถัดไป
+        // segment นี้ครบระยะแล้ว
+        uint8_t last_idx = g_rec.play_idx;
+
+        // ถ้ามี segment ถัดไป -> เริ่มพักก่อนจะไป segment ถัดไป
+        if (g_rec.play_idx + 1 < g_rec.seg_count) {
+            g_rec.play_idx++;
+            g_rec.play_initialized = 0;
+            g_rec.seg_waiting      = 1;
+            g_rec.seg_wait_elapsed = 0.0f;
+            Robot_ApplyTwist(0.0f, 0.0f);
+            printf("[REC] seg[%u] DONE, pause %.1fs before seg[%u]\n",
+                   (unsigned)last_idx,
+                   (double)REC_SEG_PAUSE_SEC,
+                   (unsigned)g_rec.play_idx);
+            return 0;
+        } else {
+            // เป็น segment สุดท้าย
+            Robot_ApplyTwist(0.0f, 0.0f);
+
+            if (g_rec.loop_enabled) {
+                // วนลูปใหม่
+                printf("[REC] PLAY LAST SEG DONE -> LOOP RESTART\n");
+                g_rec.play_idx         = 0;
+                g_rec.play_initialized = 0;
+                g_rec.seg_waiting      = 1;
+                g_rec.seg_wait_elapsed = 0.0f;
+                return 0;
+            } else {
+                g_rec.state = REC_STATE_IDLE;
+                printf("[REC] PLAY DONE (last seg)\n");
+                return 1;
+            }
+        }
     }
 
     return 0;  // ยังเล่นอยู่
