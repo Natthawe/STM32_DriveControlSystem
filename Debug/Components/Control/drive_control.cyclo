@@ -4,5 +4,5 @@
 ../Components/Control/drive_control.c:98:6:Drive_BrakeAll	2
 ../Components/Control/drive_control.c:109:6:Drive_SetSpinTargets	3
 ../Components/Control/drive_control.c:125:6:Drive_UpdateTargetsWithRamp	11
-../Components/Control/drive_control.c:172:6:Drive_UpdateAll	22
-../Components/Control/drive_control.c:302:6:Process_UART_TestDrive	13
+../Components/Control/drive_control.c:171:6:Drive_UpdateAll	22
+../Components/Control/drive_control.c:317:6:Process_UART_TestDrive	13

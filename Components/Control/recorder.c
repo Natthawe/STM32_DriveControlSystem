@@ -39,10 +39,10 @@ typedef struct {
 static Recorder_t g_rec;
 
 // ความเร็วตอน replay (m/s)
-#define REC_PLAY_V_MPS   0.5f
+#define REC_PLAY_V_MPS   0.6f
 
 // เวลาพักระหว่าง segment (s)
-#define REC_SEG_PAUSE_SEC    5.0f
+#define REC_SEG_PAUSE_SEC    3.0f
 
 void Recorder_Init(void)
 {

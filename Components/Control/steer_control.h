@@ -13,8 +13,8 @@
 #include <stdbool.h>
 #include "Control/pid_ctrl.h"
 
-#define STEER_MAX_DEG  		28.0f   // มุมเลี้ยวสูงสุด (+/- 40°) ที่ต้องเปลี่ยนมุมเลี้ยวเพราะล้อชนกัน
-#define STEER_SPIN_MAX_DEG  42.0f   // ใช้เฉพาะ spin-in-place
+#define STEER_MAX_DEG  		20.0f   // มุมเลี้ยวสูงสุด (+/- 40°) ที่ต้องเปลี่ยนมุมเลี้ยวเพราะล้อชนกัน
+#define STEER_SPIN_MAX_DEG  38.0f   // ใช้เฉพาะ spin-in-place
 
 typedef enum {
     RUN_MODE_STEER_CALIB = 0,   // โหมด CALIB : Calibrate ตั้ง zero_offset

@@ -12,13 +12,13 @@
 // ramp ของเป้าความเร็วในหน่วย tps
 #define DRIVE_TPS_RAMP_UP_PER_SEC    	1000.0f   	// target_tps (tick/sec) -> accel
 #define DRIVE_TPS_RAMP_DOWN_PER_SEC  	2000.0f   	// target_tps (tick/sec) -> decel
-#define DRIVE_DEADBAND_TPS        		400.0f     	// ใกล้ 0 แค่ไหนถือว่า "หยุด"
+#define DRIVE_DEADBAND_TPS        		100.0f     	// ใกล้ 0 แค่ไหนถือว่า "หยุด"
 
 #define DRIVE_HILL_KI_GAIN        		22.0f   	// คูณ Ki ตอนอยู่บนเนิน
-#define DRIVE_HILL_DUTY_MAX       		0.65f    	// duty สูงสุดที่ยอมให้ค้ำเนิน
+#define DRIVE_HILL_DUTY_MAX       		1.0f    	// duty สูงสุดที่ยอมให้ค้ำเนิน
 #define DRIVE_HILL_MIN_SPEED_TPS  		1.0f    	// ความเร็วที่ถือว่า "แทบจะหยุด" ใช้ตัด noise
-#define DRIVE_HILL_BRAKE_TPS      		500.0f   	// tps เหนือกว่านี้ถือว่า "ยังวิ่งเร็ว" → โซนเบรก
-#define DRIVE_HILL_HOLD_TPS       		330.0f   	// tps ต่ำกว่านี้ถือว่า "เกือบหยุด" → โซน hold
+#define DRIVE_HILL_BRAKE_TPS      		1000.0f   	// tps เหนือกว่านี้ถือว่า "ยังวิ่งเร็ว" -> โซนเบรก
+#define DRIVE_HILL_HOLD_TPS       		500.0f   	// tps ต่ำกว่านี้ถือว่า "เกือบหยุด" -> โซน hold
 
 #define DRIVE_HILL_MIN_DUTY       		0.35f    	// duty hill hold
 #define DRIVE_HILL_MIN_DUTY_THRESH 		0.1f  		// ถ้า duty จาก PID เล็กกว่านี้จะไม่ boost
@@ -168,7 +168,6 @@ void Drive_UpdateTargetsWithRamp(float dt_s,
     }
 }
 
-
 void Drive_UpdateAll(float dt_s)
 {
     if (dt_s <= 0.0f) dt_s = 1e-3f;
@@ -193,22 +192,19 @@ void Drive_UpdateAll(float dt_s)
         // ---------- จัดโซนการทำงาน ----------
         bool near_zero_target = (abs_tgt < DRIVE_DEADBAND_TPS);
 
-//        bool is_hill_hold = near_zero_target;
-//        bool is_braking   = false;
-
-        // โซน hold: target ใกล้ 0 และความเร็วต่ำมาก
+        // โซน hold: target ใกล้ 0 และความเร็วต่ำมาก (เข้าโซนนี้จะเริ่มอัด I-Term)
         bool is_hill_hold = (near_zero_target && abs_meas <= DRIVE_HILL_HOLD_TPS);
 
         // โซนเบรก: target ใกล้ 0 แต่ยังวิ่งเร็ว
         bool is_braking = (near_zero_target && abs_meas > DRIVE_HILL_HOLD_TPS);
 
-        // ถ้า target ใกล้ 0 และ meas_tps เบามาก → treat = 0 กัน noise
-        if (near_zero_target && abs_meas < 1.0f) {
+        // ตัด Noise: ถ้า target ใกล้ 0 และวัดได้เบามาก -> treat = 0
+        if (near_zero_target && abs_meas < DRIVE_HILL_MIN_SPEED_TPS) {
             meas_tps = 0.0f;
             abs_meas = 0.0f;
         }
 
-        // ถ้าเพิ่งปล่อยคันเร่งแล้วยังวิ่งเร็ว -> reset integrator
+        // ถ้าเพิ่งปล่อยคันเร่งแล้วยังวิ่งเร็วมาก (เกินเพดานเบรค) -> reset integrator ป้องกัน I-windup ผิดทาง
         if (is_braking && abs_meas > DRIVE_HILL_BRAKE_TPS) {
             d->pid.integrator = 0.0f;
             d->pid.prev_error = 0.0f;
@@ -220,7 +216,7 @@ void Drive_UpdateAll(float dt_s)
         float ki_backup = d->pid.ki;
 
         if (is_hill_hold) {
-            // เพิ่ม Ki เฉพาะตอนถือเนินที่ "เกือบหยุดแล้ว"
+            // เพิ่ม Ki เฉพาะตอนถือเนินที่ "เข้าโซน Hold แล้ว"
             d->pid.ki = ki_backup * DRIVE_HILL_KI_GAIN;
         }
 
@@ -232,6 +228,7 @@ void Drive_UpdateAll(float dt_s)
         MotorDir_t dir;
         float duty;
 
+        // แปลง PID Output เป็น Dir/Duty
         if (u >= 0.0f) {
             dir  = MOTOR_DIR_FWD;
             duty =  u;
@@ -242,37 +239,56 @@ void Drive_UpdateAll(float dt_s)
 
         // ---------- ใส่ base duty / limit duty ตามโซน ----------
         if (!near_zero_target) {
-            // ---------- RUN MODE (มีเป้าความเร็ว) ----------
+            // ============================================
+            // CASE 1: RUN MODE (วิ่งปกติ มีเป้าความเร็ว)
+            // ============================================
             duty = d->duty_base + duty;      // base + PID ตามเดิม
-        } else {
-            // ---------- STOP / BRAKE / HILL-HOLD MODE ----------
-            if (is_braking) {
-                // ยังวิ่งเร็ว (abs_meas > DRIVE_HILL_HOLD_TPS)
-                // -> ปล่อยให้ PID กำหนดแรงเบรกเอง ไม่บังคับ min duty
-                if (duty > DRIVE_HILL_DUTY_MAX) {
-                    duty = DRIVE_HILL_DUTY_MAX;   // กันไม่ให้เบรกแรงเกิน
-                }
-                // ไม่ต้องทำ MIN_DUTY ในโซน braking
-            }
-            else if (is_hill_hold) {
-                // ความเร็วต่ำมากแล้ว (abs_meas <= DRIVE_HILL_HOLD_TPS)
-                // -> เข้าโหมด hold จริง ๆ
+        }
+        else {
+            // ============================================
+            // CASE 2: STOP / BRAKE / HILL-HOLD MODE
+            // ============================================
 
-                // 1) จำกัด duty สูงสุด
-                if (duty > DRIVE_HILL_DUTY_MAX) {
-                    duty = DRIVE_HILL_DUTY_MAX;
-                }
+            // เช็คทิศทางจริง: ถ้าค่าติดลบเยอะกว่า Noise แปลว่ากำลังไหลถอยหลัง
+            bool is_moving_reverse = (meas_tps < -10.0f);
 
-                // 2) ถ้า PID สั่งมา แต่ยังต่ำกว่า min duty -> ดันขึ้นไปเลย
-                if (duty > DRIVE_HILL_MIN_DUTY_THRESH &&
-                    duty < DRIVE_HILL_MIN_DUTY)
-                {
-                    duty = DRIVE_HILL_MIN_DUTY;
-                }
-            }
+            // ตรวจสอบว่าอยู่ในสถานะที่ต้องออกแรงต้านหรือไม่
+			if (is_braking || is_hill_hold) {
+
+				// --- TUNE START: Friction Compensation ---
+				float friction_compensate = 0.0f;
+
+				// 1. ลดค่าลงให้เหมาะสม (TUNE POINTS)
+				float comp_reverse = 0.35f;
+				float comp_forward = 0.35f;
+
+				// ตรวจสอบทิศทางการไหลเพื่อเลือกแรงต้าน
+				if (is_moving_reverse) {
+					 friction_compensate = comp_reverse;
+				} else {
+					 friction_compensate = comp_forward;
+				}
+
+				// 2. เพิ่ม Deadzone: ถ้าหยุดนิ่งสนิทจริงๆ อย่าเพิ่งกระชาก
+				// ถ้าความเร็วต่ำกว่า 3 tps ถือว่านิ่งพอแล้ว ไม่ต้องอัด Min Duty
+				if (abs_meas < 1.0f) {
+					friction_compensate = 0.0f;
+				}
+
+				// Boost Duty: ถ้า PID สั่งมาน้อยกว่าแรงต้านขั้นต่ำ ให้ดันขึ้นไป
+				if (duty < friction_compensate) {
+					duty = friction_compensate;
+				}
+				// --- TUNE END ---
+
+				// Safety
+				if (duty > DRIVE_HILL_DUTY_MAX) {
+					duty = DRIVE_HILL_DUTY_MAX;
+				}
+			}
         }
 
-        // clamp รวม
+        // Final Clamp (ป้องกันค่าเกินช่วง PWM)
         if (duty > 1.0f) duty = 1.0f;
         if (duty < 0.0f) duty = 0.0f;
 
@@ -295,9 +311,6 @@ void Drive_UpdateAll(float dt_s)
         */
     }
 }
-
-
-
 
 void Process_UART_TestDrive(void)
 {

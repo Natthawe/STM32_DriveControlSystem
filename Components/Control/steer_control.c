@@ -37,27 +37,27 @@ const uint8_t steer_motor_ids[STEER_NUM] = { 2, 4, 6, 8 };
 
 SteerAxis_t steer_axes[] = {
 	//  name, enc_idx, zero,  motor, enc_dir target, duty_base, PID
-	{ "STEER_FR", 0, 489, 2, -1, 489, 0.67f,
+	{ "STEER_FR", 0, 489, 2, -1, 489, 0.7f,
 //	  { .kp=0.01f, .ki=0.02f, .kd=0.0f,
-	  { .kp=0.007f, .ki=0.001f, .kd=0.0f,
+	  { .kp=0.01f, .ki=0.002f, .kd=0.0f,
 		.integrator=0, .prev_error=0,
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC2 -> Motor2 (front-right steer)
 
-	{ "STEER_RR", 1, 641, 4, -1, 641,  0.66f,
+	{ "STEER_RR", 1, 641, 4, -1, 641,  0.7f,
 //	  { .kp=0.006f, .ki=0.011f, .kd=0.0f,
-	  { .kp=0.006f, .ki=0.0f, .kd=0.0f,
+	  { .kp=0.007f, .ki=0.002f, .kd=0.0f,
 		.integrator=0, .prev_error=0,
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC3 -> Motor4 (rear-right steer)
 
-	{ "STEER_RL", 2,  33, 6, -1,  33,  0.65f,
+	{ "STEER_RL", 2,  33, 6, -1,  33,  0.7f,
 //	  { .kp=0.006f, .ki=0.01f, .kd=0.0f,
-	  { .kp=0.006f, .ki=0.001f, .kd=0.0f,
+	  { .kp=0.006f, .ki=0.002f, .kd=0.0f,
 		.integrator=0, .prev_error=0,
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC4 -> Motor6 (rear-left steer)
 
 	{ "STEER_FL", 3,  5,  8,  -1,  5,  0.7f,
 //	  { .kp=0.0074f, .ki=0.02f, .kd=0.0f,
-	  { .kp=0.007f, .ki=0.0f, .kd=0.0f,
+	  { .kp=0.015f, .ki=0.02f, .kd=0.0f,
 		.integrator=0, .prev_error=0,
 		.out_min=-1.0f, .out_max=1.0f } },	// ENC5 -> Motor8 (front-left steer)
 };
@@ -184,7 +184,7 @@ bool Steer_IsAtSpinAngle45(void)
     const float READY_TICKS    = READY_DEG * ENC_TICKS_PER_DEG;
 
     // 2) มุม REL เทียบ zero ต้องมากพอ (อย่างน้อย ~43°)
-    const float MIN_SPIN_DEG   = 42.0f - READY_DEG;   //
+    const float MIN_SPIN_DEG   = 38.0f - READY_DEG;   //
 
     for (uint32_t i = 0; i < STEER_NUM; ++i) {
         SteerAxis_t *ax = &steer_axes[i];

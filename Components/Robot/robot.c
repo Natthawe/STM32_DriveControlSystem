@@ -18,7 +18,7 @@
 // === CONFIG สำหรับ SPIN-IN-PLACE ===
 #define ROBOT_SPIN_LIN_EPS        0.02f   // ถ้า |linear| < 2 cm/s ถือว่าเป็น 0 (**not use)
 #define ROBOT_SPIN_ANG_EPS        0.05f   // ถ้า |angular| < 0.05 rad/s (~3 deg/s) ถือว่าไม่หมุน (**not use)
-#define ROBOT_SPIN_STEER_DEG      42.0f   // มุมหักล้อสำหรับ spin (deg)
+#define ROBOT_SPIN_STEER_DEG      38.0f   // มุมหักล้อสำหรับ spin (deg)
 #define ROBOT_SPIN_TPS_PER_RAD    2000.0f // map |angular.z| -> tps (0.7 * 2000 = 1400 tps -> limit ด้วย ROBOT_SPIN_TPS_MAX) (**not use)
 #define ROBOT_SPIN_TPS_MAX        1200.0f // limit tps สำหรับ spin
 
@@ -244,7 +244,7 @@ void Robot_ApplyTwist(float linear_x, float angular_z)
         ang_norm = 0.0f;
     }
 
-    // map -> มุมเลี้ยว ±STEER_MAX_DEG (เช่น ±45°)
+    // map -> มุมเลี้ยว +-STEER_MAX_DEG (เช่น +-45°)
     float target_deg = ang_norm * STEER_MAX_DEG;
 
     // ถ้าวิ่งถอยหลัง ให้กลับมุมเลี้ยว (หน้า/หลังสลับกัน)
