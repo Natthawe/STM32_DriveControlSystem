@@ -5,13 +5,16 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Components/Comm/udp_ctrl.c 
+../Components/Comm/udp_ctrl.c \
+../Components/Comm/udp_enc_tx.c 
 
 OBJS += \
-./Components/Comm/udp_ctrl.o 
+./Components/Comm/udp_ctrl.o \
+./Components/Comm/udp_enc_tx.o 
 
 C_DEPS += \
-./Components/Comm/udp_ctrl.d 
+./Components/Comm/udp_ctrl.d \
+./Components/Comm/udp_enc_tx.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -21,7 +24,7 @@ Components/Comm/%.o Components/Comm/%.su Components/Comm/%.cyclo: ../Components/
 clean: clean-Components-2f-Comm
 
 clean-Components-2f-Comm:
-	-$(RM) ./Components/Comm/udp_ctrl.cyclo ./Components/Comm/udp_ctrl.d ./Components/Comm/udp_ctrl.o ./Components/Comm/udp_ctrl.su
+	-$(RM) ./Components/Comm/udp_ctrl.cyclo ./Components/Comm/udp_ctrl.d ./Components/Comm/udp_ctrl.o ./Components/Comm/udp_ctrl.su ./Components/Comm/udp_enc_tx.cyclo ./Components/Comm/udp_enc_tx.d ./Components/Comm/udp_enc_tx.o ./Components/Comm/udp_enc_tx.su
 
 .PHONY: clean-Components-2f-Comm
 

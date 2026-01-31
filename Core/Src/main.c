@@ -39,6 +39,7 @@
 #include "Comm/udp_ctrl.h"
 #include "Robot/robot.h"
 #include "Control/recorder.h"
+#include "Comm/udp_enc_tx.h"
 
 /* USER CODE END Includes */
 
@@ -135,50 +136,101 @@ uint32_t g_last_cmd_ms 			    = 0;        // timestamp คำสั่งล่�
 #define SPEED_RAMP_DOWN_NORM_PER_SEC  1.0f  // เบรค ค่าน้อยเบรคช้า
 #define CMD_TIMEOUT_MS                500U  // ms
 
+static void Enter_SafeMode(void);
+static void Enter_AlignZeroThenRun(void);
+
+// =============================
+// SYS MODE STATE MACHINE
+// =============================
+typedef enum {
+    SYS_SAFE = 0,
+    SYS_STEER_CALIB,
+    SYS_DRIVE_CALIB,
+    SYS_ALIGN_ZERO,
+    SYS_RUN
+} SysMode_t;
+
+static SysMode_t g_sys_mode = SYS_SAFE;
+
+// =============================
+// UDP Handlers
+// =============================
 static void Udp_TwistHandler(float linear_x, float angular_z)
 {
+	if (g_sys_mode != SYS_RUN) return;   // รับ cmd_vel เฉพาะตอน RUN
     SpinMode_t sm = Robot_GetSpinMode();
-
-    // ===== กรณีอยู่ในโหมด SPIN =====
     if (sm != SPIN_MODE_OFF) {
-        // ใช้ linear.x เป็นตัวบังคับความเร็วหมุน (spin speed)
         Robot_UpdateSpinSpeedFromLinear(linear_x);
         return;
     }
 
-    // ===== ถ้ากำลัง PLAY อยู่ -> ไม่ให้ /cmd_vel มายุ่ง =====
-    if (Recorder_IsPlaying()) {
-        return;
-    }
+    if (Recorder_IsPlaying()) return;
 
-    // ===== โหมดปกติ (รวมถึงตอน RECORD) -> ใช้ cmd_vel ตามปกติ =====
     Robot_ApplyTwist(linear_x, angular_z);
 }
 
-// handler สำหรับ spin_cmd (Int8)
 static void Udp_SpinHandler(int8_t cmd)
 {
-//	printf("Udp_SpinHandler: cmd=%d\r\n", (int)cmd);
     Robot_HandleSpinCommand(cmd);
 }
 
-// handler สำหรับ rec_cmd (Int8)
 static void Udp_RecHandler(int8_t cmd)
 {
-//	printf("Udp_RecHandler: cmd=%d\r\n", (int)cmd);
     Recorder_HandleCmd(cmd);
 }
 
+//static void Udp_BlockHandler(int8_t cmd)
+//{
+//    bool blocked = (cmd != 0);
+//    Recorder_SetBlocked(blocked);
+//    printf("[REC] BLOCK_STATE = %d\r\n", (int)blocked);
+//}
+
 static void Udp_BlockHandler(int8_t cmd)
 {
-    // 0 = clear, อื่น ๆ = blocked
+    static int last = -1;
+
     bool blocked = (cmd != 0);
     Recorder_SetBlocked(blocked);
-    printf("[REC] BLOCK_STATE = %d\r\n", (int)blocked);
+
+    // print เฉพาะตอนเปลี่ยนค่า
+    if ((int)blocked != last) {
+        printf("[REC] BLOCK_STATE = %d\r\n", (int)blocked);
+        last = (int)blocked;
+    }
+}
+
+static void Udp_ModeHandler(int8_t cmd)
+{
+    // (1) กัน cmd ซ้ำ ๆ ทั้ง 0/1
+    static int8_t s_last_mode = 127;
+    if (cmd == s_last_mode) return;
+    s_last_mode = cmd;
+
+    switch (cmd) {
+    case 0: // SAFE
+        Enter_SafeMode();
+        break;
+
+    case 1: // RUN (auto align first)
+        // (2) กันกรณีอยู่ ALIGN หรือ RUN แล้ว แต่มีคนยิง 1 ซ้ำ
+        if (g_sys_mode == SYS_ALIGN_ZERO || g_sys_mode == SYS_RUN) {
+            return;
+        }
+        Enter_AlignZeroThenRun();
+        break;
+
+    default:
+        // ignore
+        break;
+    }
 }
 
 
-#define CTRL_PERIOD_MS   10U   // control loop ทุก 10 ms (100 Hz)
+// =============================
+// Control loop
+// =============================
+#define CTRL_PERIOD_MS   10U
 
 void Drive_Control_And_Test(uint32_t now_ms)
 {
@@ -188,45 +240,34 @@ void Drive_Control_And_Test(uint32_t now_ms)
     static uint32_t spin_dbg_cnt = 0;
 
     uint32_t diff_ms = now_ms - last_ctrl_ms;
-    if (diff_ms < CTRL_PERIOD_MS) {
-        return;
-    }
+    if (diff_ms < CTRL_PERIOD_MS) return;
     last_ctrl_ms = now_ms;
 
     float dt_s = diff_ms / 1000.0f;
     if (dt_s <= 0.0f) dt_s = 0.001f;
     if (dt_s > 0.1f)  dt_s = 0.1f;
 
-    // อ่าน encoder ทุกล้อ
     DriveEnc_UpdateAll();
-
-    // อัปเดต recorder จาก ล้อหน้า-ขวา index 0
     Recorder_Update(drive_enc[0].multi_ticks);
 
     if (g_drive_mode == RUN_MODE_DRIVE_PID) {
 
-        // ถ้าอยู่ในโหมด PLAY ให้ set Robot_ApplyTwist เอง
         if (Recorder_IsPlaying()) {
             Recorder_PlayStep(drive_enc[0].multi_ticks, dt_s);
-            // ไม่ต้อง return; ปล่อยให้ logic AWS เดิมใช้ค่า cmd ที่ Robot_ApplyTwist ตั้งไว้
         }
 
-        // ===== เช็คโหมด SPIN จาก Int8 =====
         SpinMode_t spin_mode = Robot_GetSpinMode();
 
         if (spin_mode != SPIN_MODE_OFF) {
-            // ===== โหมด SPIN =====
 
             float spin_base_tps, spin_dir;
             Robot_GetSpinDriveParams(&spin_base_tps, &spin_dir);
 
-            // 1) ตั้งมุมล้อเลี้ยวให้เป็น pattern SPIN (±45°)
             if (g_steer_mode == RUN_MODE_STEER_PID) {
                 Steer_SetSpinAngleDeg(Robot_GetSpinCmdDeg());
                 Steer_UpdateAll(dt_s);
             }
 
-            // debug มุมล้อ
             spin_dbg_cnt++;
             if ((spin_dbg_cnt % 20) == 0) {
                 float spin_cmd_deg = Robot_GetSpinCmdDeg();
@@ -235,53 +276,40 @@ void Drive_Control_And_Test(uint32_t now_ms)
                 Steer_DebugPrintAngles();
             }
 
-            // เช็คว่าล้อเลี้ยวเข้าเป้าแล้วหรือยัง
             bool steer_ready = Steer_IsAtSpinTarget();
 
             switch (spin_mode) {
-
             case SPIN_MODE_ALIGN:
-                // หักล้อเข้าเป้า 45° ->  ล้อขับต้องหยุด
-                if (steer_ready) {
-                    Robot_SetSpinMode(SPIN_MODE_READY);
-                }
+                if (steer_ready) Robot_SetSpinMode(SPIN_MODE_READY);
                 Drive_ResetPIDAll();
                 Drive_BrakeAll();
                 break;
 
             case SPIN_MODE_READY:
-                // ล้อเข้าเป้าแล้วและยังไม่สั่งให้หมุนล้อขับ
                 Drive_ResetPIDAll();
                 Drive_BrakeAll();
                 break;
 
             case SPIN_MODE_DRIVE:
-                // ล้อเข้าเป้าแล้ว และสั่งให้หมุนล้อขับ
                 if (steer_ready && (spin_base_tps > 0.0f)) {
                     Drive_SetSpinTargets(spin_base_tps, spin_dir);
                     Drive_UpdateAll(dt_s);
                 } else {
-                    // ถ้ามุมหลุด ก็หยุดล้อขับและกลับไป ALIGN ใหม่
                     Drive_ResetPIDAll();
                     Drive_BrakeAll();
-                    if (!steer_ready) {
-                        Robot_SetSpinMode(SPIN_MODE_ALIGN);
-                    }
+                    if (!steer_ready) Robot_SetSpinMode(SPIN_MODE_ALIGN);
                 }
                 break;
 
             default:
-                // safety: mode แปลก ๆ -> หยุดไว้ก่อน
                 Drive_ResetPIDAll();
                 Drive_BrakeAll();
                 break;
             }
         }
         else {
-            // ===== โหมดวิ่ง/เลี้ยวปกติ (AWS) =====
-
+            // ===== AWS ปกติ =====
             if (g_steer_mode == RUN_MODE_STEER_PID) {
-                // มุมเลี้ยวจาก /cmd_vel (Steer_SetCmdTargetDeg) จะถูก ramp ที่นี่
                 Steer_UpdateTargetWithRamp(dt_s);
                 Steer_UpdateAll(dt_s);
             }
@@ -289,7 +317,6 @@ void Drive_Control_And_Test(uint32_t now_ms)
             Drive_UpdateTargetsWithRamp(dt_s, &g_cmd_target_tps, &g_current_target_tps);
             Drive_UpdateAll(dt_s);
 
-            // timeout ของ /cmd_vel ใช้เฉพาะตอน "ไม่ได้ PLAY"
             if (!Recorder_IsPlaying()) {
                 if (g_last_cmd_ms != 0U) {
                     uint32_t dt_cmd = now_ms - g_last_cmd_ms;
@@ -298,7 +325,10 @@ void Drive_Control_And_Test(uint32_t now_ms)
                         g_cmd_dir_sign       = 0.0f;
                         g_cmd_speed_norm     = 0.0f;
                         g_current_speed_norm = 0.0f;
-                        Steer_InitTargetsToZero();
+
+                        // อย่าเรียก Steer_InitTargetsToZero แบบบังคับถ้าคุณยังไม่ commit zero
+                        Steer_SetCmdTargetDeg(0.0f);
+
                         g_last_cmd_ms = 0U;
                     }
                 }
@@ -306,7 +336,7 @@ void Drive_Control_And_Test(uint32_t now_ms)
         }
     }
     else {
-        // ===== โหมด TEST: ขับทีละล้อหรือทุกล้อแบบ open-loop =====
+        // ===== DRIVE CALIB =====
         for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
             DriveAxis_t *d = &drive_axes[i];
 
@@ -321,42 +351,175 @@ void Drive_Control_And_Test(uint32_t now_ms)
                 Motor_set(d->motor_idx, MOTOR_DIR_BRAKE, 0.0f);
             }
         }
+        Drive_UpdateMeasOnly(dt_s);
+        Drive_Calib_LogTick(now_ms);
+    }
+}
+
+// หยุดมอเตอร์ทุกตัว
+static void Motors_StopAll(void)
+{
+    Motor_set(1, MOTOR_DIR_BRAKE, 0.0f);
+    Motor_set(3, MOTOR_DIR_BRAKE, 0.0f);
+    Motor_set(5, MOTOR_DIR_BRAKE, 0.0f);
+    Motor_set(7, MOTOR_DIR_BRAKE, 0.0f);
+
+    Motor_set(2, MOTOR_DIR_BRAKE, 0.0f);
+    Motor_set(4, MOTOR_DIR_BRAKE, 0.0f);
+    Motor_set(6, MOTOR_DIR_BRAKE, 0.0f);
+    Motor_set(8, MOTOR_DIR_BRAKE, 0.0f);
+}
+
+static void Enter_SafeMode(void)
+{
+    g_sys_mode  = SYS_SAFE;
+
+    // ไม่ให้ระบบคุมอะไร
+    g_drive_mode = RUN_MODE_DRIVE_PID;
+    g_steer_mode = RUN_MODE_STEER_PID;
+
+    // ล้างคำสั่งวิ่งค้าง
+    g_cmd_target_tps = 0.0f;
+    g_current_target_tps = 0.0f;
+
+    g_drive_log_enable = 0;
+    g_steer_log_enable = 0;
+
+    Drive_ResetPIDAll();
+    Motors_StopAll();
+
+    printf("\r\n[MODE] SAFE (motors brake)\r\n");
+    printf(" Hotkeys: C=SteerCalib, V=DriveCalib, G=Align+Run, P=Safe\r\n");
+}
+
+static void Enter_SteerCalibMode(void)
+{
+    g_sys_mode   = SYS_STEER_CALIB;
+
+    // drive ต้องไม่ขยับ
+    g_drive_mode = RUN_MODE_DRIVE_PID;
+    g_steer_mode = RUN_MODE_STEER_CALIB;
+
+    g_cmd_target_tps = 0.0f;
+    g_current_target_tps = 0.0f;
+
+    g_steer_log_enable = 1;
+    g_steer_log_period_ms = 100U;
+    g_steer_calib_sel = 0;
+
+    Drive_StopAll();
+    Motors_StopAll(); // กัน steer ขยับเอง
+
+    printf("\r\n[MODE] STEER CALIB\r\n");
+    printf(" 1-4 select, A/D jog, S stop, Z read, K commit zero, R align+run, P safe\r\n");
+}
+
+static void Enter_DriveCalibMode(void)
+{
+    g_sys_mode   = SYS_DRIVE_CALIB;
+    g_drive_mode = RUN_MODE_DRIVE_CALIB;
+    g_steer_mode = RUN_MODE_STEER_PID;
+
+    g_drive_log_enable = 1;
+    g_drive_log_period_ms = 100U;
+
+    g_test_drive_idx = 0;     // เลือก motor1 เป็นค่าเริ่มต้น
+    g_test_dir       = 1;     // FWD
+    g_test_duty      = 0.0f;  // เริ่มจาก 0
+
+    // กันทุกอย่างนิ่งก่อนเข้าคาลิเบรต
+    g_cmd_target_tps = 0.0f;
+    g_current_target_tps = 0.0f;
+    Motors_StopAll();
+    Drive_StopAll();
+
+    printf("\r\n[MODE] DRIVE CALIB\r\n");
+    printf(" 1-4/0 select, F/R dir, +/- duty, S stop, P safe\r\n");
+    printf(" (start duty=0) press +/- to run\r\n");
+}
+
+static void Enter_AlignZeroThenRun(void)
+{
+    g_sys_mode   = SYS_ALIGN_ZERO;
+
+    // ให้ steer PID ทำงานเพื่อ align
+    g_drive_mode = RUN_MODE_DRIVE_PID;
+    g_steer_mode = RUN_MODE_STEER_PID;
+
+    // ห้าม drive หมุนระหว่าง align
+    g_cmd_target_tps = 0.0f;
+    g_current_target_tps = 0.0f;
+    Drive_StopAll();
+
+    // ตั้งเป้า 0deg (ใช้ zero_offset “ปัจจุบัน” ที่คุณ commit แล้ว)
+    Steer_InitTargetsToZero();
+
+    printf("\r\n[MODE] ALIGN ZERO -> RUN (waiting steer reach zero...)\r\n");
+}
+
+// =============================
+// UART DISPATCHER (อ่านที่เดียว)
+// =============================
+
+// ถ้าคุณมีใน drive_control.c แล้ว ให้ประกาศใน drive_control.h ด้วย
+extern void Drive_Test_HandleChar(uint8_t ch);
+// ถ้าคุณมีใน steer_control.c แล้ว ให้ประกาศใน steer_control.h ด้วย
+extern void Steer_JogCalib_HandleChar(uint8_t ch);
+
+// ===== Robust UART3 non-blocking read (clear error flags) =====
+static int UART3_TryRead(uint8_t *out)
+{
+    USART_TypeDef *U = huart3.Instance;
+    uint32_t isr = U->ISR;
+
+    // ถ้าเกิด error flag (มักเกิดจาก noise/EMI ตอนมอเตอร์ทำงาน)
+    if (isr & (USART_ISR_ORE | USART_ISR_FE | USART_ISR_NE | USART_ISR_PE)) {
+
+        // เคลียร์ error flags แบบ HAL (portable ข้ามตระกูล)
+        __HAL_UART_CLEAR_OREFLAG(&huart3);
+        __HAL_UART_CLEAR_FEFLAG(&huart3);
+        __HAL_UART_CLEAR_NEFLAG(&huart3);
+        __HAL_UART_CLEAR_PEFLAG(&huart3);
+
+        // ถ้ามี byte ค้างอยู่ ให้ทิ้งไป 1 byte
+        if (isr & USART_ISR_RXNE) {
+            (void)U->RDR;
+        }
+        return 0;
     }
 
-    // ===== DEBUG tps ทุก ๆ ~100ms =====
-//    uint32_t dbg_diff = now_ms - last_debug_ms;
-//    if (dbg_diff >= 100) {
-//        last_debug_ms = now_ms;
-//
-//        float tps[DRIVE_NUM];
-//        float dbg_dt_s = dbg_diff / 1000.0f;
-//        if (dbg_dt_s <= 0.0f) dbg_dt_s = 0.001f;
-//
-//        for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
-//            int32_t now_ticks  = drive_enc[i].multi_ticks;
-//            int32_t diff_ticks = now_ticks - prev_ticks[i];
-//            prev_ticks[i]      = now_ticks;
-//            tps[i] = diff_ticks / dbg_dt_s;
-//        }
-//
-//        if (g_drive_mode == RUN_MODE_DRIVE_CALIB)
-//        {
-//            if (g_test_drive_idx < 0)
-//            {
-//                printf("[TEST] wheel=ALL duty=%.2f dir=%d | tps=[%.0f,%.0f,%.0f,%.0f]\r\n",
-//                       g_test_duty,
-//                       (int)g_test_dir,
-//                       tps[0], tps[1], tps[2], tps[3]);
-//            } else {
-//                printf("[TEST] wheel=%d duty=%.2f dir=%d | tps=[%.0f,%.0f,%.0f,%.0f]\r\n",
-//                       (int)(g_test_drive_idx + 1),
-//                       g_test_duty,
-//                       (int)g_test_dir,
-//                       tps[0], tps[1], tps[2], tps[3]);
-//            }
-//        }
-//    }
+    // มีข้อมูลเข้ามา
+    if (isr & USART_ISR_RXNE) {
+        *out = (uint8_t)U->RDR; // read clears RXNE
+        return 1;
+    }
+
+    return 0;
 }
+static void Uart_ModeDispatcher(void)
+{
+    uint8_t ch;
+//    if (HAL_UART_Receive(&huart3, &ch, 1, 0) != HAL_OK) return;
+    if (!UART3_TryRead(&ch)) return;
+
+    // --- Hotkeys ใช้ได้ทุกโหมด ---
+    if (ch == 'p' || ch == 'P') { Enter_SafeMode(); return; }
+    if (ch == 'c' || ch == 'C') { Enter_SteerCalibMode(); return; }
+    if (ch == 'v' || ch == 'V') { Enter_DriveCalibMode(); return; }
+    if (ch == 'g' || ch == 'G') { Enter_AlignZeroThenRun(); return; }
+
+    // --- ส่งต่อปุ่มไป handler ตามโหมด ---
+    if (g_sys_mode == SYS_STEER_CALIB) {
+        Steer_JogCalib_HandleChar(ch);
+        return;
+    }
+
+    if (g_sys_mode == SYS_DRIVE_CALIB) {
+        Drive_Test_HandleChar(ch);
+        return;
+    }
+}
+
 
 
 /* USER CODE END 0 */
@@ -412,7 +575,7 @@ int main(void)
   ENC_StartALL();
   DriveEnc_InitAll();
   Drive_InitAll();
-  Steer_InitTargetsToZero();
+//  Steer_InitTargetsToZero();
   Recorder_Init();
 
   if (UDP_Ctrl_Init(6000, Udp_TwistHandler) != 0) {
@@ -431,11 +594,22 @@ int main(void)
       printf("UDP_Block_Init(6003) failed\r\n");
   }
 
+  if (UDP_Mode_Init(6004, Udp_ModeHandler) != 0) {
+      printf("UDP_Mode_Init(6004) failed\r\n");
+  }
+
+  if (UDP_EncTx_InitFixed(10, 1, 100, 100, 6010) != 0) {
+      printf("UDP_EncTx_InitFixed failed\r\n");
+  }
+
   printf("\r\n=== Boot OK ===\r\n");
 
-  g_drive_mode = RUN_MODE_DRIVE_PID;
-  g_steer_mode   = RUN_MODE_STEER_PID;
-  Steer_PrintModeHelp(g_steer_mode);
+  // บูตมา SAFE ก่อนเสมอ
+  Enter_SafeMode();
+
+//  g_drive_mode = RUN_MODE_DRIVE_PID;
+//  g_steer_mode   = RUN_MODE_STEER_PID;
+//  Steer_PrintModeHelp(g_steer_mode);
 
 
   /* USER CODE END 2 */
@@ -444,26 +618,59 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  MX_LWIP_Process();
+	    MX_LWIP_Process();
 
-	  // --- ถ้ากำลังเล่น RECORDER อยู่ ให้ข้าม timeout ของ Robot ---
-	  if (!Recorder_IsPlaying())
-	  {
-	      Robot_CommandTimeoutCheck();
-	  }
+	    // Read UART
+	    Uart_ModeDispatcher();
 
-	  uint32_t now_ms = HAL_GetTick();
+	    uint32_t now_ms = HAL_GetTick();
 
-	  // ควบคุมล้อทั้งหมด (PID / CALIB ขึ้นกับ g_drive_mode และ g_steer_mode)
-	  Drive_Control_And_Test(now_ms);
+	    // ===== Update encoders =====
+	    DriveEnc_UpdateAll();
 
-	  if (g_steer_mode == RUN_MODE_STEER_CALIB)
-	  {
-	      Steer_JogCalib_HandleUart();
-	  }
+	    // ===== Update steer filtered (แกว่ง 1 tick จะลดลง) =====
+	    ENC_UpdateFilteredAll();
 
-//	  --------- Jog ---------
-//	  Steer_JogCalib_HandleUart();
+	    // ===== Send packet =====
+	    UDP_EncTx_Task(now_ms);
+
+	    // ===== SAFE =====
+	    if (g_sys_mode == SYS_SAFE) {
+	        Motors_StopAll();
+	        continue;
+	    }
+
+	    // ===== STEER CALIB =====
+	    if (g_sys_mode == SYS_STEER_CALIB) {
+	        Drive_StopAll();
+	        Steer_Calib_LogTick(HAL_GetTick());
+	        continue;
+	    }
+
+	    // ===== ALIGN: ให้ steer เข้า 0 ก่อนแล้วค่อย RUN =====
+	    if (g_sys_mode == SYS_ALIGN_ZERO) {
+
+	        // คุม steer อย่างเดียว (drive ห้ามหมุน)
+	        Steer_UpdateAll(0.01f);   // 10ms
+	        Drive_StopAll();
+
+	        if (Steer_IsNearTargetAll(4.0f)) {
+	            g_sys_mode = SYS_RUN;
+	            printf("\r\n[MODE] RUN\r\n");
+	        }
+	        continue;
+	    }
+
+	    // ===== RUN =====
+	    if (!Recorder_IsPlaying() &&
+	        (g_sys_mode == SYS_RUN) &&
+	        (g_drive_mode == RUN_MODE_DRIVE_PID) &&
+	        (g_steer_mode == RUN_MODE_STEER_PID))
+	    {
+	        Robot_CommandTimeoutCheck();
+	    }
+
+	    Drive_Control_And_Test(now_ms);
 
 
     /* USER CODE END WHILE */

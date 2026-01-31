@@ -1,0 +1,3 @@
+../Components/Comm/udp_enc_tx.c:38:17:crc16_ccitt	32	static
+../Components/Comm/udp_enc_tx.c:58:5:UDP_EncTx_InitFixed	32	static
+../Components/Comm/udp_enc_tx.c:83:6:UDP_EncTx_Task	96	static

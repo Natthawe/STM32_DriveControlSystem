@@ -6,6 +6,7 @@
  */
 
 #include "Comm/udp_ctrl.h"
+#include "Comm/udp_enc_tx.h"
 
 #include "lwip/udp.h"
 #include "lwip/ip_addr.h"
@@ -15,20 +16,23 @@
 #include <stdio.h>
 
 // ====== INTERNAL STATE ======
-static struct udp_pcb *g_udp_ctrl_pcb = NULL;   // สำหรับ cmd_vel
-static struct udp_pcb *g_udp_spin_pcb = NULL;   // สำหรับ spin_cmd
-static struct udp_pcb *g_udp_rec_pcb  = NULL;	// สำหรับ rec_cmd
-static struct udp_pcb *g_udp_block_pcb = NULL; 	// สำหรับ block_state
+static struct udp_pcb *g_udp_ctrl_pcb       = NULL;     // สำหรับ cmd_vel
+static struct udp_pcb *g_udp_spin_pcb       = NULL;     // สำหรับ spin_cmd
+static struct udp_pcb *g_udp_rec_pcb        = NULL;	    // สำหรับ rec_cmd
+static struct udp_pcb *g_udp_block_pcb      = NULL; 	// สำหรับ block_state
+static struct udp_pcb *g_udp_mode_pcb       = NULL; 	// สำหรับ mode_cmd
 
-static UdpTwistHandler_t g_twist_handler = NULL;
-static UdpSpinHandler_t  g_spin_handler  = NULL;
-static UdpRecHandler_t   g_rec_handler   = NULL;
-static UdpBlockHandler_t g_block_handler = NULL;
+static UdpTwistHandler_t g_twist_handler    = NULL;
+static UdpSpinHandler_t  g_spin_handler     = NULL;
+static UdpRecHandler_t   g_rec_handler      = NULL;
+static UdpBlockHandler_t g_block_handler    = NULL;
+static Udp_ModeHandler_t g_mode_handler     = NULL;
 
-static uint16_t g_udp_ctrl_port = 0;
-static uint16_t g_udp_spin_port = 0;
-static uint16_t g_udp_rec_port  = 0;
-static uint16_t g_udp_block_port = 0;
+static uint16_t g_udp_ctrl_port             = 0;
+static uint16_t g_udp_spin_port             = 0;
+static uint16_t g_udp_rec_port              = 0;
+static uint16_t g_udp_block_port            = 0;
+static uint16_t g_udp_mode_port             = 0;
 
 // ====== CALLBACK: สำหรับ cmd_vel (float lin, ang) ======
 static void udp_ctrl_recv(void *arg, struct udp_pcb *upcb,
@@ -74,7 +78,7 @@ static void udp_spin_recv(void *arg, struct udp_pcb *upcb,
 
     if (p->len >= 1 && g_spin_handler != NULL) {
         int8_t cmd = ((int8_t*)p->payload)[0];
-        printf("udp_spin: got cmd=%d\r\n", (int)cmd);
+//        printf("udp_spin: got cmd=%d\r\n", (int)cmd);
         g_spin_handler(cmd);
     }
 
@@ -96,7 +100,7 @@ static void udp_rec_recv(void *arg, struct udp_pcb *upcb,
 
     if (p->len >= 1 && g_rec_handler != NULL) {
         int8_t cmd = ((int8_t*)p->payload)[0];
-        printf("udp_rec: got cmd=%d\r\n", (int)cmd);   // debug
+//        printf("udp_rec: got cmd=%d\r\n", (int)cmd);
         g_rec_handler(cmd);
     }
 
@@ -116,14 +120,58 @@ static void udp_block_recv(void *arg, struct udp_pcb *upcb,
         return;
     }
 
+//    if (p->len >= 1 && g_block_handler != NULL) {
+//        int8_t cmd = ((int8_t*)p->payload)[0];   // 0/1
+//        printf("udp_block: got cmd=%d\r\n", (int)cmd);
+//        g_block_handler(cmd);
+//    }
+
     if (p->len >= 1 && g_block_handler != NULL) {
         int8_t cmd = ((int8_t*)p->payload)[0];   // 0/1
-        printf("udp_block: got cmd=%d\r\n", (int)cmd);
+
+        // log เฉพาะตอนเปลี่ยน
+        static int8_t s_last_block_cmd = 127;
+        if (cmd != s_last_block_cmd) {
+            printf("udp_block: cmd=%d\r\n", (int)cmd);
+            s_last_block_cmd = cmd;
+        }
+
         g_block_handler(cmd);
+    }
+
+
+    pbuf_free(p);
+}
+
+// ====== CALLBACK: สำหรับ mode_cmd (Int8: 0=SAFE, 1=RUN(auto align)) ======
+static void udp_mode_recv(void *arg, struct udp_pcb *upcb,
+                          struct pbuf *p, const ip_addr_t *addr, u16_t port)
+{
+    (void)arg;
+    (void)upcb;
+    (void)addr;
+    (void)port;
+
+    if (p == NULL) {
+        return;
+    }
+
+    if (p->len >= 1 && g_mode_handler != NULL) {
+        int8_t cmd = ((int8_t*)p->payload)[0];   // 0/1/...
+        // printf("udp_mode: got cmd=%d\r\n", (int)cmd);
+
+        static int8_t s_last_mode_cmd = 127;
+        if (cmd != s_last_mode_cmd) {
+            printf("udp_mode: cmd=%d\r\n", (int)cmd);
+            s_last_mode_cmd = cmd;
+        }
+
+        g_mode_handler(cmd);
     }
 
     pbuf_free(p);
 }
+
 
 // ====== INIT สำหรับ cmd_vel (/cmd_vel -> port 6000) ======
 int UDP_Ctrl_Init(uint16_t port, UdpTwistHandler_t handler)
@@ -270,5 +318,41 @@ int UDP_Block_Init(uint16_t port, UdpBlockHandler_t handler)
 int UDP_Block_IsReady(void)
 {
     return (g_udp_block_pcb != NULL) ? 1 : 0;
+}
+
+int UDP_Mode_Init(uint16_t port, Udp_ModeHandler_t handler)
+{
+    g_mode_handler  = handler;
+    g_udp_mode_port = port;
+
+    if (g_udp_mode_pcb != NULL) {
+        udp_remove(g_udp_mode_pcb);
+        g_udp_mode_pcb = NULL;
+    }
+
+    g_udp_mode_pcb = udp_new();
+    if (g_udp_mode_pcb == NULL) {
+        printf("udp_mode: udp_new() failed\r\n");
+        return -1;
+    }
+
+    err_t err = udp_bind(g_udp_mode_pcb, IP_ADDR_ANY, port);
+    if (err != ERR_OK) {
+        printf("udp_mode: udp_bind(port=%u) failed: %d\r\n",
+               (unsigned)port, (int)err);
+        udp_remove(g_udp_mode_pcb);
+        g_udp_mode_pcb = NULL;
+        return -2;
+    }
+
+    udp_recv(g_udp_mode_pcb, udp_mode_recv, NULL);
+
+    printf("udp_mode: listening on port %u (mode_cmd)\r\n", (unsigned)port);
+    return 0;
+}
+
+int UDP_Mode_IsReady(void)
+{
+    return (g_udp_mode_pcb != NULL) ? 1 : 0;
 }
 

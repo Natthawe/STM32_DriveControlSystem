@@ -39,14 +39,14 @@ DriveAxis_t drive_axes[DRIVE_NUM] = {
         .out_min=-1.0f, .out_max=1.0f },
       0.0f, 0, 1880.0f, 0.32f, 0.0f, 0.0f },
 
-    // motor5: Rear Left drive
+    // motor5: Rear Left drive  
     { "DRV_RL", 5, &drive_enc[2],
       { .kp=0.0006f, .ki=0.000015f, .kd=0.0f,
         .integrator=0, .prev_error=0,
         .out_min=-1.0f, .out_max=1.0f },
       0.0f, 0, 1960.0f, 0.34f, 0.0f, 0.0f },
 
-    // motor7: Front Left drive
+    // motor7: Front Left drive  
     { "DRV_FL", 7, &drive_enc[3],
       { .kp=0.00055f, .ki=0.000001f, .kd=0.0f,
         .integrator=0, .prev_error=0,
@@ -59,6 +59,99 @@ DriveMode_t g_drive_mode = RUN_MODE_DRIVE_PID;
 int8_t g_test_drive_idx = 0;		// (-1 = ทุกล้อ, 0..3 = DRV1..4)
 float  g_test_duty 		= 0.60f;	// duty ที่ใช้เทส (0.0 .. 1.0)
 int8_t g_test_dir 		= 1;		// dir 1 = forward, -1 = reverse
+
+/* ===== Encoder sign ต่อ wheel ===== */
+int8_t g_drive_enc_sign[DRIVE_NUM] = { +1, +1, +1, +1 };
+
+// ===== Calib debug logging (Drive) =====
+uint8_t  g_drive_log_enable    = 0;      // เปิด/ปิดการพิมพ์ log
+uint32_t g_drive_log_period_ms = 100U;   // ความถี่ log (ms)
+static uint32_t s_drive_log_last_ms = 0U;
+
+void Drive_UpdateMeasOnly(float dt_s)
+{
+    if (dt_s <= 0.0f) dt_s = 1e-3f;
+
+    for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
+        DriveAxis_t *d = &drive_axes[i];
+        DriveEnc_t  *w = d->wheel;
+
+        int32_t now_ticks  = w->multi_ticks;
+        int32_t diff_ticks = now_ticks - d->last_ticks;
+        d->last_ticks      = now_ticks;
+
+        float meas_tps = diff_ticks / dt_s;
+        meas_tps *= (float)g_drive_enc_sign[i];
+
+        d->meas_tps = meas_tps;
+    }
+}
+
+void Drive_Calib_LogTick(uint32_t now_ms)
+{
+    if (!g_drive_log_enable) return;
+
+    uint32_t dt = now_ms - s_drive_log_last_ms;
+    if (dt < g_drive_log_period_ms) return;
+    s_drive_log_last_ms = now_ms;
+
+    static int32_t last_log_ticks[DRIVE_NUM] = {0};
+
+    // sel: -1 = ALL, 0..3 = wheel
+    if (g_test_drive_idx < 0) {
+        printf("[DLOG] %lu ms sel=ALL dir=%c duty=%.2f\r\n",
+               (unsigned long)now_ms,
+               (g_test_dir > 0) ? 'F' : 'R',
+               (double)g_test_duty);
+
+        for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
+            DriveAxis_t *d = &drive_axes[i];
+            int32_t now_ticks = d->wheel->multi_ticks;
+            int32_t dticks = now_ticks - last_log_ticks[i];
+            last_log_ticks[i] = now_ticks;
+
+            printf("  w%lu %s m%u sign=%+d ticks=%ld d=%+ld tps=%+.1f\r\n",
+                   (unsigned long)(i+1),
+                   d->name,
+                   (unsigned)d->motor_idx,
+                   (int)g_drive_enc_sign[i],
+                   (long)now_ticks,
+                   (long)dticks,
+                   (double)d->meas_tps);
+        }
+    } else {
+        uint32_t i = (uint32_t)g_test_drive_idx;
+        if (i >= DRIVE_NUM) return;
+
+        DriveAxis_t *d = &drive_axes[i];
+        int32_t now_ticks = d->wheel->multi_ticks;
+        int32_t dticks = now_ticks - last_log_ticks[i];
+        last_log_ticks[i] = now_ticks;
+
+        printf("[DLOG] %lu ms sel=w%lu dir=%c duty=%.2f | %s m%u sign=%+d ticks=%ld d=%+ld tps=%+.1f\r\n",
+               (unsigned long)now_ms,
+               (unsigned long)(i+1),
+               (g_test_dir > 0) ? 'F' : 'R',
+               (double)g_test_duty,
+               d->name,
+               (unsigned)d->motor_idx,
+               (int)g_drive_enc_sign[i],
+               (long)now_ticks,
+               (long)dticks,
+               (double)d->meas_tps);
+    }
+}
+
+
+static void Drive_PrintEncSignConfig(void)
+{
+    printf("\r\n/* Paste config below into drive_control.c */\r\n");
+    printf("int8_t g_drive_enc_sign[DRIVE_NUM] = { %d, %d, %d, %d };\r\n\r\n",
+           (int)g_drive_enc_sign[0],
+           (int)g_drive_enc_sign[1],
+           (int)g_drive_enc_sign[2],
+           (int)g_drive_enc_sign[3]);
+}
 
 // เริ่มต้นค่า drive PID
 void Drive_InitAll(void)
@@ -172,9 +265,6 @@ void Drive_UpdateAll(float dt_s)
 {
     if (dt_s <= 0.0f) dt_s = 1e-3f;
 
-    static uint32_t debug_cnt = 0;
-    debug_cnt++;
-
     for (uint32_t i = 0; i < DRIVE_NUM; ++i) {
         DriveAxis_t *d = &drive_axes[i];
         DriveEnc_t  *w = d->wheel;
@@ -184,7 +274,11 @@ void Drive_UpdateAll(float dt_s)
         d->last_ticks      = now_ticks;
 
         float meas_tps = diff_ticks / dt_s;
-        d->meas_tps = meas_tps;   // เก็บไว้ debug
+
+        /* APPLY encoder sign ต่อ wheel (สำคัญหลังถอด encoder) */
+        meas_tps *= (float)g_drive_enc_sign[i];
+
+        d->meas_tps = meas_tps;
 
         float abs_tgt  = fabsf(d->target_tps);
         float abs_meas = fabsf(meas_tps);
@@ -192,11 +286,20 @@ void Drive_UpdateAll(float dt_s)
         // ---------- จัดโซนการทำงาน ----------
         bool near_zero_target = (abs_tgt < DRIVE_DEADBAND_TPS);
 
+        // ===== SAFETY STOP: ถ้าเป้าใกล้ 0 ให้เบรกจริง ๆ ไม่ต้องค้ำเนิน (ช่วยตอนคาลิเบรต) =====
+        if (near_zero_target) {
+            d->pid.integrator = 0.0f;
+            d->pid.prev_error = 0.0f;
+            d->last_duty = 0.0f;
+            Motor_set(d->motor_idx, MOTOR_DIR_BRAKE, 0.0f);
+            continue;
+        }
+
         // โซน hold: target ใกล้ 0 และความเร็วต่ำมาก (เข้าโซนนี้จะเริ่มอัด I-Term)
         bool is_hill_hold = (near_zero_target && abs_meas <= DRIVE_HILL_HOLD_TPS);
 
         // โซนเบรก: target ใกล้ 0 แต่ยังวิ่งเร็ว
-        bool is_braking = (near_zero_target && abs_meas > DRIVE_HILL_HOLD_TPS);
+        bool is_braking   = (near_zero_target && abs_meas >  DRIVE_HILL_HOLD_TPS);
 
         // ตัด Noise: ถ้า target ใกล้ 0 และวัดได้เบามาก -> treat = 0
         if (near_zero_target && abs_meas < DRIVE_HILL_MIN_SPEED_TPS) {
@@ -236,7 +339,7 @@ void Drive_UpdateAll(float dt_s)
             dir  = MOTOR_DIR_REV;
             duty = -u;
         }
-
+        
         // ---------- ใส่ base duty / limit duty ตามโซน ----------
         if (!near_zero_target) {
             // ============================================
@@ -294,35 +397,15 @@ void Drive_UpdateAll(float dt_s)
 
         d->last_duty = duty;
         Motor_set(d->motor_idx, dir, duty);
-
-        /* //debug
-        if (debug_cnt % 20 == 0) {
-            printf("[%s] tgt=%.0f, meas=%.0f, err=%.0f, duty=%.2f, "
-                   "near0=%d, brake=%d, hold=%d\r\n",
-                   d->name,
-                   d->target_tps,
-                   d->meas_tps,
-                   error,
-                   d->last_duty,
-                   (int)near_zero_target,
-                   (int)is_braking,
-                   (int)is_hill_hold);
-        }
-        */
     }
 }
 
-void Process_UART_TestDrive(void)
+/* ===== Handle one char (ใช้กับ main.c dispatcher) ===== */
+void Drive_Test_HandleChar(uint8_t ch)
 {
-    uint8_t ch;
-    if (HAL_UART_Receive(&huart3, &ch, 1, 0) != HAL_OK) {
-        return;
-    }
-
     switch (ch) {
 
-    // --- เลือกโหมด ---
-    case 'p':   // PID
+    case 'p':
     case 'P':
         g_drive_mode = RUN_MODE_DRIVE_PID;
         printf("DRIVE MODE: NORMAL\r\n");
@@ -332,38 +415,38 @@ void Process_UART_TestDrive(void)
         Drive_StopAll();
         break;
 
-    case 'c':   // CALIB
+    case 'c':
     case 'C':
         g_drive_mode = RUN_MODE_DRIVE_CALIB;
         printf("DRIVE MODE: TEST\r\n");
+        printf("Keys: 1-4 wheel, 0 all, f/r dir, +/- duty, s stop, e flip enc_sign, E print sign config\r\n");
         break;
 
-    // --- เลือกล้อ 1..4 ---
     case '1':
     case '2':
     case '3':
     case '4':
-        g_test_drive_idx = (int8_t)(ch - '1');   // '1'->0, '2'->1 ...
+        g_test_drive_idx = (int8_t)(ch - '1');
         printf("TEST DRIVE: wheel %d selected\r\n", (int)(g_test_drive_idx + 1));
         break;
-    case '0':   // 0 = ALL wheels
+
+    case '0':
         g_test_drive_idx = -1;
         printf("TEST DRIVE: ALL wheels selected\r\n");
         break;
-    // --- ทิศทาง ---
-    case 'f':   // forward
+
+    case 'f':
     case 'F':
         g_test_dir = 1;
         printf("TEST DRIVE dir = FORWARD\r\n");
         break;
 
-    case 'r':   // reverse
+    case 'r':
     case 'R':
         g_test_dir = -1;
         printf("TEST DRIVE dir = REVERSE\r\n");
         break;
 
-    // --- ปรับ duty ---
     case '+':
     case '=':
         g_test_duty += 0.05f;
@@ -378,14 +461,46 @@ void Process_UART_TestDrive(void)
         printf("TEST DRIVE duty = %.2f\r\n", g_test_duty);
         break;
 
-    // --- stop ทั้งหมด ---
     case 's':
     case 'S':
         g_test_duty = 0.0f;
         printf("TEST DRIVE STOP (duty=0)\r\n");
         break;
 
+    case 't':
+    case 'T':
+        g_drive_log_enable = (uint8_t)!g_drive_log_enable;
+        printf("DRIVE LOG: %s (period=%lu ms)\r\n",
+               g_drive_log_enable ? "ON" : "OFF",
+               (unsigned long)g_drive_log_period_ms);
+        break;
+
+    case 'e':
+    case 'E':
+        if (ch == 'e') {
+            if (g_test_drive_idx >= 0 && g_test_drive_idx < (int8_t)DRIVE_NUM) {
+                uint32_t idx = (uint32_t)g_test_drive_idx;
+                g_drive_enc_sign[idx] = (int8_t)(-g_drive_enc_sign[idx]);
+                printf("ENC SIGN wheel %d -> %d\r\n", (int)(idx+1), (int)g_drive_enc_sign[idx]);
+            } else {
+                printf("Select wheel 1-4 first (for 'e')\r\n");
+            }
+        } else {
+            Drive_PrintEncSignConfig();
+        }
+        break;
+
     default:
         break;
     }
+}
+
+/* เดิม: wrapper เผื่อใช้แบบเก่า */
+void Process_UART_TestDrive(void)
+{
+    uint8_t ch;
+    if (HAL_UART_Receive(&huart3, &ch, 1, 0) != HAL_OK) {
+        return;
+    }
+    Drive_Test_HandleChar(ch);
 }

@@ -37,6 +37,15 @@ int16_t ENC10_Diff(uint16_t from, uint16_t to);
 // Debug: อ่าน encoder ทั้ง 4 ตัวแล้ว printf ค่าออกมา
 void Read_ENC_INDEX(void);
 
+uint16_t ENC_ReadRaw_ByIndex_Median3(int idx);
+
+//update filter all encoders
+void ENC_UpdateFilteredAll(void);
+
+uint16_t ENC_GetFilteredTicks(int idx);
+
+float    ENC_GetFilteredDeg(int idx);
+
 // อ่าน encoder ตาม index แล้วคืนเป็นองศา (ถ้า error คืน -1.0f)
 float ENC_ReadDeg_ByIndex(int idx);
 

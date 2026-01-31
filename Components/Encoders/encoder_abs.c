@@ -22,10 +22,19 @@
 #define ENC5_CS_GPIO_Port   GPIOF
 #define ENC5_CS_Pin         ENC5_CS_Pin_Pin
 
-// ความละเอียด encoder 10-bit
+// resolution encoder 10-bit
 #define ENC_RESOLUTION_TICKS   1024.0f
 
-// ตาราง mapping encoder -> SPI / CS
+// ===== FILTER CONFIG =====
+#define ENC_TICKS_MOD        1024
+#define ENC_DEADBAND_TICKS   1       // ignore +-1 tick
+#define ENC_ALPHA_NUM        2       // alpha = 2/16 = 0.125
+#define ENC_ALPHA_DEN        16
+
+static uint16_t s_enc_filt_ticks[ABS_ENCODER_COUNT];
+static uint8_t  s_enc_filt_init = 0;
+
+// table mapping encoder -> SPI / CS
 static const SteerEnc_t enc_if[ABS_ENCODER_COUNT] = {
     { &hspi2, ENC2_CS_GPIO_Port, ENC2_CS_Pin, "ENC2/SPI2" },    //FR    PD3=SCK,     PC2=MISO,   PB4=CS
     { &hspi3, ENC3_CS_GPIO_Port, ENC3_CS_Pin, "ENC3/SPI3" },    //RR    PC10=SCK,    PC11=MISO,  PA4=CS
@@ -110,6 +119,81 @@ void Read_ENC_INDEX(void)
 
 	printf("ENC2: %4u (%.2f deg) | ENC3: %4u (%.2f deg) | ENC4: %4u (%.2f deg) | ENC5: %4u (%.2f deg)\r\n",
 			  t[0], d[0], t[1], d[1], t[2], d[2], t[3], d[3]);
+}
+
+static inline uint16_t median3_u16(uint16_t a, uint16_t b, uint16_t c)
+{
+    if (a > b) { uint16_t t=a; a=b; b=t; }
+    if (b > c) { uint16_t t=b; b=c; c=t; }
+    if (a > b) { uint16_t t=a; a=b; b=t; }
+    return b;
+}
+
+uint16_t ENC_ReadRaw_ByIndex_Median3(int idx)
+{
+    uint16_t a = ENC_ReadRaw_ByIndex(idx);
+    uint16_t b = ENC_ReadRaw_ByIndex(idx);
+    uint16_t c = ENC_ReadRaw_ByIndex(idx);
+
+    if (a == 0xFFFF) return (b != 0xFFFF) ? b : c;
+    if (b == 0xFFFF) return (a != 0xFFFF) ? a : c;
+    if (c == 0xFFFF) return (a != 0xFFFF) ? a : b;
+
+    return median3_u16(a, b, c);
+}
+
+static uint16_t wrap1024_i32(int32_t x)
+{
+    x %= ENC_TICKS_MOD;
+    if (x < 0) x += ENC_TICKS_MOD;
+    return (uint16_t)x;
+}
+
+void ENC_UpdateFilteredAll(void)
+{
+    if (!s_enc_filt_init) {
+        for (int i = 0; i < ABS_ENCODER_COUNT; ++i) {
+            uint16_t raw = ENC_ReadRaw_ByIndex_Median3(i);
+            if (raw != 0xFFFF) {
+                s_enc_filt_ticks[i] = raw;
+            } else {
+                s_enc_filt_ticks[i] = 0;
+            }
+        }
+        s_enc_filt_init = 1;
+        return;
+    }
+
+    for (int i = 0; i < ABS_ENCODER_COUNT; ++i) {
+        uint16_t raw = ENC_ReadRaw_ByIndex_Median3(i);
+        if (raw == 0xFFFF) continue;
+
+        int16_t diff = ENC10_Diff(s_enc_filt_ticks[i], raw); // signed shortest [-512..+511]
+
+        // deadband
+        if (diff <= ENC_DEADBAND_TICKS && diff >= -ENC_DEADBAND_TICKS) {
+            continue;
+        }
+
+        // EMA on circle: filt += alpha * diff
+        int32_t step = ((int32_t)diff * ENC_ALPHA_NUM) / ENC_ALPHA_DEN;
+
+        if (step == 0) step = (diff > 0) ? 1 : -1;
+
+        s_enc_filt_ticks[i] = wrap1024_i32((int32_t)s_enc_filt_ticks[i] + step);
+    }
+}
+
+uint16_t ENC_GetFilteredTicks(int idx)
+{
+    if (idx < 0 || idx >= ABS_ENCODER_COUNT) return 0xFFFF;
+    return s_enc_filt_ticks[idx];
+}
+
+float ENC_GetFilteredDeg(int idx)
+{
+    uint16_t t = ENC_GetFilteredTicks(idx);
+    return ENC_TicksToDeg(t);
 }
 
 // อ่านแบบทีละตัว (return เป็นองศา)

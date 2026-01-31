@@ -35,6 +35,18 @@ typedef struct {
 
 extern RunMode_t g_steer_mode;
 
+/* ===== Calib debug logging =====
+ * ใช้ดูทิศทาง encoder tick ตอน JOG (A/D) ในโหมด STEER CALIB
+ * - เลือก 1..4 = log เฉพาะแกนที่เลือก
+ * - เลือก 0     = log ทุกแกน
+ */
+extern uint8_t  g_steer_log_enable;     // 0/1
+extern uint32_t g_steer_log_period_ms;  // default 100ms
+extern int8_t   g_steer_calib_sel;      // -1=all, 0..3=axis
+
+void Steer_Calib_LogTick(uint32_t now_ms);
+
+
 /** เรียกตอน init: เซ็ตเป้าหมายทั้ง 4 ล้อให้เป็นศูนย์ (มุม 0 องศา) */
 void Steer_InitTargetsToZero(void);
 
@@ -46,9 +58,6 @@ void Steer_UpdateAll(float dt_s);
 
 void Steer_DebugPrintAngles(void);
 
-/** สำหรับโหมด CALIB: อ่าน UART แล้วทำ JOG / ปริ้นค่า / เปลี่ยนโหมด (เรียกใน while(1) เมื่ออยู่ CALIB) */
-void Steer_JogCalib_HandleUart(void);
-
 /** พิมพ์ help ของโหมดบังคับเลี้ยว */
 void Steer_PrintModeHelp(RunMode_t mode);
 
@@ -59,5 +68,17 @@ void Steer_SetCmdTargetDeg(float target_deg);
 void Steer_SetSpinAngleDeg(float angle_deg);
 
 bool Steer_IsAtSpinTarget(void);
+
+/* ===== NEW: UART char-dispatch (แก้ปัญหา UART ชนกัน) ===== */
+void Steer_JogCalib_HandleChar(uint8_t ch);
+
+/* เดิม: ยังเก็บไว้เผื่อใช้แบบเก่า */
+void Steer_JogCalib_HandleUart(void);
+
+/** CALIB: จับค่าปัจจุบันของ encoder ทุกล้อเป็น zero_offset และตั้ง target_ticks = zero */
+void Steer_CalibCommitZeroAll(void);
+
+/** เช็คว่าล้อทุกล้ออยู่ใกล้ target_ticks แล้วหรือยัง (ใช้ตอน align) */
+bool Steer_IsNearTargetAll(float threshold_deg);
 
 #endif /* CONTROL_STEER_CONTROL_H_ */

@@ -1,5 +1,6 @@
 Components/Comm/udp_ctrl.o: ../Components/Comm/udp_ctrl.c \
  /home/cg/Dev/STM32_DriveControlSystem/Components/Comm/udp_ctrl.h \
+ /home/cg/Dev/STM32_DriveControlSystem/Components/Comm/udp_enc_tx.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/udp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/opt.h \
  ../LWIP/Target/lwipopts.h ../Core/Inc/main.h \
@@ -64,6 +65,7 @@ Components/Comm/udp_ctrl.o: ../Components/Comm/udp_ctrl.c \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/ip.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/udp.h
 /home/cg/Dev/STM32_DriveControlSystem/Components/Comm/udp_ctrl.h:
+/home/cg/Dev/STM32_DriveControlSystem/Components/Comm/udp_enc_tx.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/udp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/opt.h:
 ../LWIP/Target/lwipopts.h:

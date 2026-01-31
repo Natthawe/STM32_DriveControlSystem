@@ -32,4 +32,8 @@ typedef void (*UdpBlockHandler_t)(int8_t cmd);
 int UDP_Block_Init(uint16_t port, UdpBlockHandler_t handler);
 int UDP_Block_IsReady(void);
 
+typedef void (*Udp_ModeHandler_t)(int8_t cmd);
+int UDP_Mode_Init(uint16_t port, Udp_ModeHandler_t handler);
+int UDP_Mode_IsReady(void);
+
 #endif /* COMM_UDP_CTRL_H_ */

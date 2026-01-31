@@ -1,4 +1,5 @@
 "./Components/Comm/udp_ctrl.o"
+"./Components/Comm/udp_enc_tx.o"
 "./Components/Control/drive_control.o"
 "./Components/Control/pid_ctrl.o"
 "./Components/Control/recorder.o"

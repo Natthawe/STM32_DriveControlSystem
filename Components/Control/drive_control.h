@@ -48,6 +48,22 @@ extern float g_current_speed_norm;
 extern float g_cmd_target_tps;
 extern float g_current_target_tps;
 
+/* ===== Calib debug logging =====
+ * ใช้ดู sign ของ encoder ขณะสั่ง F/R ในโหมด DRIVE CALIB
+ * - g_test_drive_idx = -1 (เลือก 0) -> log ทุกล้อ
+ * - g_test_drive_idx = 0..3 (เลือก 1..4) -> log เฉพาะล้อที่เลือก
+ */
+extern uint8_t  g_drive_log_enable;     // 0/1
+extern uint32_t g_drive_log_period_ms;  // default 100ms
+
+// อัปเดต meas_tps/last_ticks แบบ "วัดอย่างเดียว" (ไม่สั่งมอเตอร์) สำหรับโหมด CALIB
+void Drive_UpdateMeasOnly(float dt_s);
+
+// เรียกเป็นระยะเพื่อ printf log (throttle ตาม g_drive_log_period_ms)
+void Drive_Calib_LogTick(uint32_t now_ms);
+
+/* ===== encoder sign ต่อ wheel (หลังถอด encoder ต้องเช็คอันนี้) ===== */
+extern int8_t g_drive_enc_sign[DRIVE_NUM];
 
 /* เรียกตอน boot: reset ค่า PID / target */
 void Drive_InitAll(void);
@@ -67,10 +83,12 @@ void Drive_UpdateTargetsWithRamp(float dt_s, float *cmd_target_tps, float *curre
 /* อัปเดต PID ของ wheel encoders ทุกล้อ (เรียกทุก control loop) */
 void Drive_UpdateAll(float dt_s);
 
-/* handle UART command สำหรับโหมด test drive (กดปุ่มเลือกโหมด/ล้อ/duty) */
+/* เดิม: wrapper เผื่อใช้แบบเก่า | handle UART command สำหรับโหมด test drive (กดปุ่มเลือกโหมด/ล้อ/duty) */
 void Process_UART_TestDrive(void);
 
-/* ตั้ง target_tps สำหรับโหมด SPIN-IN-PLACE (FR/RR เดินหน้า, RL/FL ถอยหลัง) */
+/* ===== NEW: handle one char (ใช้กับ main.c dispatcher) ===== */
+void Drive_Test_HandleChar(uint8_t ch);
+
 void Drive_SetSpinTargets(float base_tps, float spin_dir);
 
 #endif /* CONTROL_DRIVE_CONTROL_H_ */
